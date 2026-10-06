@@ -1,0 +1,311 @@
+docs/requirement/20261006数据资产运营写路径.md
+  d2feb3b21e472516 5
+prototype/src/pages/admin/Roles.tsx
+  d2feb3b21e472516 17,19-21,23-24,26-27,29-31,33-34,36-39,41-42,48-51,64
+backend/internal/store/stats.go
+  d2feb3b21e472516 1
+frontend/src/pages/admin/Permissions.tsx
+  d2feb3b21e472516 20
+backend/internal/server/runtime_integration_test.go
+  d2feb3b21e472516 3
+openspec/changes/archive/bootstrap-backend-core-api/tasks.md
+  d2feb3b21e472516 22
+openspec/changes/archive/meaningful-routes/proposal.md
+  d2feb3b21e472516 5,12,18,22
+openspec/changes/archive/complete-sysadmin/tasks.md
+  d2feb3b21e472516 31-36
+backend/internal/server/sysadmin_api.go
+  d2feb3b21e472516 1,48
+frontend/src/pages/CapabilityOutlet.tsx
+  d2feb3b21e472516 13
+docs/requirement/20261006本体设计器写路径与沙盘.md
+  d2feb3b21e472516 5-6,10-11
+openspec/changes/archive/add-semantic-query/tasks.md
+  d2feb3b21e472516 17,20
+backend/internal/store/kb.go
+  d2feb3b21e472516 1
+backend/internal/store/dsops.go
+  d2feb3b21e472516 1
+openspec/changes/archive/add-review-workflow/proposal.md
+  d2feb3b21e472516 5,11,28
+openspec/changes/archive/add-review-workflow/tasks.md
+  d2feb3b21e472516 19,23
+prototype/src/pages/modeling/AiSession.tsx
+  d2feb3b21e472516 58,92
+frontend/src/pages/Datasources.tsx
+  d2feb3b21e472516 15
+frontend/src/pages/RuntimeRules.tsx
+  d2feb3b21e472516 11
+prototype/src/pages/admin/Permissions.tsx
+  d2feb3b21e472516 10,36
+openspec/changes/archive/add-sandbox/proposal.md
+  d2feb3b21e472516 1,5,11,15,24
+prototype/src/pages/admin/Monitor.tsx
+  d2feb3b21e472516 43
+prototype/src/pages/reasoning/RuleReasoning.tsx
+  d2feb3b21e472516 83,138,209,215
+openspec/changes/archive/add-ops-admin/design.md
+  d2feb3b21e472516 23
+prototype/src/pages/governance/ReleaseGate.tsx
+  d2feb3b21e472516 34,42,67
+frontend/src/pages/Synonyms.tsx
+  d2feb3b21e472516 8
+openspec/changes/archive/meaningful-routes/tasks.md
+  d2feb3b21e472516 11
+prototype/src/pages/assets/LogicalView.tsx
+  d2feb3b21e472516 132
+openspec/changes/archive/add-knowledge-base/proposal.md
+  d2feb3b21e472516 1,5,12,22,28
+prototype/src/pages/admin/Logs.tsx
+  d2feb3b21e472516 15-24,33,43
+openspec/changes/archive/add-capability-outlet/proposal.md
+  d2feb3b21e472516 1,5,11,17,21,26
+prototype/src/pages/knowledge/Workbench.tsx
+  d2feb3b21e472516 46,104
+backend/internal/store/sandbox.go
+  d2feb3b21e472516 1
+prototype/src/pages/modeling/EdgeEditor.tsx
+  d2feb3b21e472516 39,110
+prototype/src/pages/knowledge/Convergence.tsx
+  d2feb3b21e472516 50,59,93,98
+prototype/src/pages/assets/Market.tsx
+  d2feb3b21e472516 71
+frontend/src/pages/admin/Settings.tsx
+  d2feb3b21e472516 34
+openspec/changes/archive/complete-sysadmin/proposal.md
+  d2feb3b21e472516 1,5,9,11-16,21,30
+openspec/changes/archive/add-runtime-instances/proposal.md
+  d2feb3b21e472516 1,5,13,19,25,29
+backend/internal/store/capability.go
+  d2feb3b21e472516 1
+docs/requirement/20261006能力出口与调用统计.md
+  d2feb3b21e472516 5
+prototype/src/pages/runtime/Instance360.tsx
+  d2feb3b21e472516 54,133
+prototype/src/pages/assets/DatasourceList.tsx
+  d2feb3b21e472516 77-78,93
+docs/requirement/20261006清除模块编号.md
+  d2feb3b21e472516 1-30
+prototype/src/pages/governance/Retraction.tsx
+  d2feb3b21e472516 15
+prototype/src/pages/admin/Settings.tsx
+  d2feb3b21e472516 26,89-93
+prototype/src/pages/apps/CapabilityCatalog.tsx
+  d2feb3b21e472516 75
+openspec/changes/archive/add-semantic-query/proposal.md
+  d2feb3b21e472516 1,5,11,17,23,27
+prototype/src/mock/data.ts
+  d2feb3b21e472516 228-233
+prototype/src/pages/Home.tsx
+  d2feb3b21e472516 14-15,18-21,24-27,30-34,59-62,76,101,103,113,127-130,197
+backend/internal/server/api.go
+  d2feb3b21e472516 175,262,348,440,517,552,689,809
+backend/internal/store/menus.go
+  d2feb3b21e472516 1
+prototype/src/pages/runtime/Propagation.tsx
+  d2feb3b21e472516 50,63,87,121,151,162,190-191
+prototype/src/pages/knowledge/KnowledgeTree.tsx
+  d2feb3b21e472516 9,13,186,196,198,208,243,247,253,348
+prototype/src/pages/modeling/Learning.tsx
+  d2feb3b21e472516 43,101
+prototype/src/pages/modeling/Versions.tsx
+  d2feb3b21e472516 29,73-74
+prototype/src/pages/modeling/Owl.tsx
+  d2feb3b21e472516 32
+backend/internal/store/query.go
+  d2feb3b21e472516 1
+frontend/src/pages/LogicalViews.tsx
+  d2feb3b21e472516 11
+prototype/README.md
+  d2feb3b21e472516 19-29,57
+prototype/src/pages/governance/Evolution.tsx
+  d2feb3b21e472516 27,39
+prototype/src/pages/apps/Cli.tsx
+  d2feb3b21e472516 39,52
+backend/internal/server/sandbox_integration_test.go
+  d2feb3b21e472516 3
+openspec/changes/archive/bootstrap-backend-core-api/proposal.md
+  d2feb3b21e472516 28
+openspec/changes/archive/purge-module-codes/tasks.md
+  d2feb3b21e472516 1-26
+prototype/src/pages/knowledge/Crosslink.tsx
+  d2feb3b21e472516 45
+prototype/src/pages/sandbox/Sandbox.tsx
+  d2feb3b21e472516 18,93
+docker-compose.yml
+  d2feb3b21e472516 76
+prototype/src/pages/admin/Overview.tsx
+  d2feb3b21e472516 46-50,55-59,125,148
+prototype/src/pages/governance/Branches.tsx
+  d2feb3b21e472516 50
+prototype/src/pages/runtime/ActionGateway.tsx
+  d2feb3b21e472516 21,56,211,221,245,289,291,307-309,366,389
+openspec/changes/archive/add-capability-outlet/tasks.md
+  d2feb3b21e472516 17,20
+prototype/src/pages/assets/DocSource.tsx
+  d2feb3b21e472516 24,68,82
+openspec/changes/archive/add-runtime-instances/tasks.md
+  d2feb3b21e472516 19
+backend/internal/server/dsops_integration_test.go
+  d2feb3b21e472516 3
+backend/internal/store/seed.sql
+  d2feb3b21e472516 124,259,323
+frontend/src/pages/Sandbox.tsx
+  d2feb3b21e472516 23
+openspec/changes/archive/complete-sysadmin/specs/sysadmin/spec.md
+  d2feb3b21e472516 16,20,49
+openspec/specs/CHANGELOG.md
+  d2feb3b21e472516 11-22
+frontend/src/pages/OrgAdmin.tsx
+  d2feb3b21e472516 21
+docs/requirement/20261006语义查询与检索.md
+  d2feb3b21e472516 5,9
+openspec/changes/archive/complete-sysadmin/design.md
+  d2feb3b21e472516 41-42,56,59
+prototype/src/pages/knowledge/Synonym.tsx
+  d2feb3b21e472516 10,21,72-73
+backend/internal/store/datarules.go
+  d2feb3b21e472516 1
+frontend/src/pages/KnowledgeBase.tsx
+  d2feb3b21e472516 24
+backend/internal/store/admin.go
+  d2feb3b21e472516 1
+backend/internal/store/settings.go
+  d2feb3b21e472516 1
+docs/requirement/20261006评审流转写路径.md
+  d2feb3b21e472516 5,7,10
+prototype/src/pages/modeling/Designer.tsx
+  d2feb3b21e472516 163,189,233,385
+backend/internal/server/designer_integration_test.go
+  d2feb3b21e472516 3
+prototype/src/layouts/AppShell.tsx
+  d2feb3b21e472516 22-24,26-27,29-30,32-33,35-39,41-42,86-87
+frontend/src/pages/Pipelines.tsx
+  d2feb3b21e472516 11
+prototype/src/App.tsx
+  d2feb3b21e472516 5-9,11-12,14-17,19-21,23,25,27,29-30,32-35,44,46-70,72-104
+frontend/src/api.ts
+  d2feb3b21e472516 121
+openspec/changes/archive/add-ops-admin/proposal.md
+  d2feb3b21e472516 1,5,11,17,27
+backend/internal/server/admin_integration_test.go
+  d2feb3b21e472516 3
+backend/internal/store/monitor.go
+  d2feb3b21e472516 1
+backend/internal/store/audit.go
+  d2feb3b21e472516 1
+README.md
+  d2feb3b21e472516 62
+frontend/src/pages/admin/Overview.tsx
+  d2feb3b21e472516 10
+prototype/src/pages/assets/Workbench.tsx
+  d2feb3b21e472516 18
+docs/requirement/20261006知识库与同义词治理.md
+  d2feb3b21e472516 5,16
+frontend/src/pages/admin/Menus.tsx
+  d2feb3b21e472516 24
+prototype/src/pages/modeling/UtopiaIntegration.tsx
+  d2feb3b21e472516 8,20,24,35,38,51,110,129-131
+prototype/src/pages/reasoning/OwlReasoner.tsx
+  d2feb3b21e472516 12,55
+frontend/src/pages/admin/Monitor.tsx
+  d2feb3b21e472516 11
+frontend/src/pages/Instance360.tsx
+  d2feb3b21e472516 14
+prototype/src/pages/governance/Review.tsx
+  d2feb3b21e472516 29
+prototype/src/pages/admin/Users.tsx
+  d2feb3b21e472516 34
+prototype/src/pages/assets/ProfileReport.tsx
+  d2feb3b21e472516 55
+frontend/src/pages/Reviews.tsx
+  d2feb3b21e472516 14
+prototype/src/pages/reasoning/SemanticQuery.tsx
+  d2feb3b21e472516 38,64,71
+backend/internal/store/schema.sql
+  d2feb3b21e472516 165,200,239,249,260,272,293,309
+docs/requirement/20261006组织与权限管理.md
+  d2feb3b21e472516 5,7
+openspec/changes/archive/add-datasource-ops/proposal.md
+  d2feb3b21e472516 1,5,18,28
+prototype/src/pages/modeling/Wizard.tsx
+  d2feb3b21e472516 25-26,37,102
+prototype/src/pages/admin/Menus.tsx
+  d2feb3b21e472516 18,20-24,28,30-32,36,38-39,43,45-46,50-51,53,55-56,59,61-63,67,69-72,83,98
+frontend/src/pages/Registry.tsx
+  d2feb3b21e472516 25
+backend/internal/store/runtime.go
+  d2feb3b21e472516 1
+openspec/config.yaml
+  d2feb3b21e472516 48
+docs/requirement/20261006本体运行时实例与行动.md
+  d2feb3b21e472516 5,18
+openspec/changes/archive/add-ontology-designer/proposal.md
+  d2feb3b21e472516 1,23,28
+prototype/src/pages/modeling/Ontology.tsx
+  d2feb3b21e472516 13,50,79,123,268,318,336,385,440,448-449,458
+docs/utopia-integration.md
+  d2feb3b21e472516 4,31,34,38,44,53,55,62-63,68,72-74,81,89-90
+frontend/src/pages/SemanticQuery.tsx
+  d2feb3b21e472516 16
+openspec/changes/archive/add-ops-admin/tasks.md
+  d2feb3b21e472516 17,20
+frontend/src/pages/admin/Logs.tsx
+  d2feb3b21e472516 25
+openspec/changes/archive/add-knowledge-base/tasks.md
+  d2feb3b21e472516 18,22
+backend/internal/server/sysadmin_integration_test.go
+  d2feb3b21e472516 3
+docs/requirement/20261006系统管理全功能生产化.md
+  d2feb3b21e472516 1,8-9,14,35
+openspec/changes/archive/add-datasource-ops/tasks.md
+  d2feb3b21e472516 17
+backend/internal/server/kb_integration_test.go
+  d2feb3b21e472516 3
+backend/internal/server/query_integration_test.go
+  d2feb3b21e472516 3
+docs/requirement/20261006路由语义化.md
+  d2feb3b21e472516 1,3,5,7-9,32,36-37
+frontend/README.md
+  d2feb3b21e472516 7,9-21
+prototype/src/pages/runtime/Binding.tsx
+  d2feb3b21e472516 20,42
+backend/internal/store/designer.go
+  d2feb3b21e472516 1
+prototype/src/pages/modeling/Extraction.tsx
+  d2feb3b21e472516 19-21,184
+backend/internal/server/capability_integration_test.go
+  d2feb3b21e472516 3
+prototype/src/pages/assets/ParseProfile.tsx
+  d2feb3b21e472516 30,97-98
+openspec/changes/archive/meaningful-routes/design.md
+  d2feb3b21e472516 5,7-15,22,27
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.8.1",
+  "base_commit_sha": "f3712496465a106f54a4ee93dd826cdc3a976b40",
+  "prompts": {
+    "d2feb3b21e472516": {
+      "agent_id": {
+        "tool": "zcode",
+        "id": "sess_640dac34-2670-4904-ae98-aa4e9073f17c",
+        "model": "GLM-5.3"
+      },
+      "human_author": "dawsongzhao0523 <133857587+dawsongzhao0523@users.noreply.github.com>",
+      "messages": [],
+      "total_additions": 7233,
+      "total_deletions": 503,
+      "accepted_lines": 7726,
+      "overriden_lines": 0,
+      "messages_url": "https://gitai.gz.cvte.cn/cas/99e508e73599f9cccf412cd4807e6b3e1f92ca2baada7eb792a4ac8e4e571ac4",
+      "token_usage": {
+        "input_tokens": 51168228,
+        "output_tokens": 147419,
+        "cache_read_tokens": 50869952,
+        "cache_creation_tokens": 0,
+        "total_cost": 0.0
+      }
+    }
+  }
+}
