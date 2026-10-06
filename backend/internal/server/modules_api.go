@@ -311,3 +311,89 @@ func mountModules(api *http.ServeMux, st *store.Store) {
 		writeStoreResult(w, out, err)
 	})
 }
+
+func mountOrgPosts(api *http.ServeMux, st *store.Store) {
+	// ─── 组织架构 ───
+	api.HandleFunc("GET /api/v1/org-units", handle(func(r *http.Request) ([]store.OrgUnit, error) {
+		return st.ListOrgUnits(r.Context())
+	}))
+	api.HandleFunc("POST /api/v1/org-units", func(w http.ResponseWriter, r *http.Request) {
+		var u store.OrgUnit
+		if err := json.NewDecoder(r.Body).Decode(&u); err != nil || u.ID == "" || u.Name == "" {
+			writeErr(w, http.StatusBadRequest, "id / name 均为必填")
+			return
+		}
+		out, created, err := st.CreateOrgUnit(r.Context(), u)
+		if err != nil {
+			writeStoreResult(w, out, err)
+			return
+		}
+		if !created {
+			w.Header().Set("X-Idempotent-Replay", "true")
+		}
+		w.WriteHeader(http.StatusCreated)
+		writeJSON(w, out)
+	})
+	api.HandleFunc("PUT /api/v1/org-units/{id}", func(w http.ResponseWriter, r *http.Request) {
+		var u store.OrgUnit
+		if err := json.NewDecoder(r.Body).Decode(&u); err != nil || u.Name == "" {
+			writeErr(w, http.StatusBadRequest, "name 必填")
+			return
+		}
+		u.ID = r.PathValue("id")
+		out, err := st.UpdateOrgUnit(r.Context(), u)
+		writeStoreResult(w, out, err)
+	})
+	api.HandleFunc("DELETE /api/v1/org-units/{id}", func(w http.ResponseWriter, r *http.Request) {
+		if err := st.DeleteOrgUnit(r.Context(), r.PathValue("id")); err != nil {
+			writeStoreResult(w, nil, err)
+			return
+		}
+		w.WriteHeader(http.StatusNoContent)
+	})
+	api.HandleFunc("POST /api/v1/org-units/sync", handle(func(r *http.Request) (map[string]any, error) {
+		return st.SyncOrgUnits(r.Context())
+	}))
+
+	// ─── 岗位 ───
+	api.HandleFunc("GET /api/v1/posts", handle(func(r *http.Request) ([]store.Post, error) {
+		return st.ListPosts(r.Context())
+	}))
+	api.HandleFunc("POST /api/v1/posts", func(w http.ResponseWriter, r *http.Request) {
+		var p store.Post
+		if err := json.NewDecoder(r.Body).Decode(&p); err != nil || p.ID == "" || p.Name == "" {
+			writeErr(w, http.StatusBadRequest, "id / name 均为必填")
+			return
+		}
+		out, created, err := st.CreatePost(r.Context(), p)
+		if err != nil {
+			writeStoreResult(w, out, err)
+			return
+		}
+		if !created {
+			w.Header().Set("X-Idempotent-Replay", "true")
+		}
+		w.WriteHeader(http.StatusCreated)
+		writeJSON(w, out)
+	})
+	api.HandleFunc("PUT /api/v1/posts/{id}", func(w http.ResponseWriter, r *http.Request) {
+		var p store.Post
+		if err := json.NewDecoder(r.Body).Decode(&p); err != nil || p.Name == "" {
+			writeErr(w, http.StatusBadRequest, "name 必填")
+			return
+		}
+		p.ID = r.PathValue("id")
+		out, err := st.UpdatePost(r.Context(), p)
+		writeStoreResult(w, out, err)
+	})
+	api.HandleFunc("DELETE /api/v1/posts/{id}", func(w http.ResponseWriter, r *http.Request) {
+		if err := st.DeletePost(r.Context(), r.PathValue("id")); err != nil {
+			writeStoreResult(w, nil, err)
+			return
+		}
+		w.WriteHeader(http.StatusNoContent)
+	})
+	api.HandleFunc("POST /api/v1/posts/sync", handle(func(r *http.Request) (map[string]any, error) {
+		return st.SyncPosts(r.Context())
+	}))
+}

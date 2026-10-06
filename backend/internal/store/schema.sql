@@ -440,6 +440,21 @@ CREATE TABLE IF NOT EXISTS entity_alignments (
   at        text NOT NULL DEFAULT ''
 );
 
+-- 组织架构与岗位字典（add-org-posts）：users.dept 存组织全路径，users.post 存岗位名
+CREATE TABLE IF NOT EXISTS org_units (
+  id        text PRIMARY KEY,
+  parent_id text NOT NULL DEFAULT '',
+  name      text NOT NULL,
+  sort      integer NOT NULL DEFAULT 0
+);
+
+CREATE TABLE IF NOT EXISTS posts (
+  id     text PRIMARY KEY,
+  name   text NOT NULL,
+  descr  text NOT NULL DEFAULT '',
+  sort   integer NOT NULL DEFAULT 0
+);
+
 -- 幂等演进（已有库补列；新库因 CREATE 已含而 no-op）
 ALTER TABLE reviews ADD COLUMN IF NOT EXISTS decided_by text NOT NULL DEFAULT '';
 ALTER TABLE reviews ADD COLUMN IF NOT EXISTS decided_at text NOT NULL DEFAULT '';

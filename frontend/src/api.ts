@@ -210,6 +210,13 @@ export interface EntityAlignment {
 
 export interface Member { ontoId: string; userId: string; name: string; role: string }
 
+export interface OrgUnit {
+  id: string; parentId: string; name: string; sort: number;
+  path?: string; children?: OrgUnit[];
+}
+
+export interface Post { id: string; name: string; descr: string; sort: number }
+
 export interface GateCheck { key: string; name: string; passed: boolean; reason: string }
 
 export interface ConsistencyIssue { level: string; key: string; detail: string }
@@ -384,4 +391,14 @@ export const api = {
   consistency: (onto = 'scm') => get<ConsistencyIssue[]>(`/api/v1/reasoning/consistency?onto=${onto}`),
   runRule: (ruleId: string) => send<RunResult>('/api/v1/reasoning/run', 'POST', { ruleId }),
   tableProfile: (name: string) => get<TableProfile>(`/api/v1/table-profiles/${encodeURIComponent(name)}`),
+  orgUnits: () => get<OrgUnit[]>('/api/v1/org-units'),
+  createOrgUnit: (u: OrgUnit) => send<OrgUnit>('/api/v1/org-units', 'POST', u),
+  updateOrgUnit: (id: string, u: OrgUnit) => send<OrgUnit>(`/api/v1/org-units/${id}`, 'PUT', u),
+  deleteOrgUnit: (id: string) => send<null>(`/api/v1/org-units/${id}`, 'DELETE'),
+  syncOrgUnits: () => send<{ added: number; sources: number; tree: OrgUnit[] }>('/api/v1/org-units/sync', 'POST'),
+  posts: () => get<Post[]>('/api/v1/posts'),
+  createPost: (p: Post) => send<Post>('/api/v1/posts', 'POST', p),
+  updatePost: (id: string, p: Post) => send<Post>(`/api/v1/posts/${id}`, 'PUT', p),
+  deletePost: (id: string) => send<null>(`/api/v1/posts/${id}`, 'DELETE'),
+  syncPosts: () => send<{ added: number; sources: number; posts: Post[] }>('/api/v1/posts/sync', 'POST'),
 };

@@ -18,3 +18,11 @@ POST /api/v1/users SHALL 以 id 幂等；相同 account 不同 id SHALL 409。PU
 
 ### Requirement: 用户角色引用完整性
 用户更新引用不存在的角色名 SHALL 被拒绝且不落库；角色删除后其名不可再被用户引用。
+
+## ADDED Requirements（add-org-posts）
+
+### Requirement: 组织架构字典
+org_units SHALL 以树形返回（节点含全路径）；新增幂等且父组织必须存在（400）；重命名 SHALL 联动更新引用用户的部门全路径；删除 SHALL 拒绝有子组织或被用户引用的节点（409）；「同步组织架构」SHALL 从现有用户部门字符串确定性归集合并（幂等）。
+
+### Requirement: 岗位字典
+posts SHALL 支持 CRUD（同名不同 id 409）；重命名 SHALL 联动用户岗位；被用户引用的岗位不可删除（409）；「同步岗位」SHALL 从现有用户岗位确定性归集合并（幂等）。用户表单中组织 SHALL 为可搜索树选择（写入全路径）、岗位 SHALL 为可搜索下拉。

@@ -6,7 +6,8 @@ TRUNCATE users, ontologies, memberships, objects, edges, functions, views,
          kb_domains, kb_entries, synonyms, instances, instance_events, rule_firings, actions, roles,
          capability_calls, query_history, pipeline_tasks, pipeline_runs, sandbox_branches,
          menus, data_rules, dep_services, dep_checks, audit_logs, user_settings,
-         market_items, market_requests, bindings, binding_runs, onto_candidates, entity_alignments
+         market_items, market_requests, bindings, binding_runs, onto_candidates, entity_alignments,
+         org_units, posts
          RESTART IDENTITY;
 
 INSERT INTO users (id, account, name, dept, post, roles, status, last_login) VALUES
@@ -368,5 +369,23 @@ INSERT INTO entity_alignments (id, left_term, right_term, source_a, source_b, st
 ('ea-1', '启明 X7 加速卡',     '启明 X7 推理加速卡',   'SRM 供应商主数据', 'KB 资产台账', '包含召回', 48, '待裁决', '', ''),
 ('ea-2', '华南仓',             '华南中心仓',           'WMS 仓库主数据',   'MES 工厂档案', '别名召回', 52, '待裁决', '', ''),
 ('ea-3', '王氏精密',           '王氏精密制造（东莞）', 'SRM 供应商主数据', '工商信息 API', '包含召回', 44, '待裁决', '', '');
+
+-- ─── 组织架构与岗位字典（add-org-posts） ───
+
+INSERT INTO org_units (id, parent_id, name, sort) VALUES
+('org-pt',       '',           '平台部',     1),
+('org-pt-data',  'org-pt',     '数据AI部',   1),
+('org-pt-infra', 'org-pt',     '基础设施部', 2),
+('org-sc',       '',           '供应链',     2),
+('org-sc-pur',   'org-sc',     '采购部',     1),
+('org-sc-plan',  'org-sc',     '计划部',     2),
+('org-it',       '',           '信息技术中心', 3);
+
+INSERT INTO posts (id, name, descr, sort) VALUES
+('post-arch', '数据架构师',   '本体与数据资产架构', 1),
+('post-biz',  '业务专家',     '业务知识与评审',     2),
+('post-dev',  '数据开发工程师', '管道与视图开发',   3),
+('post-int',  '系统集成工程师', '外部系统集成',     4),
+('post-mgr',  '计划主管',     '供应链计划与行动',   5);
 
 COMMIT;

@@ -70,6 +70,7 @@ func MountAPI(mux *http.ServeMux, st *store.Store) {
 	mux.Handle("/api/", withAudit(st, api))
 	mountSysAdmin(api, st)
 	mountModules(api, st)
+	mountOrgPosts(api, st)
 	api.HandleFunc("GET /api/v1/ontologies", handle(func(r *http.Request) ([]store.Ontology, error) {
 		user := r.URL.Query().Get("user")
 		if user == "" {
