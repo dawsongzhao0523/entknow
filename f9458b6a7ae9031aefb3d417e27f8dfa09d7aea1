@@ -1,0 +1,53 @@
+backend/internal/store/sandbox.go
+  12d7ced32ffbd6e0 1-122
+frontend/src/App.tsx
+  12d7ced32ffbd6e0 17,37
+frontend/src/api.ts
+  12d7ced32ffbd6e0 46-51,159-164
+openspec/specs/CHANGELOG.md
+  12d7ced32ffbd6e0 19
+backend/internal/store/schema.sql
+  12d7ced32ffbd6e0 293-308
+backend/internal/store/seed.sql
+  12d7ced32ffbd6e0 7,130-134
+frontend/README.md
+  12d7ced32ffbd6e0 19-20
+openspec/specs/sandbox/spec.md
+  12d7ced32ffbd6e0 1-15
+backend/internal/server/sandbox_integration_test.go
+  12d7ced32ffbd6e0 1-76
+frontend/src/layouts/AppShell.tsx
+  12d7ced32ffbd6e0 28
+backend/internal/server/api.go
+  12d7ced32ffbd6e0 804-859
+frontend/src/pages/Sandbox.tsx
+  12d7ced32ffbd6e0 1-136
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.8.1",
+  "base_commit_sha": "f9458b6a7ae9031aefb3d417e27f8dfa09d7aea1",
+  "prompts": {
+    "12d7ced32ffbd6e0": {
+      "agent_id": {
+        "tool": "zcode",
+        "id": "sess_3db04727-f961-41e3-ab68-c4c6fbb73f6c",
+        "model": "GLM-5.3"
+      },
+      "human_author": "dawsongzhao0523 <133857587+dawsongzhao0523@users.noreply.github.com>",
+      "messages": [],
+      "total_additions": 530,
+      "total_deletions": 13,
+      "accepted_lines": 445,
+      "overriden_lines": 0,
+      "messages_url": "https://gitai.gz.cvte.cn/cas/4b7ece3c3a0778116a1efc211ed847e7c5342d237318c7e2cbc36c79ada41473",
+      "token_usage": {
+        "input_tokens": 83200755,
+        "output_tokens": 300168,
+        "cache_read_tokens": 82371456,
+        "cache_creation_tokens": 0,
+        "total_cost": 0.0
+      }
+    }
+  }
+}
