@@ -681,6 +681,126 @@ func MountAPI(mux *http.ServeMux, st *store.Store) {
 	mux.HandleFunc("GET /api/v1/pipeline-runs", handle(func(r *http.Request) ([]store.PipelineRun, error) {
 		return st.ListPipelineRuns(r.Context(), r.URL.Query().Get("task"))
 	}))
+
+	// ─── M3 本体设计器 ───
+
+	mux.HandleFunc("POST /api/v1/objects", func(w http.ResponseWriter, r *http.Request) {
+		var o store.Object
+		if err := json.NewDecoder(r.Body).Decode(&o); err != nil {
+			writeErr(w, http.StatusBadRequest, "请求体不是合法 JSON")
+			return
+		}
+		if o.ID == "" || o.Name == "" || o.En == "" || o.Owner == "" {
+			writeErr(w, http.StatusBadRequest, "id / name / en / owner 均为必填")
+			return
+		}
+		out, created, err := st.CreateObject(r.Context(), o)
+		if err != nil {
+			writeStoreResult(w, out, err)
+			return
+		}
+		if !created {
+			w.Header().Set("X-Idempotent-Replay", "true")
+		}
+		w.WriteHeader(http.StatusCreated)
+		writeJSON(w, out)
+	})
+	mux.HandleFunc("PUT /api/v1/objects/{id}", func(w http.ResponseWriter, r *http.Request) {
+		var o store.Object
+		if err := json.NewDecoder(r.Body).Decode(&o); err != nil {
+			writeErr(w, http.StatusBadRequest, "请求体不是合法 JSON")
+			return
+		}
+		o.ID = r.PathValue("id")
+		if o.Name == "" || o.En == "" {
+			writeErr(w, http.StatusBadRequest, "name / en 必填")
+			return
+		}
+		out, err := st.UpdateObject(r.Context(), o)
+		writeStoreResult(w, out, err)
+	})
+	mux.HandleFunc("POST /api/v1/edges", func(w http.ResponseWriter, r *http.Request) {
+		var e store.Edge
+		if err := json.NewDecoder(r.Body).Decode(&e); err != nil {
+			writeErr(w, http.StatusBadRequest, "请求体不是合法 JSON")
+			return
+		}
+		if e.ID == "" || e.Name == "" || e.From == "" || e.To == "" {
+			writeErr(w, http.StatusBadRequest, "id / name / from / to 均为必填")
+			return
+		}
+		out, created, err := st.CreateEdge(r.Context(), e)
+		if err != nil {
+			writeStoreResult(w, out, err)
+			return
+		}
+		if !created {
+			w.Header().Set("X-Idempotent-Replay", "true")
+		}
+		w.WriteHeader(http.StatusCreated)
+		writeJSON(w, out)
+	})
+	mux.HandleFunc("PUT /api/v1/edges/{id}", func(w http.ResponseWriter, r *http.Request) {
+		var e store.Edge
+		if err := json.NewDecoder(r.Body).Decode(&e); err != nil {
+			writeErr(w, http.StatusBadRequest, "请求体不是合法 JSON")
+			return
+		}
+		e.ID = r.PathValue("id")
+		if e.Name == "" || e.From == "" || e.To == "" {
+			writeErr(w, http.StatusBadRequest, "name / from / to 必填")
+			return
+		}
+		out, err := st.UpdateEdge(r.Context(), e)
+		writeStoreResult(w, out, err)
+	})
+	mux.HandleFunc("POST /api/v1/functions", func(w http.ResponseWriter, r *http.Request) {
+		var f store.Func
+		if err := json.NewDecoder(r.Body).Decode(&f); err != nil {
+			writeErr(w, http.StatusBadRequest, "请求体不是合法 JSON")
+			return
+		}
+		if f.ID == "" || f.Name == "" || f.Signature == "" {
+			writeErr(w, http.StatusBadRequest, "id / name / signature 均为必填")
+			return
+		}
+		out, created, err := st.CreateFunc(r.Context(), f)
+		if err != nil {
+			writeStoreResult(w, out, err)
+			return
+		}
+		if !created {
+			w.Header().Set("X-Idempotent-Replay", "true")
+		}
+		w.WriteHeader(http.StatusCreated)
+		writeJSON(w, out)
+	})
+	mux.HandleFunc("PUT /api/v1/functions/{id}", func(w http.ResponseWriter, r *http.Request) {
+		var f store.Func
+		if err := json.NewDecoder(r.Body).Decode(&f); err != nil {
+			writeErr(w, http.StatusBadRequest, "请求体不是合法 JSON")
+			return
+		}
+		f.ID = r.PathValue("id")
+		if f.Name == "" || f.Cat == "" {
+			writeErr(w, http.StatusBadRequest, "name / cat 必填")
+			return
+		}
+		out, err := st.UpdateFunc(r.Context(), f)
+		writeStoreResult(w, out, err)
+	})
+	mux.HandleFunc("POST /api/v1/elements/{type}/{id}/transition", func(w http.ResponseWriter, r *http.Request) {
+		var in struct {
+			Action string `json:"action"`
+			By     string `json:"by"`
+		}
+		if err := json.NewDecoder(r.Body).Decode(&in); err != nil || in.Action == "" {
+			writeErr(w, http.StatusBadRequest, "action 必填")
+			return
+		}
+		out, err := st.TransitionElement(r.Context(), r.PathValue("type"), r.PathValue("id"), in.Action, in.By)
+		writeStoreResult(w, out, err)
+	})
 }
 
 // writeStoreResult 写端点结果：成功写 JSON，失败走统一错误映射。

@@ -134,6 +134,7 @@ export const api = {
   ontologies: (user = 'zhangsan') => get<Ontology[]>(`/api/v1/ontologies?user=${user}`),
   objects: (scope?: 'canvas' | 'registry') =>
     get<OntoObject[]>(scope ? `/api/v1/objects?scope=${scope}` : '/api/v1/objects'),
+  createObject: (o: OntoObject) => send<OntoObject>('/api/v1/objects', 'POST', o),
   edges: () => get<Edge[]>('/api/v1/edges'),
   functions: () => get<Func[]>('/api/v1/functions'),
   datasources: () => get<Datasource[]>('/api/v1/datasources'),

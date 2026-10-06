@@ -290,7 +290,10 @@ func (s *Store) ListObjects(ctx context.Context, scope string) ([]Object, error)
 	return out, rows.Err()
 }
 
-func scanObject(rows pgx.Rows) (Object, error) {
+// rowScanner pgx.Row 与 pgx.Rows 共有的扫描能力。
+type rowScanner interface{ Scan(dest ...any) error }
+
+func scanObject(rows rowScanner) (Object, error) {
 	var o Object
 	var props string
 	if err := rows.Scan(&o.ID, &o.Name, &o.En, &o.Kind, &o.Version, &o.Status, &o.RefCount,
