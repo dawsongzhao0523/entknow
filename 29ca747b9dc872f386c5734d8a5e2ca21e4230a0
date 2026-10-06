@@ -1,0 +1,55 @@
+backend/internal/server/server_test.go
+  12d7ced32ffbd6e0 1-34
+frontend/README.md
+  12d7ced32ffbd6e0 1-5
+openspec/config.yaml
+  12d7ced32ffbd6e0 1-65
+backend/go.mod
+  12d7ced32ffbd6e0 1-3
+CLAUDE.md
+  12d7ced32ffbd6e0 1-3
+backend/Makefile
+  12d7ced32ffbd6e0 1-19
+backend/cmd/entknow/main.go
+  12d7ced32ffbd6e0 1-18
+backend/README.md
+  12d7ced32ffbd6e0 1-31
+openspec/README.md
+  12d7ced32ffbd6e0 1-60
+.gitignore
+  12d7ced32ffbd6e0 9,15-22,32-35
+AGENTS.md
+  12d7ced32ffbd6e0 1-119
+backend/internal/server/server.go
+  12d7ced32ffbd6e0 1-18
+openspec/specs/CHANGELOG.md
+  12d7ced32ffbd6e0 1-9
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.8.1",
+  "base_commit_sha": "29ca747b9dc872f386c5734d8a5e2ca21e4230a0",
+  "prompts": {
+    "12d7ced32ffbd6e0": {
+      "agent_id": {
+        "tool": "zcode",
+        "id": "sess_3db04727-f961-41e3-ab68-c4c6fbb73f6c",
+        "model": "GLM-5.3"
+      },
+      "human_author": "dawsongzhao0523 <133857587+dawsongzhao0523@users.noreply.github.com>",
+      "messages": [],
+      "total_additions": 0,
+      "total_deletions": 0,
+      "accepted_lines": 4010,
+      "overriden_lines": 0,
+      "messages_url": "https://gitai.gz.cvte.cn/cas/eed105eb959489f7201ab988ac81bb4c5245f4320c62db35b53fc666f5d54e29",
+      "token_usage": {
+        "input_tokens": 5048888,
+        "output_tokens": 53978,
+        "cache_read_tokens": 4932288,
+        "cache_creation_tokens": 0,
+        "total_cost": 0.0
+      }
+    }
+  }
+}
