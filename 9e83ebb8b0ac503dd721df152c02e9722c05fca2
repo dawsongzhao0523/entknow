@@ -1,0 +1,65 @@
+frontend/src/api.ts
+  12d7ced32ffbd6e0 42-54,88-97
+openspec/specs/CHANGELOG.md
+  12d7ced32ffbd6e0 12
+backend/internal/store/seed.sql
+  12d7ced32ffbd6e0 5-6,111-182
+backend/internal/store/schema.sql
+  12d7ced32ffbd6e0 165-199
+backend/internal/store/kb.go
+  12d7ced32ffbd6e0 1-278
+frontend/src/pages/KnowledgeBase.tsx
+  12d7ced32ffbd6e0 1-234
+frontend/src/App.tsx
+  12d7ced32ffbd6e0 8-9,18-19
+frontend/src/pages/Synonyms.tsx
+  12d7ced32ffbd6e0 1-60
+openspec/changes/archive/add-knowledge-base/design.md
+  12d7ced32ffbd6e0 1-26
+frontend/src/layouts/AppShell.tsx
+  12d7ced32ffbd6e0 16-18
+openspec/changes/archive/add-knowledge-base/proposal.md
+  12d7ced32ffbd6e0 1-32
+openspec/changes/archive/add-knowledge-base/tasks.md
+  12d7ced32ffbd6e0 1-26
+openspec/specs/knowledge-base/spec.md
+  12d7ced32ffbd6e0 1-25
+backend/internal/server/kb_integration_test.go
+  12d7ced32ffbd6e0 1-171
+frontend/README.md
+  12d7ced32ffbd6e0 12
+backend/internal/server/api.go
+  12d7ced32ffbd6e0 157-259
+openspec/changes/archive/add-knowledge-base/specs/knowledge-base/spec.md
+  12d7ced32ffbd6e0 1-25
+docs/requirement/20261006知识库与同义词治理.md
+  12d7ced32ffbd6e0 1-16
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.8.1",
+  "base_commit_sha": "9e83ebb8b0ac503dd721df152c02e9722c05fca2",
+  "prompts": {
+    "12d7ced32ffbd6e0": {
+      "agent_id": {
+        "tool": "zcode",
+        "id": "sess_3db04727-f961-41e3-ab68-c4c6fbb73f6c",
+        "model": "GLM-5.3"
+      },
+      "human_author": "dawsongzhao0523 <133857587+dawsongzhao0523@users.noreply.github.com>",
+      "messages": [],
+      "total_additions": 1262,
+      "total_deletions": 127,
+      "accepted_lines": 1138,
+      "overriden_lines": 0,
+      "messages_url": "https://gitai.gz.cvte.cn/cas/1b448e7f60bf05c60ea0beaac7f210445eaf5bf4346c308f41d2986284f6197a",
+      "token_usage": {
+        "input_tokens": 40931381,
+        "output_tokens": 179506,
+        "cache_read_tokens": 40252416,
+        "cache_creation_tokens": 0,
+        "total_cost": 0.0
+      }
+    }
+  }
+}
