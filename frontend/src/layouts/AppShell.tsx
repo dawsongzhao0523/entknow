@@ -1,12 +1,12 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Avatar, Button, Layout, Menu, Select, Space, Tag } from 'antd';
+import { App, Avatar, Badge, Button, Layout, Menu, Popover, Select, Space, Tag } from 'antd';
 import {
   HomeOutlined, DatabaseOutlined, BookOutlined, DeploymentUnitOutlined, ApiOutlined,
   BulbOutlined, ExperimentOutlined, RocketOutlined, SafetyCertificateOutlined, SettingOutlined,
-  MenuFoldOutlined, MenuUnfoldOutlined,
+  MenuFoldOutlined, MenuUnfoldOutlined, BellOutlined,
 } from '@ant-design/icons';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { api, type MenuNode, type Ontology } from '../api';
+import { api, type MenuNode, type Notification, type Ontology } from '../api';
 import { useSession } from '../session';
 
 const { Sider, Header, Content } = Layout;
@@ -51,11 +51,13 @@ const FALLBACK: { key: string; label: string; icon?: React.ReactNode; children?:
 ];
 
 export default function AppShell() {
+  const { message } = App.useApp();
   const nav = useNavigate();
   const loc = useLocation();
   const selected = loc.pathname.replace(/^\//, '') || 'home';
   const openKey = selected.includes('/') ? selected.split('/')[0] : '';
   const { user, setUser, users, onto, chooseOnto, permVersion } = useSession();
+  const [notifs, setNotifs] = useState<Notification[]>([]);
 
   const [menus, setMenus] = useState<MenuNode[] | null>(null);
   const [ontos, setOntos] = useState<Ontology[]>([]);
@@ -66,6 +68,11 @@ export default function AppShell() {
   useEffect(() => {
     api.menus(user).then(setMenus).catch(() => setMenus(null));
   }, [user, permVersion]);
+
+  // 通知（按当前用户定向+广播，未读派生）
+  useEffect(() => {
+    api.notifications(user).then(setNotifs).catch(() => setNotifs([]));
+  }, [user]);
 
   useEffect(() => {
     api.ontologies(user).then(setOntos).catch(e => setErr(String(e.message ?? e)));
@@ -130,6 +137,46 @@ export default function AppShell() {
           <Tag color="orange">环境: LIVE</Tag>
           <div style={{ flex: 1 }} />
           {err && <Tag color="red">API 异常: {err}</Tag>}
+          <Popover trigger="click" placement="bottomRight" onOpenChange={open => {
+            if (open) api.notifications(user).then(setNotifs).catch(() => {});
+          }} content={
+            <div style={{ width: 340 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
+                <b>消息通知</b>
+                <Button size="small" type="link" onClick={async () => {
+                  try {
+                    const res = await api.markAllNotificationsRead(user);
+                    message.success(`已读 ${res.marked} 条`);
+                    setNotifs(await api.notifications(user));
+                  } catch (e) { message.error(String((e as Error).message)); }
+                }}>全部已读</Button>
+              </div>
+              {(notifs.length === 0) && <span style={{ color: '#6b7688', fontSize: 12 }}>暂无通知</span>}
+              {notifs.slice(0, 8).map(n => (
+                <div key={n.id} style={{
+                  display: 'flex', gap: 8, padding: '8px 0', borderBottom: '1px dashed #f1f3f5',
+                  opacity: n.unread ? 1 : 0.55, cursor: n.to ? 'pointer' : 'default',
+                }} onClick={async () => {
+                  if (!n.to) return;
+                  if (n.unread) {
+                    await api.markNotificationRead(n.id, user).catch(() => {});
+                    api.notifications(user).then(setNotifs).catch(() => {});
+                  }
+                  nav(n.to);
+                }}>
+                  <Badge status={n.cat === '待办处理' ? 'error' : n.cat === '治理任务' ? 'warning' : 'processing'} />
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontSize: 13, fontWeight: n.unread ? 600 : 400 }}>{n.title}</div>
+                    <div style={{ fontSize: 12, color: '#6b7688' }}>{n.cat} · {n.time}{n.toUser && n.toUser === user ? ' · 定向' : ''}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          }>
+            <Badge count={notifs.filter(n => n.unread).length} size="small" offset={[-2, 2]}>
+              <Button type="text" icon={<BellOutlined style={{ color: '#5a5a72', fontSize: 16 }} />} />
+            </Badge>
+          </Popover>
           <Space size={8} style={{ marginRight: 12 }}>
             <Avatar size={28} style={{ background: '#059669' }}>{curUser?.name?.[0] ?? '张'}</Avatar>
             <Select

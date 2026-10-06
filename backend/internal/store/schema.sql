@@ -440,6 +440,14 @@ CREATE TABLE IF NOT EXISTS entity_alignments (
   at        text NOT NULL DEFAULT ''
 );
 
+-- 通知按人投递与已读状态（home-roles-notify）
+CREATE TABLE IF NOT EXISTS notification_reads (
+  user_id         text NOT NULL,
+  notification_id text NOT NULL,
+  read_at         text NOT NULL DEFAULT '',
+  PRIMARY KEY (user_id, notification_id)
+);
+
 -- 系统日志（split-logs）：运行时事件（可观测性），与用户写操作审计（audit_logs）分离
 CREATE TABLE IF NOT EXISTS system_logs (
   id        serial PRIMARY KEY,
@@ -470,3 +478,4 @@ ALTER TABLE reviews ADD COLUMN IF NOT EXISTS decided_by text NOT NULL DEFAULT ''
 ALTER TABLE reviews ADD COLUMN IF NOT EXISTS decided_at text NOT NULL DEFAULT '';
 ALTER TABLE reviews ADD COLUMN IF NOT EXISTS comment    text NOT NULL DEFAULT '';
 ALTER TABLE capabilities ADD COLUMN IF NOT EXISTS base_calls integer NOT NULL DEFAULT 0;
+ALTER TABLE notifications ADD COLUMN IF NOT EXISTS to_user text NOT NULL DEFAULT ''; -- 空 = 全员广播

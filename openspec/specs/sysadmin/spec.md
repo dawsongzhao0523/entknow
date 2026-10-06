@@ -69,3 +69,8 @@ system_logs SHALL 记录运行时事件（时间/级别/组件/内容/TraceID）
 
 ### Requirement: 日志权限分离
 审计日志（含导出）SHALL 仅对角色权限含 governance 或 admin 的用户开放（403 拒绝其余）；系统日志（含导出）SHALL 仅对角色权限含 admin 的用户开放；前端 SHALL 隐藏无权限的日志 tab。审计日志 SHALL 仅含用户写操作留痕，不混入运行时事件。
+
+## ADDED Requirements（home-roles-notify）
+
+### Requirement: 通知按人投递与已读
+notifications SHALL 支持 to_user 定向（空 = 广播）；用户 SHALL 仅见定向本人与广播通知；未读 SHALL 由 notification_reads 按用户派生；PUT /{id}/read（幂等，不可见 404）与 PUT /read-all SHALL 更新本人已读状态且互不影响他人。评审裁决 SHALL 定向通知提出人（按姓名映射账号，失败广播）。首页 SHALL 按当前用户角色渲染视角（本体管理员→架构治理 / 评审员→评审知识 / 其余→运营风险），数据全部真实取数；顶栏 SHALL 提供未读徽标铃铛（点击跳转并标已读、全部已读）。

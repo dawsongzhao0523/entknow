@@ -7,7 +7,7 @@ TRUNCATE users, ontologies, memberships, objects, edges, functions, views,
          capability_calls, query_history, pipeline_tasks, pipeline_runs, sandbox_branches,
          menus, data_rules, dep_services, dep_checks, audit_logs, user_settings,
          market_items, market_requests, bindings, binding_runs, onto_candidates, entity_alignments,
-         org_units, posts, system_logs
+         org_units, posts, system_logs, notification_reads
          RESTART IDENTITY;
 
 INSERT INTO users (id, account, name, dept, post, roles, status, last_login) VALUES
@@ -101,13 +101,13 @@ INSERT INTO reviews (id, title, type, from_user, status, sla, decided_by, decide
 ('RV-2026-1001-007', '概念锚「客户」口径冲突裁决',                 '冲突裁决',   '系统', '待评审', '剩 4 小时', '', '', ''),
 ('RV-2026-0930-002', '规则补丁：R7 阈值 0.7→0.8',                 '自进化补丁', '系统', '已通过', '-', '王五', '2026-10-01 18:20', '阈值调整口径已与业务确认');
 
-INSERT INTO notifications (id, cat, title, time, to_path, unread) VALUES
-('n1', '待办处理', '本体发布评审待处理：供应链本体 v0.4（+交付风险分函数）', '10 分钟前', '/governance/reviews', true),
-('n2', '待办处理', '术语归并「供应商 ≈ 供货商」待你裁决',                 '1 小时前',  '/knowledge/synonyms', true),
-('n3', '治理任务', 'K3 知识临期：3 条知识将在 7 天内到期',               '今天 08:30','/knowledge/entries', true),
-('n4', '治理任务', '映射断链：lv_order_delivery 上游 schema 变更，需影响确认', '昨天 18:02', '/assets/pipelines', false),
-('n5', '协同分享', '王五 分享了画布「订单交付风险 v0.4」给你',           '昨天 15:40', '/modeling/registry', false),
-('n6', '协同分享', '赵六 邀请你加入「设备运维本体」评审组',             '2 天前',     '/modeling/ontologies', false);
+INSERT INTO notifications (id, cat, title, time, to_path, unread, to_user) VALUES
+('n1', '待办处理', '本体发布评审待处理：供应链本体 v0.4（+交付风险分函数）', '10 分钟前', '/governance/reviews', true, 'zhangsan'),
+('n2', '待办处理', '术语归并「供应商 ≈ 供货商」待你裁决',                 '1 小时前',  '/knowledge/synonyms', true, 'wangwu'),
+('n3', '治理任务', 'K3 知识临期：3 条知识将在 7 天内到期',               '今天 08:30','/knowledge/entries', true, 'zhangsan'),
+('n4', '治理任务', '映射断链：lv_order_delivery 上游 schema 变更，需影响确认', '昨天 18:02', '/assets/pipelines', false, 'zhangsan'),
+('n5', '协同分享', '王五 分享了画布「订单交付风险 v0.4」给你',           '昨天 15:40', '/modeling/registry', false, 'zhangsan'),
+('n6', '协同分享', '赵六 邀请你加入「设备运维本体」评审组',             '2 天前',     '/modeling/ontologies', false, 'wangwu');
 
 INSERT INTO capabilities (id, name, description, proto, calls, owner, base_calls) VALUES
 ('c1', 'get_object',           '获取对象实例最小上下文切片',         'MCP/REST/CLI', '', '平台组', 8412),

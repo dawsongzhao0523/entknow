@@ -200,6 +200,33 @@ func mountSysAdmin(api *http.ServeMux, st *store.Store) {
 		cw.Flush()
 	})
 
+	// ─── 通知中心（已读管理） ───
+	api.HandleFunc("PUT /api/v1/notifications/{id}/read", func(w http.ResponseWriter, r *http.Request) {
+		var in struct {
+			User string `json:"user"`
+		}
+		_ = json.NewDecoder(r.Body).Decode(&in)
+		if in.User == "" {
+			in.User = "zhangsan"
+		}
+		if err := st.MarkNotificationRead(r.Context(), r.PathValue("id"), in.User); err != nil {
+			writeStoreResult(w, nil, err)
+			return
+		}
+		w.WriteHeader(http.StatusNoContent)
+	})
+	api.HandleFunc("PUT /api/v1/notifications/read-all", func(w http.ResponseWriter, r *http.Request) {
+		var in struct {
+			User string `json:"user"`
+		}
+		_ = json.NewDecoder(r.Body).Decode(&in)
+		if in.User == "" {
+			in.User = "zhangsan"
+		}
+		n, err := st.MarkAllNotificationsRead(r.Context(), in.User)
+		writeStoreResult(w, map[string]any{"marked": n}, err)
+	})
+
 	// ─── 系统日志（可观测性，admin 域） ───
 	sysFilters := func(r *http.Request) (level, component, kw, since string, limit, offset int) {
 		q := r.URL.Query()

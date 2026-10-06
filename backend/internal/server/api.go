@@ -103,7 +103,11 @@ func MountAPI(mux *http.ServeMux, st *store.Store) {
 		return st.ListReviews(r.Context())
 	}))
 	api.HandleFunc("GET /api/v1/notifications", handle(func(r *http.Request) ([]store.Notification, error) {
-		return st.ListNotifications(r.Context())
+		user := r.URL.Query().Get("user")
+		if user == "" {
+			user = "zhangsan"
+		}
+		return st.ListNotificationsFor(r.Context(), user)
 	}))
 	api.HandleFunc("GET /api/v1/users", handle(func(r *http.Request) ([]store.User, error) {
 		return st.ListUsers(r.Context())

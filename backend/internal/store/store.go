@@ -181,15 +181,6 @@ type Review struct {
 	Comment   string `json:"comment,omitempty"`
 }
 
-type Notification struct {
-	ID     string `json:"id"`
-	Cat    string `json:"cat"`
-	Title  string `json:"title"`
-	Time   string `json:"time"`
-	To     string `json:"to"`
-	Unread bool   `json:"unread"`
-}
-
 type User struct {
 	ID        string   `json:"id"`
 	Account   string   `json:"account"`
@@ -428,23 +419,6 @@ func (s *Store) ListReviews(ctx context.Context) ([]Review, error) {
 	return out, rows.Err()
 }
 
-func (s *Store) ListNotifications(ctx context.Context) ([]Notification, error) {
-	rows, err := s.pool.Query(ctx, `SELECT id, cat, title, time, to_path, unread FROM notifications ORDER BY id`)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var out []Notification
-	for rows.Next() {
-		var n Notification
-		if err := rows.Scan(&n.ID, &n.Cat, &n.Title, &n.Time, &n.To, &n.Unread); err != nil {
-			return nil, err
-		}
-		out = append(out, n)
-	}
-	return out, rows.Err()
-}
-
 func (s *Store) ListUsers(ctx context.Context) ([]User, error) {
 	rows, err := s.pool.Query(ctx, `
 		SELECT id, account, name, dept, post, roles, status, last_login FROM users ORDER BY id`)
@@ -588,11 +562,12 @@ func (s *Store) DecideReview(ctx context.Context, d Decision) (Review, error) {
 		WHERE id = $1`, d.ReviewID, next, d.By, decidedAt, d.Comment); err != nil {
 		return r, err
 	}
+	toUser := s.accountByName(ctx, r.From) // 定向提出人；映射不到则广播
 	if _, err := tx.Exec(ctx, `
-		INSERT INTO notifications (id, cat, title, time, to_path, unread)
-		VALUES ($1, '治理任务', $2, '刚刚', '/governance/reviews', true)
+		INSERT INTO notifications (id, cat, title, time, to_path, unread, to_user)
+		VALUES ($1, '治理任务', $2, '刚刚', '/governance/reviews', true, $3)
 		ON CONFLICT (id) DO NOTHING`,
-		"n-rv-"+d.ReviewID+"-"+d.Action, "评审结果："+r.Title+" → "+next+"（"+d.By+"）"); err != nil {
+		"n-rv-"+d.ReviewID+"-"+d.Action, "评审结果："+r.Title+" → "+next+"（"+d.By+"）", toUser); err != nil {
 		return r, err
 	}
 	if err := tx.Commit(ctx); err != nil {

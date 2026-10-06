@@ -54,7 +54,10 @@ export interface Review {
   decidedBy?: string; decidedAt?: string; comment?: string;
 }
 
-export interface Notification { id: string; cat: string; title: string; time: string; to: string; unread: boolean }
+export interface Notification {
+  id: string; cat: string; title: string; time: string;
+  to: string; toUser: string; unread: boolean;
+}
 
 export interface Version { id: number; v: string; date: string; desc: string; status: string }
 
@@ -304,7 +307,11 @@ export const api = {
     send<Review>('/api/v1/reviews', 'POST', r),
   decideReview: (id: string, action: 'approve' | 'reject' | 'withdraw', by: string, comment?: string, expectedStatus?: string) =>
     send<Review>(`/api/v1/reviews/${id}/decision`, 'PUT', { action, by, comment, expectedStatus }),
-  notifications: () => get<Notification[]>('/api/v1/notifications'),
+  notifications: (user: string) => get<Notification[]>(`/api/v1/notifications?user=${encodeURIComponent(user)}`),
+  markNotificationRead: (id: string, user: string) =>
+    send<null>(`/api/v1/notifications/${id}/read`, 'PUT', { user }),
+  markAllNotificationsRead: (user: string) =>
+    send<{ marked: number }>('/api/v1/notifications/read-all', 'PUT', { user }),
   versions: (onto = 'scm') => get<Version[]>(`/api/v1/versions?onto=${onto}`),
   kbDomains: () => get<KbDomain[]>('/api/v1/kb/domains'),
   kbEntries: (domain = '', kw = '') =>

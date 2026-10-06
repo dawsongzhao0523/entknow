@@ -68,7 +68,9 @@ func TestAPIListCounts(t *testing.T) {
 	getArray(t, h, "/api/v1/datasources", 6)
 	getArray(t, h, "/api/v1/rules", 4)
 	getArray(t, h, "/api/v1/reviews", 4)
-	getArray(t, h, "/api/v1/notifications", 6)
+	// 通知按人投递：张三见定向+广播（4），王五见个人定向（2）
+	getArray(t, h, "/api/v1/notifications?user=zhangsan", 4)
+	getArray(t, h, "/api/v1/notifications?user=wangwu", 2)
 	getArray(t, h, "/api/v1/users", 4)
 	getArray(t, h, "/api/v1/capabilities", 4)
 	getArray(t, h, "/api/v1/versions?onto=scm", 4)
