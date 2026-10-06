@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 import { Alert, Button, Card, Input, Modal, Radio, Segmented, Select, Space, Table, Tabs, Tag, Tooltip, Tree, Typography, message } from 'antd';
 import { PlusOutlined, SaveOutlined, VerticalLeftOutlined, VerticalRightOutlined, VerticalAlignBottomOutlined, WarningOutlined } from '@ant-design/icons';
 import { useNavigate, useOutletContext } from 'react-router-dom';
@@ -67,6 +67,20 @@ export default function Designer() {
   const [chat, setChat] = useState<{ role: 'user' | 'ai'; text: string }[]>([
     { role: 'ai', text: '已学习 12 条建模决策（采纳率 78%）。可输入自然语言指令，如「为 SUPPLY 增加成本属性」。' },
   ]);
+  // AI 助手宽度（拖拽左缘调宽，260–760px）
+  const [aiWidth, setAiWidth] = useState(320);
+  const dragging = useRef(false);
+  const startDrag = (e: React.PointerEvent) => {
+    e.preventDefault();
+    dragging.current = true;
+    (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+  };
+  const onDrag = (e: React.PointerEvent) => {
+    if (!dragging.current) return;
+    const w = window.innerWidth - e.clientX - 24;
+    setAiWidth(Math.min(760, Math.max(260, w)));
+  };
+  const endDrag = () => { dragging.current = false; };
 
   const pos = LAYOUTS[layout];
   // 局部高亮：选中对象时，只保留其一阶邻居与关联边
@@ -182,10 +196,11 @@ export default function Designer() {
           description={<>可查看画布、检索注册中心全量元素，但不能编辑草稿或引用元素。需要建模权限？<a onClick={() => message.success('已向本体所有者发起建模者角色申请')}>申请建模者角色 →</a></>} />
       )}
 
-      <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
+      {/* 工作区行：占满视口剩余高度（画布与 AI 助手变高，属性面板随之下移） */}
+      <div style={{ display: 'flex', gap: 12, alignItems: 'stretch', height: 'calc(100vh - 208px)', minHeight: 540 }}>
         {/* ─── 左栏：对象库 + 选中速览 ─── */}
         {leftOpen && (
-          <div style={{ width: 250, flex: 'none', display: 'flex', flexDirection: 'column', gap: 12 }}>
+          <div style={{ width: 250, flex: 'none', display: 'flex', flexDirection: 'column', gap: 12, minHeight: 0 }}>
             <Card size="small" title="对象库" extra={<Text type="secondary" style={{ fontSize: 12 }}>{OBJECTS.length} 对象</Text>}>
               <Button type="dashed" block icon={<PlusOutlined />} disabled={readonly} style={{ marginBottom: 10 }} onClick={() => setModalOpen(true)}>添加对象</Button>
               {KINDS.map(k => (
@@ -222,14 +237,16 @@ export default function Designer() {
           </div>
         )}
 
-        {/* ─── 中间：建模画布 ─── */}
-        <Card size="small" style={{ flex: 1, minWidth: 0 }} title="建模画布"
+        {/* ─── 中间：建模画布（flex 填满行高） ─── */}
+        <Card size="small" style={{ flex: 1, minWidth: 0, height: '100%', display: 'flex', flexDirection: 'column' }}
+          styles={{ body: { flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' } }}
+          title="建模画布"
           extra={<Space>
             <Segmented size="small" value={layout} onChange={v => setLayout(v as string)} options={['分层', '横向', '纵向']} />
             <Button size="small" onClick={() => setSel(null)}>重置视图</Button>
             <Text type="secondary" style={{ fontSize: 12 }}>4 对象 · 4 关系 · 拖拽节点调整布局</Text>
           </Space>}>
-          <div style={{ position: 'relative', height: 560 }} onClick={() => setSel(null)}>
+          <div style={{ position: 'relative', flex: 1, minHeight: 500 }} onClick={() => setSel(null)}>
             <svg style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }} viewBox="0 0 1100 560" preserveAspectRatio="none">
               <defs>
                 <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 z" fill="#6b7688" /></marker>
@@ -304,38 +321,56 @@ export default function Designer() {
           </div>
         </Card>
 
-        {/* ─── 右栏：AI 建模助手 ─── */}
+        {/* ─── 右栏：AI 建模助手（左缘可拖拽调宽；消息区滚动、输入框固定底部） ─── */}
         {rightOpen && (
-          <Card size="small" title="AI 建模助手" style={{ width: 300, flex: 'none' }}
-            styles={{ body: { display: 'flex', flexDirection: 'column', gap: 10, maxHeight: 640, overflowY: 'auto' } }}>
-            {suggestOn && (
-              <div style={{ background: '#ecfdf5', border: '1px solid #a7f3d0', borderRadius: 8, padding: 10 }}>
-                <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 4 }}>💡 建模建议</div>
-                <div style={{ fontSize: 12, marginBottom: 8 }}>
-                  检测到「供应商 → 工厂」缺少时延约束，建议为 SUPPLY 增加 <span style={{ fontFamily: 'monospace' }}>max_delay</span> 约束函数
-                </div>
-                <Space>
-                  <Button size="small" type="primary" onClick={() => { message.success('已采纳：max_delay 约束已加入草稿'); setSuggestOn(false); }}>采纳</Button>
-                  <Button size="small" onClick={() => setSuggestOn(false)}>忽略</Button>
-                </Space>
+          <div style={{ width: aiWidth, flex: 'none', position: 'relative', height: '100%' }}>
+            {/* 拖拽手柄：左右拉动调整助手宽度 */}
+            <div
+              onPointerDown={startDrag} onPointerMove={onDrag} onPointerUp={endDrag} onPointerCancel={endDrag}
+              title="拖拽调整宽度"
+              style={{ position: 'absolute', left: -7, top: 0, width: 12, height: '100%', cursor: 'col-resize', zIndex: 20 }}>
+              <div style={{ position: 'absolute', left: 5, top: '50%', transform: 'translateY(-50%)',
+                width: 2, height: 40, borderRadius: 2, background: '#cbd5e1' }} />
+            </div>
+            <Card size="small" title="AI 建模助手" style={{ height: '100%' }}
+              styles={{ body: { height: '100%', padding: 10, display: 'flex', flexDirection: 'column', overflow: 'hidden' } }}>
+              {/* 消息区（滚动） */}
+              <div style={{ flex: 1, minHeight: 0, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 10, paddingRight: 2 }}>
+                {suggestOn && (
+                  <div style={{ background: '#ecfdf5', border: '1px solid #a7f3d0', borderRadius: 8, padding: 10, flex: 'none' }}>
+                    <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 4 }}>💡 建模建议</div>
+                    <div style={{ fontSize: 12, marginBottom: 8 }}>
+                      检测到「供应商 → 工厂」缺少时延约束，建议为 SUPPLY 增加 <span style={{ fontFamily: 'monospace' }}>max_delay</span> 约束函数
+                    </div>
+                    <Space>
+                      <Button size="small" type="primary" onClick={() => { message.success('已采纳：max_delay 约束已加入草稿'); setSuggestOn(false); }}>采纳</Button>
+                      <Button size="small" onClick={() => setSuggestOn(false)}>忽略</Button>
+                    </Space>
+                  </div>
+                )}
+                {chat.map((m, i) => (
+                  <div key={i} style={{
+                    fontSize: 12, padding: '8px 10px', borderRadius: 8, maxWidth: '92%', flex: 'none',
+                    alignSelf: m.role === 'user' ? 'flex-end' : 'flex-start',
+                    background: m.role === 'user' ? '#059669' : '#f1f3f5', color: m.role === 'user' ? '#fff' : '#1a1a2e',
+                  }}>{m.text}</div>
+                ))}
               </div>
-            )}
-            {chat.map((m, i) => (
-              <div key={i} style={{
-                fontSize: 12, padding: '8px 10px', borderRadius: 8, maxWidth: '92%',
-                alignSelf: m.role === 'user' ? 'flex-end' : 'flex-start',
-                background: m.role === 'user' ? '#059669' : '#f1f3f5', color: m.role === 'user' ? '#fff' : '#1a1a2e',
-              }}>{m.text}</div>
-            ))}
-            <Input.Search
-              size="small" placeholder="向 AI 提问 / 下达建模指令" enterButton="发送"
-              onSearch={v => {
-                if (!v.trim()) return;
-                setChat(c => [...c, { role: 'user', text: v }, { role: 'ai', text: '已理解。该变更将以草稿形式加入画布，提交评审后生效（mock 应答）。' }]);
-              }}
-            />
-            <Text type="secondary" style={{ fontSize: 11 }}>建模决策回流至「智能建模 · 强化学习」，持续提升建议质量</Text>
-          </Card>
+              {/* 输入区：固定最底部（codex 问答式） */}
+              <div style={{ flex: 'none', paddingTop: 10, borderTop: '1px solid #f1f3f5', marginTop: 8 }}>
+                <Input.Search
+                  size="small" placeholder="向 AI 提问 / 下达建模指令" enterButton="发送"
+                  onSearch={v => {
+                    if (!v.trim()) return;
+                    setChat(c => [...c, { role: 'user', text: v }, { role: 'ai', text: '已理解。该变更将以草稿形式加入画布，提交评审后生效（mock 应答）。' }]);
+                  }}
+                />
+                <Text type="secondary" style={{ fontSize: 11, display: 'block', marginTop: 6 }}>
+                  建模决策回流至「智能建模 · 强化学习」，持续提升建议质量
+                </Text>
+              </div>
+            </Card>
+          </div>
         )}
       </div>
 
