@@ -1,0 +1,71 @@
+backend/internal/store/transitions.go
+  12d7ced32ffbd6e0 1-27
+openspec/changes/archive/add-review-workflow/design.md
+  12d7ced32ffbd6e0 1-33
+frontend/src/App.tsx
+  12d7ced32ffbd6e0 7,18
+backend/internal/store/seed.sql
+  12d7ced32ffbd6e0 84-88
+openspec/changes/archive/add-review-workflow/tasks.md
+  12d7ced32ffbd6e0 1-27
+frontend/src/pages/Reviews.tsx
+  12d7ced32ffbd6e0 1-114
+backend/internal/server/reviews_integration_test.go
+  12d7ced32ffbd6e0 1-194
+backend/internal/store/store.go
+  12d7ced32ffbd6e0 11,173-181,406-408,416-417,520-616
+frontend/src/api.ts
+  12d7ced32ffbd6e0 33-36,48-59,69-72
+openspec/changes/archive/add-review-workflow/proposal.md
+  12d7ced32ffbd6e0 1-32
+openspec/specs/review-workflow/spec.md
+  12d7ced32ffbd6e0 1-38
+frontend/README.md
+  12d7ced32ffbd6e0 11
+openspec/specs/CHANGELOG.md
+  12d7ced32ffbd6e0 11
+backend/internal/store/transitions_test.go
+  12d7ced32ffbd6e0 1-47
+backend/internal/store/schema.sql
+  12d7ced32ffbd6e0 116-124,164-168
+frontend/src/main.tsx
+  12d7ced32ffbd6e0 3,13-17
+docs/requirement/20261006评审流转写路径.md
+  12d7ced32ffbd6e0 1-17
+frontend/src/layouts/AppShell.tsx
+  12d7ced32ffbd6e0 24
+frontend/src/pages/Home.tsx
+  12d7ced32ffbd6e0 41,54
+backend/internal/server/api.go
+  12d7ced32ffbd6e0 105-156
+openspec/changes/archive/add-review-workflow/specs/review-workflow/spec.md
+  12d7ced32ffbd6e0 1-38
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.8.1",
+  "base_commit_sha": "e92efde9f18076bdeb9a3733accbfbc6d58a02dc",
+  "prompts": {
+    "12d7ced32ffbd6e0": {
+      "agent_id": {
+        "tool": "zcode",
+        "id": "sess_3db04727-f961-41e3-ab68-c4c6fbb73f6c",
+        "model": "GLM-5.3"
+      },
+      "human_author": "dawsongzhao0523 <133857587+dawsongzhao0523@users.noreply.github.com>",
+      "messages": [],
+      "total_additions": 921,
+      "total_deletions": 35,
+      "accepted_lines": 783,
+      "overriden_lines": 0,
+      "messages_url": "https://gitai.gz.cvte.cn/cas/1500d53d7df287164178ea8f5be2497d13b4e814840c4ed6efaa73b6b89d098a",
+      "token_usage": {
+        "input_tokens": 31595778,
+        "output_tokens": 152775,
+        "cache_read_tokens": 31212480,
+        "cache_creation_tokens": 0,
+        "total_cost": 0.0
+      }
+    }
+  }
+}
