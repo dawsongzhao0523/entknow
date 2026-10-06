@@ -149,6 +149,13 @@ export interface AuditLog {
 
 export interface AuditPage { total: number; items: AuditLog[] }
 
+export interface SystemLog {
+  id: number; at: string; level: string; component: string;
+  content: string; traceId: string;
+}
+
+export interface SystemLogPage { total: number; items: SystemLog[] }
+
 export interface StatsSnapshot {
   users: number; roles: number; ontos: number; ontoPublished: number; ontoDraft: number;
   objects: number; edges: number; instances: number;
@@ -157,7 +164,7 @@ export interface StatsSnapshot {
   capabilities: number; capabilityCalls: number; queries: number;
   reviews: number; reviewsPending: number;
   pipelineTasks: number; tasksFailed: number; auditToday: number;
-  services: DepService[]; recentAlerts: AuditLog[];
+  services: DepService[]; recentAlerts: { id: number; at: string; level: string; component: string; content: string; traceId: string }[];
 }
 
 /** 个性化设置（前端自有形状，整体存后端 user_settings.settings） */
@@ -342,10 +349,15 @@ export const api = {
   depServices: () => get<DepService[]>('/api/v1/dep-services'),
   depUptime: () => get<UptimePoint[]>('/api/v1/dep-services/uptime'),
   inspectDepServices: () => send<DepService[]>('/api/v1/dep-services/inspect', 'POST'),
-  auditLogs: (p: { module?: string; level?: string; kw?: string; since?: string; limit?: number; offset?: number } = {}) => {
+  auditLogs: (p: { module?: string; level?: string; kw?: string; since?: string; limit?: number; offset?: number; user?: string } = {}) => {
     const qs = Object.entries(p).filter(([, v]) => v !== undefined && v !== '')
       .map(([k, v]) => `${k}=${encodeURIComponent(String(v))}`).join('&');
     return get<AuditPage>(`/api/v1/audit-logs${qs ? '?' + qs : ''}`);
+  },
+  systemLogs: (p: { level?: string; component?: string; kw?: string; since?: string; limit?: number; offset?: number; user?: string } = {}) => {
+    const qs = Object.entries(p).filter(([, v]) => v !== undefined && v !== '')
+      .map(([k, v]) => `${k}=${encodeURIComponent(String(v))}`).join('&');
+    return get<SystemLogPage>(`/api/v1/system-logs${qs ? '?' + qs : ''}`);
   },
   settings: (user: string) => get<UserSetting>(`/api/v1/settings?user=${encodeURIComponent(user)}`),
   saveSettings: (u: UserSetting) => send<UserSetting>('/api/v1/settings', 'PUT', u),

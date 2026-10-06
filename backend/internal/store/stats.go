@@ -30,7 +30,7 @@ type StatsSnapshot struct {
 	TasksFailed    int          `json:"tasksFailed"`
 	AuditToday     int          `json:"auditToday"`
 	Services       []DepService `json:"services"`
-	RecentAlerts   []AuditLog   `json:"recentAlerts"`
+	RecentAlerts   []SystemLog  `json:"recentAlerts"`
 }
 
 // count 单值计数。
@@ -86,15 +86,15 @@ func (s *Store) Stats(ctx context.Context) (StatsSnapshot, error) {
 	}
 
 	rows, err := s.pool.Query(ctx, `
-		SELECT id, at, module, level, operator, content, trace_id FROM audit_logs
+		SELECT id, at, level, component, content, trace_id FROM system_logs
 		WHERE level IN ('WARN','ERROR') ORDER BY at DESC, id DESC LIMIT 5`)
 	if err != nil {
 		return st, err
 	}
 	defer rows.Close()
 	for rows.Next() {
-		var a AuditLog
-		if err := rows.Scan(&a.ID, &a.At, &a.Module, &a.Level, &a.Operator, &a.Content, &a.TraceID); err != nil {
+		var a SystemLog
+		if err := rows.Scan(&a.ID, &a.At, &a.Level, &a.Component, &a.Content, &a.TraceID); err != nil {
 			return st, err
 		}
 		st.RecentAlerts = append(st.RecentAlerts, a)

@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/dawsongzhao0523/entknow/backend/internal/store"
 )
@@ -132,17 +133,47 @@ func mountSysAdmin(api *http.ServeMux, st *store.Store) {
 	}))
 
 	// ─── 审计日志：查询 / 导出 ───
+	// 日志权限门：审计日志（governance|admin）/ 系统日志（admin）；user 缺省 zhangsan
+	logUser := func(r *http.Request) string {
+		u := r.URL.Query().Get("user")
+		if u == "" {
+			u = "zhangsan"
+		}
+		return u
+	}
+	requireLogAccess := func(w http.ResponseWriter, r *http.Request, keys ...string) bool {
+		allowed := map[string]bool{}
+		if err := st.UserModulePerms(r.Context(), logUser(r), allowed); err != nil {
+			mapStoreErr(w, err)
+			return false
+		}
+		for _, k := range keys {
+			if allowed[k] {
+				return true
+			}
+		}
+		writeErr(w, http.StatusForbidden, "当前用户角色无「"+strings.Join(keys, " / ")+"」域权限，无法访问该日志")
+		return false
+	}
+
 	auditFilters := func(r *http.Request) (module, level, kw, since string, limit, offset int) {
 		q := r.URL.Query()
 		limit, _ = strconv.Atoi(q.Get("limit"))
 		offset, _ = strconv.Atoi(q.Get("offset"))
 		return q.Get("module"), q.Get("level"), q.Get("kw"), q.Get("since"), limit, offset
 	}
-	api.HandleFunc("GET /api/v1/audit-logs", handle(func(r *http.Request) (store.AuditPage, error) {
+	api.HandleFunc("GET /api/v1/audit-logs", func(w http.ResponseWriter, r *http.Request) {
+		if !requireLogAccess(w, r, "governance", "admin") {
+			return
+		}
 		m, lv, kw, since, limit, offset := auditFilters(r)
-		return st.QueryAuditLogs(r.Context(), m, lv, kw, since, limit, offset)
-	}))
+		page, err := st.QueryAuditLogs(r.Context(), m, lv, kw, since, limit, offset)
+		writeStoreResult(w, page, err)
+	})
 	api.HandleFunc("GET /api/v1/audit-logs/export", func(w http.ResponseWriter, r *http.Request) {
+		if !requireLogAccess(w, r, "governance", "admin") {
+			return
+		}
 		m, lv, kw, since, _, _ := auditFilters(r)
 		// 分页拉全量（上限 200/页，导出量级足够；真到百万级再换流式）
 		var all []store.AuditLog
@@ -165,6 +196,49 @@ func mountSysAdmin(api *http.ServeMux, st *store.Store) {
 		_ = cw.Write([]string{"时间", "模块", "级别", "操作人", "内容", "TraceID"})
 		for _, e := range all {
 			_ = cw.Write([]string{e.At, e.Module, e.Level, e.Operator, e.Content, e.TraceID})
+		}
+		cw.Flush()
+	})
+
+	// ─── 系统日志（可观测性，admin 域） ───
+	sysFilters := func(r *http.Request) (level, component, kw, since string, limit, offset int) {
+		q := r.URL.Query()
+		limit, _ = strconv.Atoi(q.Get("limit"))
+		offset, _ = strconv.Atoi(q.Get("offset"))
+		return q.Get("level"), q.Get("component"), q.Get("kw"), q.Get("since"), limit, offset
+	}
+	api.HandleFunc("GET /api/v1/system-logs", func(w http.ResponseWriter, r *http.Request) {
+		if !requireLogAccess(w, r, "admin") {
+			return
+		}
+		lv, comp, kw, since, limit, offset := sysFilters(r)
+		page, err := st.QuerySystemLogs(r.Context(), lv, comp, kw, since, limit, offset)
+		writeStoreResult(w, page, err)
+	})
+	api.HandleFunc("GET /api/v1/system-logs/export", func(w http.ResponseWriter, r *http.Request) {
+		if !requireLogAccess(w, r, "admin") {
+			return
+		}
+		lv, comp, kw, since, _, _ := sysFilters(r)
+		var all []store.SystemLog
+		for offset := 0; ; offset += 200 {
+			page, err := st.QuerySystemLogs(r.Context(), lv, comp, kw, since, 200, offset)
+			if err != nil {
+				mapStoreErr(w, err)
+				return
+			}
+			all = append(all, page.Items...)
+			if len(page.Items) < 200 {
+				break
+			}
+		}
+		w.Header().Set("Content-Type", "text/csv; charset=utf-8")
+		w.Header().Set("Content-Disposition", `attachment; filename="system_logs.csv"`)
+		_, _ = w.Write([]byte{0xEF, 0xBB, 0xBF})
+		cw := csv.NewWriter(w)
+		_ = cw.Write([]string{"时间", "组件", "级别", "内容", "TraceID"})
+		for _, e := range all {
+			_ = cw.Write([]string{e.At, e.Component, e.Level, e.Content, e.TraceID})
 		}
 		cw.Flush()
 	})

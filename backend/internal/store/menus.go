@@ -43,7 +43,7 @@ func (s *Store) ListMenus(ctx context.Context, user string) ([]Menu, error) {
 
 	allowed := map[string]bool{}
 	if user != "" {
-		if err := s.userModulePerms(ctx, user, allowed); err != nil {
+		if err := s.UserModulePerms(ctx, user, allowed); err != nil {
 			return nil, err
 		}
 	}
@@ -66,8 +66,8 @@ func (s *Store) ListMenus(ctx context.Context, user string) ([]Menu, error) {
 	return tree, nil
 }
 
-// userModulePerms 汇总用户全部角色的模块权限（roles.name 匹配 users.roles 任一元素）。
-func (s *Store) userModulePerms(ctx context.Context, user string, out map[string]bool) error {
+// UserModulePerms 汇总用户全部角色的模块权限（roles.name 匹配 users.roles 任一元素）。
+func (s *Store) UserModulePerms(ctx context.Context, user string, out map[string]bool) error {
 	rows, err := s.pool.Query(ctx, `
 		SELECT DISTINCT unnest(r.perms) FROM roles r
 		WHERE r.name = ANY (SELECT unnest(roles) FROM users WHERE account = $1)`, user)

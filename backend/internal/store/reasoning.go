@@ -4,6 +4,7 @@ package store
 import (
 	"context"
 	"fmt"
+	"log"
 	"strconv"
 	"time"
 )
@@ -141,6 +142,9 @@ func (s *Store) RunRule(ctx context.Context, ruleID string) (RunResult, error) {
 		return res, err
 	}
 	res.Detail = fmt.Sprintf("规则 %s 执行完成：%d/%d 个实例触发，风险分已重算", ruleID, res.Fired, len(instances))
+	if err := s.EmitSystemLog(ctx, "INFO", "推理引擎", res.Detail); err != nil {
+		log.Printf("syslog: 规则执行落库失败: %v", err)
+	}
 	return res, nil
 }
 

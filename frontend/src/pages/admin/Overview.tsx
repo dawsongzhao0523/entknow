@@ -67,7 +67,7 @@ export default function Overview() {
           </Card>
         </Col>
         <Col span={10}>
-          <Card title="最近告警（审计 WARN/ERROR）" size="small" extra={<a onClick={() => nav('/admin/logs')}>日志查询 →</a>}
+          <Card title="最近告警（系统日志 WARN/ERROR）" size="small" extra={<a onClick={() => nav('/admin/logs')}>日志查询 →</a>}
             style={{ height: '100%' }}>
             <List
               size="small" dataSource={stats.recentAlerts ?? []} locale={{ emptyText: '暂无告警' }}
@@ -78,7 +78,7 @@ export default function Overview() {
                       <Tag color={LEVEL_COLOR[a.level]}>{a.level}</Tag>
                       <span style={{ fontSize: 13 }}>{a.content}</span>
                     </Space>}
-                    description={<span className="mono" style={{ fontSize: 12 }}>{a.at} · {a.module} · {a.operator} · {a.traceId}</span>}
+                    description={<span className="mono" style={{ fontSize: 12 }}>{a.at} · {a.component} · {a.traceId || "系统"}</span>}
                   />
                 </List.Item>
               )}

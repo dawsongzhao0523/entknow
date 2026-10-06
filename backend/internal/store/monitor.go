@@ -5,6 +5,8 @@ package store
 import (
 	"bufio"
 	"context"
+	"fmt"
+	"log"
 	"net"
 	"net/http"
 	"os"
@@ -74,7 +76,25 @@ func (s *Store) InspectAll(ctx context.Context) ([]DepService, error) {
 			return nil, err
 		}
 	}
-	return s.ListDepServices(ctx)
+	svcs, err := s.ListDepServices(ctx)
+	if err != nil {
+		return nil, err
+	}
+	abnormal := 0
+	for _, svc := range svcs {
+		if svc.Status != "正常" {
+			abnormal++
+			if err := s.EmitSystemLog(ctx, "WARN", "依赖巡检",
+				fmt.Sprintf("服务「%s」状态 %s（延迟 %dms）", svc.Name, svc.Status, svc.LatencyMs)); err != nil {
+				log.Printf("syslog: 巡检告警落库失败: %v", err)
+			}
+		}
+	}
+	if err := s.EmitSystemLog(ctx, "INFO", "依赖巡检",
+		fmt.Sprintf("手动巡检完成：%d 个服务，%d 个异常", len(svcs), abnormal)); err != nil {
+		log.Printf("syslog: 巡检摘要落库失败: %v", err)
+	}
+	return svcs, nil
 }
 
 // checkService 按类型探活：postgres 探自库连接池（target 空）、redis 发 PING、http GET。

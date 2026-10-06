@@ -7,7 +7,7 @@ TRUNCATE users, ontologies, memberships, objects, edges, functions, views,
          capability_calls, query_history, pipeline_tasks, pipeline_runs, sandbox_branches,
          menus, data_rules, dep_services, dep_checks, audit_logs, user_settings,
          market_items, market_requests, bindings, binding_runs, onto_candidates, entity_alignments,
-         org_units, posts
+         org_units, posts, system_logs
          RESTART IDENTITY;
 
 INSERT INTO users (id, account, name, dept, post, roles, status, last_login) VALUES
@@ -298,7 +298,7 @@ INSERT INTO menus (id, parent_id, name, route, icon, sort, visible) VALUES
 ('admin/permissions', 'admin', '权限管理',   'admin/permissions', '', 3, true),
 ('admin/menus',       'admin', '菜单管理',   'admin/menus',       '', 4, true),
 ('admin/monitor',     'admin', '服务监控',   'admin/monitor',     '', 5, true),
-('admin/logs',        'admin', '日志查询',   'admin/logs',        '', 6, true),
+('admin/logs',        'admin', '日志中心',   'admin/logs',        '', 6, true),
 ('admin/settings',    'admin', '个性化设置', 'admin/settings',    '', 7, true);
 
 INSERT INTO data_rules (id, target, rule, role, effect, updated_by, updated_at) VALUES
@@ -322,17 +322,23 @@ INSERT INTO dep_checks (service_id, ok, latency_ms, at) VALUES
 ('dep-minio', true, 15, '2026-09-27 10:00'), ('dep-minio', true, 21, '2026-09-28 10:00'), ('dep-minio', true, 17, '2026-09-29 10:00'),
 ('dep-minio', true, 19, '2026-09-30 10:00'), ('dep-minio', true, 16, '2026-10-01 10:00'), ('dep-minio', true, 22, '2026-10-02 10:00'), ('dep-minio', true, 18, '2026-10-03 09:58');
 
+-- 审计日志：仅用户写操作留痕（中间件自动续写）
 INSERT INTO audit_logs (at, module, level, operator, content, trace_id) VALUES
-('2026-10-03 09:58:12', 'assets', 'INFO',  '系统', 'CDC 断连恢复：mes_prod 重连成功，补拉 binlog 位点 882311 → 884207', 'tr-9f2a01'),
 ('2026-10-03 09:45:37', 'assets', 'INFO',  '张三', '视图发布推送：CREATE VIEW lv_order_delivery v3 成功（12 字段）', 'tr-8c1e55'),
 ('2026-10-03 09:31:04', 'runtime', 'INFO',  '系统', 'Action 冻结订单 执行回执：PO20260930001 → 已冻结，确认令牌 ack-7721，可回滚', 'tr-77aa19'),
-('2026-10-02 18:44:02', 'runtime', 'INFO',  '系统', '传播引擎规则 R1 触发：SUPPLY.delay 月均值 +23% → 采购订单.交付风险分 71→76 重算', 'tr-5d09c3'),
 ('2026-10-02 17:12:48', 'knowledge', 'WARN',  '王五', '术语归并冲突：「供应商 ≈ 供货商」与既有锚点存在 2 处引用，转评审 RV-2026-1002-001', 'tr-41bf08'),
 ('2026-10-02 15:03:11', 'reasoning', 'INFO',  '王五', '语义查询：「华兴电子近三月准时率」→ DSL 编译成功，命中 lv_supplier_ontime，耗时 842ms', 'tr-33d7e2'),
-('2026-10-02 11:26:55', 'governance', 'WARN',  '系统', '发布门禁告警：沙盘验证 warn（交付风险分 v0.2 未回归），评审 RV-2026-1002-003 挂起', 'tr-2a91f6'),
-('2026-10-02 08:12:30', 'assets', 'ERROR', '系统', 'scm_prod CRON 抽取超时（>30min）：purchase_order 增量批次 #4812 失败，已自动重试成功', 'tr-10ce77'),
 ('2026-10-01 22:40:19', 'admin', 'INFO',  '赵六', '角色权限变更：智能体开发 角色新增 本体运行时 Action 执行网关（编辑），已生效', 'tr-0e5b42'),
 ('2026-10-01 16:02:03', 'apps', 'INFO',  '系统', '能力出口调用：supplier_risk_agent 经 MCP 调用 run_action（dry-run），返回沙箱结果', 'tr-08d319');
+
+-- 系统日志：运行时事件（可观测性；巡检/绑定同步/规则执行会自动续写）
+INSERT INTO system_logs (at, level, component, content, trace_id) VALUES
+('2026-10-03 09:58:12', 'INFO',  '数据同步', 'CDC 断连恢复：mes_prod 重连成功，补拉 binlog 位点 882311 → 884207', 'tr-9f2a01'),
+('2026-10-03 09:30:02', 'INFO',  '依赖巡检', '定时巡检完成：3 个服务全部正常（PG 5ms · Redis 2ms · MinIO 18ms）', 'tr-9c1102'),
+('2026-10-02 18:44:02', 'INFO',  '推理引擎', '传播引擎规则 R1 触发：SUPPLY.delay 月均值 +23% → 采购订单.交付风险分 71→76 重算', 'tr-5d09c3'),
+('2026-10-02 11:26:55', 'WARN',  '治理引擎', '发布门禁告警：沙盘验证 warn（交付风险分 v0.2 未回归），评审 RV-2026-1002-003 挂起', 'tr-2a91f6'),
+('2026-10-02 08:12:30', 'ERROR', '数据同步', 'scm_prod CRON 抽取超时（>30min）：purchase_order 增量批次 #4812 失败，已自动重试成功', 'tr-10ce77'),
+('2026-10-02 06:00:11', 'WARN',  '数据绑定', '绑定 bd-3（物料 ↔ lv_inventory_kit）同步失败：mes_prod CDC 断连，等待重试', 'tr-44a9d0');
 
 INSERT INTO user_settings (account, settings) VALUES
 ('zhangsan', '{"theme":"light","density":"default","monoFont":true,"landingPage":"","defaultOnto":"scm","notifyCats":["待办处理","治理任务","协同分享"]}');

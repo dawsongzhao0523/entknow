@@ -61,3 +61,11 @@
 #### Scenario: 设置保存后读取一致
 - **WHEN** PUT /api/v1/settings {account:"zhangsan", settings:{theme:"dark"}} 后 GET 同账号
 - **THEN** settings.theme=dark
+
+## ADDED Requirements（split-logs）
+
+### Requirement: 系统日志（可观测性）
+system_logs SHALL 记录运行时事件（时间/级别/组件/内容/TraceID）；依赖巡检、绑定同步、规则执行 SHALL 自动静默写系统日志（失败不阻塞业务）；SHALL 支持 level/component/kw/since 过滤与分页、CSV 导出。总览页「最近告警」SHALL 由系统日志 WARN/ERROR 派生。
+
+### Requirement: 日志权限分离
+审计日志（含导出）SHALL 仅对角色权限含 governance 或 admin 的用户开放（403 拒绝其余）；系统日志（含导出）SHALL 仅对角色权限含 admin 的用户开放；前端 SHALL 隐藏无权限的日志 tab。审计日志 SHALL 仅含用户写操作留痕，不混入运行时事件。

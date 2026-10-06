@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"log"
 	"time"
 
 	"github.com/jackc/pgx/v5"
@@ -220,5 +221,15 @@ func (s *Store) SyncBinding(ctx context.Context, id string) (BindingRun, error) 
 		run.ID, run.BindingID, run.Status, run.Detail, run.At); err != nil {
 		return run, err
 	}
+	if err := s.EmitSystemLog(ctx, levelOfRun(run.Status), "数据绑定", run.Detail); err != nil {
+		log.Printf("syslog: 绑定同步落库失败: %v", err)
+	}
 	return run, nil
+}
+
+func levelOfRun(status string) string {
+	if status == "成功" {
+		return "INFO"
+	}
+	return "ERROR"
 }

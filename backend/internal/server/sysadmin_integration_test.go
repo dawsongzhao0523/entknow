@@ -229,7 +229,7 @@ func TestAuditMiddlewareAndQuery(t *testing.T) {
 	}
 
 	// CSV 导出：BOM + 表头
-	rec = callJSON(t, h, http.MethodGet, "/api/v1/audit-logs/export?level=ERROR", nil)
+	rec = callJSON(t, h, http.MethodGet, "/api/v1/audit-logs/export?level=WARN", nil)
 	if rec.Code != http.StatusOK || !strings.HasPrefix(rec.Body.String(), "\xEF\xBB\xBF时间,模块,级别") {
 		t.Fatalf("CSV 导出异常: %d %q", rec.Code, rec.Body.String())
 	}

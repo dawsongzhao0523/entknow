@@ -440,6 +440,16 @@ CREATE TABLE IF NOT EXISTS entity_alignments (
   at        text NOT NULL DEFAULT ''
 );
 
+-- 系统日志（split-logs）：运行时事件（可观测性），与用户写操作审计（audit_logs）分离
+CREATE TABLE IF NOT EXISTS system_logs (
+  id        serial PRIMARY KEY,
+  at        text NOT NULL,
+  level     text NOT NULL,                 -- INFO | WARN | ERROR
+  component text NOT NULL,                 -- 数据同步 / 数据绑定 / 推理引擎 / 依赖巡检 / 治理引擎
+  content   text NOT NULL,
+  trace_id  text NOT NULL DEFAULT ''
+);
+
 -- 组织架构与岗位字典（add-org-posts）：users.dept 存组织全路径，users.post 存岗位名
 CREATE TABLE IF NOT EXISTS org_units (
   id        text PRIMARY KEY,
