@@ -1,0 +1,93 @@
+backend/internal/server/api.go
+  d2feb3b21e472516 66-67,69-72,79,82,85,88,91,94,97,100,103,106,109,112,119,125,147,177,180,184,188,214,237,242,245,264,268,271,288,291,313,316,350,353,374,388,396,421,442,463,477,484,509,519,526,544,554,575,590,617,632,635,656,667,685,691,712,726,747,761,782,796,811,814,835,853
+backend/internal/server/sysadmin_integration_test.go
+  d2feb3b21e472516 1-285
+frontend/src/pages/m9/Logs.tsx
+  d2feb3b21e472516 1-125
+openspec/changes/archive/complete-sysadmin/tasks.md
+  d2feb3b21e472516 1-43
+frontend/src/layouts/AppShell.tsx
+  d2feb3b21e472516 1,8-9,13-28,46-49,57-59,61,64-73,75-79,81-96,107,115,126-131
+frontend/src/App.tsx
+  d2feb3b21e472516 18-24,44,46-50
+backend/internal/store/stats.go
+  d2feb3b21e472516 1-103
+frontend/src/pages/m9/Settings.tsx
+  d2feb3b21e472516 1-135
+backend/internal/store/datarules.go
+  d2feb3b21e472516 1-169
+frontend/src/session.tsx
+  d2feb3b21e472516 1-76
+frontend/src/pages/Home.tsx
+  d2feb3b21e472516 5,14,21,24-32,38-40,54,79-81
+frontend/src/pages/m9/Menus.tsx
+  d2feb3b21e472516 1-167
+backend/internal/server/audit.go
+  d2feb3b21e472516 1-123
+backend/internal/server/sysadmin_api.go
+  d2feb3b21e472516 1-193
+openspec/specs/sysadmin/spec.md
+  d2feb3b21e472516 1-63
+openspec/specs/CHANGELOG.md
+  d2feb3b21e472516 20
+backend/internal/store/audit.go
+  d2feb3b21e472516 1-105
+frontend/src/pages/OrgAdmin.tsx
+  d2feb3b21e472516 7-8,12-13,24,27,36,38-40,69,74,87,140,192
+frontend/src/pages/m9/Permissions.tsx
+  d2feb3b21e472516 1-185
+backend/internal/store/monitor.go
+  d2feb3b21e472516 1-158
+frontend/src/pages/m9/Monitor.tsx
+  d2feb3b21e472516 1-112
+backend/internal/store/seed.sql
+  d2feb3b21e472516 7-8,259-328
+backend/internal/server/audit_test.go
+  d2feb3b21e472516 1-61
+frontend/src/api.ts
+  d2feb3b21e472516 121-174,267-287
+backend/internal/store/settings.go
+  d2feb3b21e472516 1-48
+frontend/src/pages/m9/Overview.tsx
+  d2feb3b21e472516 1-97
+backend/internal/store/menus.go
+  d2feb3b21e472516 1-147
+docs/requirement/20261006系统管理全功能生产化.md
+  d2feb3b21e472516 1-41
+frontend/src/index.css
+  d2feb3b21e472516 6-14
+backend/internal/store/schema.sql
+  d2feb3b21e472516 309-369
+docker-compose.yml
+  d2feb3b21e472516 76-77
+frontend/src/main.tsx
+  d2feb3b21e472516 3-4,9,12-39,46-53
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.8.1",
+  "base_commit_sha": "120a87621c7f0ccf9501124fc526dc8c417efcc8",
+  "prompts": {
+    "d2feb3b21e472516": {
+      "agent_id": {
+        "tool": "zcode",
+        "id": "sess_640dac34-2670-4904-ae98-aa4e9073f17c",
+        "model": "GLM-5.3"
+      },
+      "human_author": "dawsongzhao0523 <133857587+dawsongzhao0523@users.noreply.github.com>",
+      "messages": [],
+      "total_additions": 3284,
+      "total_deletions": 289,
+      "accepted_lines": 2878,
+      "overriden_lines": 0,
+      "messages_url": "https://gitai.gz.cvte.cn/cas/61ff14e7383ddc34ea436865cb3285e931bda395232aa4e775f885a49d8e7a47",
+      "token_usage": {
+        "input_tokens": 29808912,
+        "output_tokens": 100285,
+        "cache_read_tokens": 29586880,
+        "cache_creation_tokens": 0,
+        "total_cost": 0.0
+      }
+    }
+  }
+}
