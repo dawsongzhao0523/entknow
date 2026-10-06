@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Avatar, Layout, Menu, Select, Space, Tag } from 'antd';
+import { Avatar, Button, Layout, Menu, Select, Space, Tag } from 'antd';
 import {
   HomeOutlined, DatabaseOutlined, BookOutlined, DeploymentUnitOutlined, ApiOutlined,
   BulbOutlined, ExperimentOutlined, RocketOutlined, SafetyCertificateOutlined, SettingOutlined,
+  MenuFoldOutlined, MenuUnfoldOutlined,
 } from '@ant-design/icons';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { api, type MenuNode, type Ontology } from '../api';
@@ -93,14 +94,20 @@ export default function AppShell() {
 
   return (
     <Layout style={{ minHeight: '100vh' }}>
-      <Sider width={216} collapsedWidth={72} collapsible collapsed={collapsed} onCollapse={setCollapsed}>
+      <Sider width={216} collapsedWidth={72} collapsible trigger={null} collapsed={collapsed}>
         <div style={{
           display: 'flex', alignItems: 'center',
-          justifyContent: collapsed ? 'center' : 'flex-start',
-          gap: 8, padding: collapsed ? '12px 0' : '12px 16px', height: 52,
+          justifyContent: collapsed ? 'center' : 'space-between',
+          gap: 4, padding: collapsed ? '12px 0' : '10px 10px 10px 16px', height: 52,
         }}>
-          <img src="/logo.svg" alt="entKnow" style={{ width: 28, height: 28, flexShrink: 0 }} />
-          {!collapsed && <span style={{ color: '#1a1a2e', fontWeight: 700, fontSize: 16 }}>entKnow</span>}
+          <span style={{ display: 'flex', alignItems: 'center', gap: 8, minWidth: 0 }}>
+            <img src="/logo.svg" alt="entKnow" style={{ width: 28, height: 28, flexShrink: 0 }} />
+            {!collapsed && <span style={{ color: '#1a1a2e', fontWeight: 700, fontSize: 16, whiteSpace: 'nowrap' }}>entKnow</span>}
+          </span>
+          <Button type="text" size="small" onClick={() => setCollapsed(!collapsed)}
+            icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
+            aria-label={collapsed ? '展开菜单' : '折叠菜单'}
+            style={{ color: '#8a94a6', flexShrink: 0 }} />
         </div>
         <Menu
           mode="inline" selectedKeys={[selected]} defaultOpenKeys={[openKey]}
