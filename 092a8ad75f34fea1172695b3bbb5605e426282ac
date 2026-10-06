@@ -1,0 +1,71 @@
+prototype/src/mock/data.ts
+  12d7ced32ffbd6e0 1-237
+prototype/src/pages/m3/Versions.tsx
+  12d7ced32ffbd6e0 1-99
+prototype/src/pages/m9/Permissions.tsx
+  12d7ced32ffbd6e0 1-120
+prototype/src/pages/m9/Users.tsx
+  12d7ced32ffbd6e0 1-112
+prototype/src/pages/m2/Synonym.tsx
+  12d7ced32ffbd6e0 1-98
+prototype/src/pages/m7/CapabilityCatalog.tsx
+  12d7ced32ffbd6e0 1-127
+prototype/src/pages/Home.tsx
+  12d7ced32ffbd6e0 1-233
+prototype/src/pages/m2/Workbench.tsx
+  12d7ced32ffbd6e0 1-113
+prototype/README.md
+  12d7ced32ffbd6e0 1-66
+prototype/src/pages/m8/ReleaseGate.tsx
+  12d7ced32ffbd6e0 1-81
+prototype/src/pages/m1/Market.tsx
+  12d7ced32ffbd6e0 1-95
+prototype/src/pages/m9/Settings.tsx
+  12d7ced32ffbd6e0 1-116
+docs/requirement/README.md
+  12d7ced32ffbd6e0 1-18
+prototype/src/pages/m2/KnowledgeTree.tsx
+  12d7ced32ffbd6e0 1-377
+prototype/src/pages/m4/ActionGateway.tsx
+  12d7ced32ffbd6e0 1-447
+prototype/src/pages/m9/Logs.tsx
+  12d7ced32ffbd6e0 1-74
+prototype/src/layouts/AppShell.tsx
+  12d7ced32ffbd6e0 1-161
+prototype/src/pages/m3/Ontology.tsx
+  12d7ced32ffbd6e0 398
+prototype/src/pages/m5/RuleReasoning.tsx
+  12d7ced32ffbd6e0 1-289
+README.md
+  12d7ced32ffbd6e0 9-10,16,18,20,22-26,28,30,32-35,37,41,44-46,49,51-54,56,58,60,62,64,66-70,74
+prototype/src/pages/m3/Registry.tsx
+  12d7ced32ffbd6e0 2,123
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.8.1",
+  "base_commit_sha": "092a8ad75f34fea1172695b3bbb5605e426282ac",
+  "prompts": {
+    "12d7ced32ffbd6e0": {
+      "agent_id": {
+        "tool": "zcode",
+        "id": "sess_3db04727-f961-41e3-ab68-c4c6fbb73f6c",
+        "model": "GLM-5.3"
+      },
+      "human_author": "dawsongzhao0523 <133857587+dawsongzhao0523@users.noreply.github.com>",
+      "messages": [],
+      "total_additions": 4136,
+      "total_deletions": 90,
+      "accepted_lines": 4134,
+      "overriden_lines": 0,
+      "messages_url": "https://gitai.gz.cvte.cn/cas/005c817fc45f2fe315e951239bca5f1484628201ae0c2bb89778d6806335972b",
+      "token_usage": {
+        "input_tokens": 5048888,
+        "output_tokens": 53978,
+        "cache_read_tokens": 4932288,
+        "cache_creation_tokens": 0,
+        "total_cost": 0.0
+      }
+    }
+  }
+}
