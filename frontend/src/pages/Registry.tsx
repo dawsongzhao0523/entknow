@@ -22,7 +22,7 @@ function actions(status: string): { action: string; label: string; danger?: bool
   return out;
 }
 
-/** M3 注册中心 · 设计器写路径：元素新建/编辑 + 生命周期流转（DRAFT→IN_REVIEW→PUBLISHED） */
+/** 注册中心 · 设计器写路径：元素新建/编辑 + 生命周期流转（DRAFT→IN_REVIEW→PUBLISHED） */
 export default function Registry() {
   const { message } = App.useApp();
   const [objects, setObjects] = useState<OntoObject[]>([]);

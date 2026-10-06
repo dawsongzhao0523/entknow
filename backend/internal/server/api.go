@@ -172,7 +172,7 @@ func MountAPI(mux *http.ServeMux, st *store.Store) {
 		}
 	})
 
-	// ─── M2 知识运营 ───
+	// ─── 知识运营 ───
 
 	api.HandleFunc("GET /api/v1/kb/domains", handle(func(r *http.Request) ([]store.KbDomain, error) {
 		return st.ListKbDomains(r.Context())
@@ -259,7 +259,7 @@ func MountAPI(mux *http.ServeMux, st *store.Store) {
 		writeStoreResult(w, out, err)
 	})
 
-	// ─── M4 本体运行时 ───
+	// ─── 本体运行时 ───
 
 	api.HandleFunc("GET /api/v1/instances", handle(func(r *http.Request) ([]store.Instance, error) {
 		q := r.URL.Query()
@@ -345,7 +345,7 @@ func MountAPI(mux *http.ServeMux, st *store.Store) {
 		writeJSON(w, out)
 	})
 
-	// ─── M9 组织与权限 ───
+	// ─── 组织与权限 ───
 
 	api.HandleFunc("GET /api/v1/roles", handle(func(r *http.Request) ([]store.Role, error) {
 		return st.ListRoles(r.Context())
@@ -437,7 +437,7 @@ func MountAPI(mux *http.ServeMux, st *store.Store) {
 		writeStoreResult(w, out, err)
 	})
 
-	// ─── M7 能力出口 ───
+	// ─── 能力出口 ───
 
 	api.HandleFunc("POST /api/v1/capabilities", func(w http.ResponseWriter, r *http.Request) {
 		var c store.Capability
@@ -514,7 +514,7 @@ func MountAPI(mux *http.ServeMux, st *store.Store) {
 		return st.ListCapabilityCalls(r.Context(), r.PathValue("id"), limit)
 	}))
 
-	// ─── M5 语义查询 ───
+	// ─── 语义查询 ───
 
 	api.HandleFunc("GET /api/v1/search", handle(func(r *http.Request) (store.SearchResults, error) {
 		q := r.URL.Query().Get("q")
@@ -549,7 +549,7 @@ func MountAPI(mux *http.ServeMux, st *store.Store) {
 		return st.ListQueries(r.Context(), r.URL.Query().Get("by"), limit)
 	}))
 
-	// ─── M1 数据资产运营 ───
+	// ─── 数据资产运营 ───
 
 	api.HandleFunc("POST /api/v1/datasources", func(w http.ResponseWriter, r *http.Request) {
 		var d store.Datasource
@@ -686,7 +686,7 @@ func MountAPI(mux *http.ServeMux, st *store.Store) {
 		return st.ListPipelineRuns(r.Context(), r.URL.Query().Get("task"))
 	}))
 
-	// ─── M3 本体设计器 ───
+	// ─── 本体设计器 ───
 
 	api.HandleFunc("POST /api/v1/objects", func(w http.ResponseWriter, r *http.Request) {
 		var o store.Object
@@ -806,7 +806,7 @@ func MountAPI(mux *http.ServeMux, st *store.Store) {
 		writeStoreResult(w, out, err)
 	})
 
-	// ─── M6 推演沙盘 ───
+	// ─── 推演沙盘 ───
 
 	api.HandleFunc("GET /api/v1/sandbox-branches", handle(func(r *http.Request) ([]store.SandboxBranch, error) {
 		return st.ListSandboxBranches(r.Context())

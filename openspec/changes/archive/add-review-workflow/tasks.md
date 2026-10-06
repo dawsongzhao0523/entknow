@@ -16,11 +16,11 @@
 - [x] 3.1 集成：创建幂等（同 ID 二次 → replay）、裁决迁移、非法迁移 409、expectedStatus 冲突 409、重放幂等（状态/通知不变）、404
 - [x] 3.2 `go test ./...` 无库全绿；`-tags integration` 对 demo 库全绿
 
-## 4. 前端 M8
+## 4. 前端 治理演化
 
 - [x] 4.1 api.ts：createReview/decideReview + Review 扩展字段
 - [x] 4.2 Reviews 页面：列表（含裁决人/原因）、通过（确认）、驳回（必填原因弹窗）、撤回、新建评审（表单）
-- [x] 4.3 路由 /m8/reviews + 导航挂到「治理演化」；tsc/build 全绿
+- [x] 4.3 路由 /governance/reviewss + 导航挂到「治理演化」；tsc/build 全绿
 
 ## 5. 收尾
 

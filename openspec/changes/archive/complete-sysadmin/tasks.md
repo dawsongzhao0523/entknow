@@ -28,12 +28,12 @@
 - [x] 4.1 api.ts：新类型与新端点方法
 - [x] 4.2 session.tsx：会话（用户切换）+ 设置加载保存 + 副作用（主题/密度/mono/落地页/默认本体/通知过滤）
 - [x] 4.3 main.tsx：SessionProvider + 动态 ConfigProvider；AppShell：menus 驱动导航（回退常量）+ 用户切换器
-- [x] 4.4 pages/m9/Overview.tsx（stats 聚合）
-- [x] 4.5 pages/m9/Permissions.tsx（矩阵切换/行级规则/敏感级）
-- [x] 4.6 pages/m9/Menus.tsx（树表 CRUD）
-- [x] 4.7 pages/m9/Monitor.tsx（卡片 + 手动巡检 + 7 日可用率）
-- [x] 4.8 pages/m9/Logs.tsx（过滤分页 + 详情 + CSV 导出）
-- [x] 4.9 pages/m9/Settings.tsx（三组设置保存即生效）
+- [x] 4.4 pages/admin/Overview.tsx（stats 聚合）
+- [x] 4.5 pages/admin/Permissions.tsx（矩阵切换/行级规则/敏感级）
+- [x] 4.6 pages/admin/Menus.tsx（树表 CRUD）
+- [x] 4.7 pages/admin/Monitor.tsx（卡片 + 手动巡检 + 7 日可用率）
+- [x] 4.8 pages/admin/Logs.tsx（过滤分页 + 详情 + CSV 导出）
+- [x] 4.9 pages/admin/Settings.tsx（三组设置保存即生效）
 - [x] 4.10 App.tsx 路由 + Home 落地跳转/通知过滤 + index.css .mono
 - [x] 4.11 `npm run build`（tsc -b）全绿
 

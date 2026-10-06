@@ -5,7 +5,7 @@ import { api, type Synonym } from '../api';
 const { Title, Text } = Typography;
 const ME = '张三';
 
-/** M2 同义词治理：AI 归并建议的专家确认闭环（归并幂等，换词重复归并 409） */
+/** 同义词治理：AI 归并建议的专家确认闭环（归并幂等，换词重复归并 409） */
 export default function Synonyms() {
   const { message } = App.useApp();
   const [rows, setRows] = useState<Synonym[]>([]);

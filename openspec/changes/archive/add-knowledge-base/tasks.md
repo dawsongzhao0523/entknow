@@ -15,11 +15,11 @@
 - [x] 3.1 集成：创建幂等 / 版本冲突 409 / 正常更新版本自增 / 软删幂等 / 发布流转 / 领域计数与过滤 / 归并幂等与 409 / 404
 - [x] 3.2 `go test ./...` 与 `-tags integration` 全绿
 
-## 4. 前端 M2
+## 4. 前端 知识运营
 
 - [x] 4.1 KnowledgeBase 页面：领域树+条目表+详情抽屉+新建/编辑/软删/发布（409 文案直达）
 - [x] 4.2 Synonyms 页面：归并操作台（选标准词归并）
-- [x] 4.3 路由 m2/knowledge、m2/synonyms + 导航；tsc/build 全绿
+- [x] 4.3 路由 knowledge/entries、knowledge/synonymss + 导航；tsc/build 全绿
 
 ## 5. 收尾
 

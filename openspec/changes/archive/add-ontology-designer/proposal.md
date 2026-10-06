@@ -1,4 +1,4 @@
-# Proposal: add-ontology-designer（M3 设计器写路径）
+# Proposal: add-ontology-designer（本体建模 设计器写路径）
 
 ## Background
 
@@ -20,12 +20,12 @@
 
 ## 非目标（后续提案）
 
-- 画布式设计器（拖拽/布局）、函数实现 DSL 与真实求值、评审流转与 M8 RV 记录自动联动
+- 画布式设计器（拖拽/布局）、函数实现 DSL 与真实求值、评审流转与 治理演化 RV 记录自动联动
 - 权限矩阵的按人 enforcement（myRole 判定已就绪， enforcement 随认证提案）
 
 ## 原型落地情况（UI 原型先行门槛）
 
-M3 Designer/EdgeEditor/Ontology 注册中心编辑弹窗已落地并确认；复用其表单字段与流转文案（提交评审/发布/废弃）。
+本体建模 Designer/EdgeEditor/Ontology 注册中心编辑弹窗已落地并确认；复用其表单字段与流转文案（提交评审/发布/废弃）。
 
 ## 输入需求
 

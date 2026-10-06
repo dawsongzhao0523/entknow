@@ -8,7 +8,7 @@ const { Title, Text } = Typography;
 const TYPE_COLOR: Record<string, string> = { 采集: 'blue', 清洗: 'cyan', 探查: 'purple', 转换: 'geekblue', UTOPIA_PUSH: 'green' };
 const empty = { name: '', type: '探查', source: '', target: '', schedule: '' };
 
-/** M1 数据加工：流水线任务注册 / 启停 / 手动运行（幂等执行记录） */
+/** 数据加工：流水线任务注册 / 启停 / 手动运行（幂等执行记录） */
 export default function Pipelines() {
   const { message } = App.useApp();
   const [tasks, setTasks] = useState<PipelineTask[]>([]);

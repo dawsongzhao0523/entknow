@@ -21,7 +21,7 @@ interface FormState {
 
 const emptyForm: FormState = { title: '', domainId: '', source: '手工', onto: '', dataRef: '', flow: '', mode: '', roles: '', sops: '' };
 
-/** M2 知识库：领域树 + 知识条目 CRUD（乐观并发/软删除/发布均为真实写路径） */
+/** 知识库：领域树 + 知识条目 CRUD（乐观并发/软删除/发布均为真实写路径） */
 export default function KnowledgeBase() {
   const { message } = App.useApp();
   const [domains, setDomains] = useState<KbDomain[]>([]);

@@ -38,8 +38,8 @@ user_settings (account PK, settings jsonb)
 MountAPI 内部改为注册到子 mux `api`，再 `mux.Handle("/api/", withAudit(st, api))`：
 
 - 仅 POST/PUT/DELETE 记录；读取 body 缓冲后回填（handler 无感）。
-- module：路径→模块映射表（datasources/views/pipeline-*→m1，kb/synonyms→m2，objects/edges/functions/elements→m3，
-  instances/rule-firings/actions→m4，queries→m5，sandbox-branches→m6，capabilities→m7，reviews→m8，其余→m9）。
+- module：路径→模块映射表（datasources/views/pipeline-*→assets，kb/synonyms→knowledge，objects/edges/functions/elements→modeling，
+  instances/rule-firings/actions→runtime，queries→reasoning，sandbox-branches→sandbox，capabilities→apps，reviews→governance，其余→admin）。
 - operator：body 中 user/by/from 第一个非空值，缺省「系统」。
 - level：2xx=INFO，4xx=WARN，5xx=ERROR；trace_id=`tr-` + 8 位随机十六进制。
 - 落库失败仅日志不阻塞请求（失败不阻塞批次）。
@@ -53,10 +53,10 @@ MountAPI 内部改为注册到子 mux `api`，再 `mux.Handle("/api/", withAudit
   defaultOnto（顶栏初始值）、通知类别（Home 消息中心过滤）。
 - AppShell：导航改 `GET /menus?user=` 驱动（icon 名→图标注册表；API 异常回退内置常量导航）；
   顶栏用户切换（正常状态用户）。
-- M9 页面：Overview（统计卡 + 服务健康 + 告警列表）、Permissions（矩阵可切换/行级规则 CRUD/敏感级只读）、
+- 系统管理 页面：Overview（统计卡 + 服务健康 + 告警列表）、Permissions（矩阵可切换/行级规则 CRUD/敏感级只读）、
   Menus（树表 CRUD + 显隐）、Monitor（卡片 + 手动巡检 + 7 日可用率）、Logs（过滤分页 + 详情 + CSV 导出）、
   Settings（三组设置，保存即全局生效）。
-- 路由：m9/overview · m9/org（已有）· m9/permissions · m9/menus · m9/monitor · m9/logs · m9/settings。
+- 路由：admin/overview · admin/org（已有）· admin/permissions · admin/menus · admin/ops · admin/logs · admin/settings。
 
 ## 测试策略
 

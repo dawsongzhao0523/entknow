@@ -7,7 +7,7 @@ const { Title, Text } = Typography;
 
 const LEVEL_COLOR: Record<string, string> = { INFO: 'blue', WARN: 'orange', ERROR: 'red' };
 
-/** M9 系统运营总览：全部指标由 /admin/stats 真实聚合（无硬编码展示值） */
+/** 系统运营总览：全部指标由 /admin/stats 真实聚合（无硬编码展示值） */
 export default function Overview() {
   const nav = useNavigate();
   const [stats, setStats] = useState<StatsSnapshot | null>(null);

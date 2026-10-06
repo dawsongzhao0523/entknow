@@ -162,7 +162,7 @@ CREATE TABLE IF NOT EXISTS table_profiles (
   profile_fields jsonb NOT NULL DEFAULT '[]'
 );
 
--- ─── M2 知识运营 ───
+-- ─── 知识运营 ───
 
 CREATE TABLE IF NOT EXISTS kb_domains (
   id        text PRIMARY KEY,
@@ -197,7 +197,7 @@ CREATE TABLE IF NOT EXISTS synonyms (
   at       text NOT NULL DEFAULT ''
 );
 
--- ─── M4 本体运行时 ───
+-- ─── 本体运行时 ───
 
 CREATE TABLE IF NOT EXISTS instances (
   id         text PRIMARY KEY,
@@ -236,7 +236,7 @@ CREATE TABLE IF NOT EXISTS actions (
   time        text NOT NULL DEFAULT ''
 );
 
--- ─── M9 组织与权限 ───
+-- ─── 组织与权限 ───
 
 CREATE TABLE IF NOT EXISTS roles (
   id        text PRIMARY KEY,
@@ -246,7 +246,7 @@ CREATE TABLE IF NOT EXISTS roles (
   built_in  boolean NOT NULL DEFAULT false
 );
 
--- ─── M7 能力出口 ───
+-- ─── 能力出口 ───
 
 CREATE TABLE IF NOT EXISTS capability_calls (
   id            text PRIMARY KEY,
@@ -257,7 +257,7 @@ CREATE TABLE IF NOT EXISTS capability_calls (
   called_at     text NOT NULL DEFAULT ''
 );
 
--- ─── M5 语义查询 ───
+-- ─── 语义查询 ───
 
 CREATE TABLE IF NOT EXISTS query_history (
   id         text PRIMARY KEY,
@@ -269,7 +269,7 @@ CREATE TABLE IF NOT EXISTS query_history (
   at         text NOT NULL DEFAULT ''
 );
 
--- ─── M1 数据加工流水线 ───
+-- ─── 数据加工流水线 ───
 
 CREATE TABLE IF NOT EXISTS pipeline_tasks (
   id       text PRIMARY KEY,
@@ -290,7 +290,7 @@ CREATE TABLE IF NOT EXISTS pipeline_runs (
   at      text NOT NULL DEFAULT ''
 );
 
--- ─── M6 推演沙盘 ───
+-- ─── 推演沙盘 ───
 
 CREATE TABLE IF NOT EXISTS sandbox_branches (
   id           text PRIMARY KEY,
@@ -306,7 +306,7 @@ CREATE TABLE IF NOT EXISTS sandbox_branches (
   at           text NOT NULL DEFAULT ''
 );
 
--- ─── M9 系统管理（complete-sysadmin） ───
+-- ─── 系统管理（complete-sysadmin） ───
 
 -- 菜单树（两级：parent_id 为空是一级模块；route 对应前端路由）
 CREATE TABLE IF NOT EXISTS menus (

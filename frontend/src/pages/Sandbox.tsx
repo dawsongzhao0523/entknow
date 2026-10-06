@@ -20,7 +20,7 @@ const RiskBar = ({ label, v }: { label: string; v: number }) => (
   </div>
 );
 
-/** M6 推演沙盘：多分支假设对比（推演不落地，行动才改世界；回滚即放弃，生产隔离） */
+/** 推演沙盘：多分支假设对比（推演不落地，行动才改世界；回滚即放弃，生产隔离） */
 export default function Sandbox() {
   const { message } = App.useApp();
   const [branches, setBranches] = useState<SandboxBranch[]>([]);

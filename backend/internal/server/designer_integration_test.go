@@ -1,6 +1,6 @@
 //go:build integration
 
-// M3 设计器集成测试：对象幂等创建与流转链 / 非法迁移 409 / 重放幂等；
+// 设计器集成测试：对象幂等创建与流转链 / 非法迁移 409 / 重放幂等；
 // 关系引用联动（PUBLISHED 校验 + refCount+1 事务）；函数 cat 校验；404。
 package server
 

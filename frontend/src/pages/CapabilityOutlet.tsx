@@ -10,7 +10,7 @@ const { Title, Text } = Typography;
 
 const protoColor = (p: string) => (p.includes('MCP') ? 'purple' : p.includes('REST') ? 'blue' : 'cyan');
 
-/** M7 能力出口：目录（真实计数 base+日志）+ 调用记录 + 注册/编辑 */
+/** 能力出口：目录（真实计数 base+日志）+ 调用记录 + 注册/编辑 */
 export default function CapabilityOutlet() {
   const { message } = App.useApp();
   const [caps, setCaps] = useState<Capability[]>([]);

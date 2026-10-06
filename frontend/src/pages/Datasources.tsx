@@ -12,7 +12,7 @@ const SENS = ['L1', 'L2', 'L3', 'L4'];
 
 const empty = { name: '', type: 'MySQL', kind: '结构化', host: '', status: '正常', mode: 'CRON', sensitive: 'L2', owner: '张三', tables: 0 };
 
-/** M1 数据源中心：注册 / 编辑 / 同步策略 / 停用（真实写路径） */
+/** 数据源中心：注册 / 编辑 / 同步策略 / 停用（真实写路径） */
 export default function Datasources() {
   const { message } = App.useApp();
   const [dss, setDss] = useState<Datasource[]>([]);

@@ -1,6 +1,6 @@
 //go:build integration
 
-// M6 推演沙盘集成测试：建分支幂等+基准风险带出 / simulate 流转与 last-wins /
+// 推演沙盘集成测试：建分支幂等+基准风险带出 / simulate 流转与 last-wins /
 // 已回滚 409 / 回滚幂等 / 404。
 package server
 

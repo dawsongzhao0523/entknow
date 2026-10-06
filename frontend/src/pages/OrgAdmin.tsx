@@ -18,7 +18,7 @@ const FALLBACK_MODULES: [string, string][] = [
 const emptyUser = { account: '', name: '', dept: '', post: '', roles: [] as string[], status: '正常' };
 const emptyRole = { name: '', desc: '', perms: [] as string[] };
 
-/** M9 组织与权限：用户 / 角色 管理（内置角色保护、引用保护、账号唯一） */
+/** 组织与权限：用户 / 角色 管理（内置角色保护、引用保护、账号唯一） */
 export default function OrgAdmin() {
   const { message } = App.useApp();
   const { bumpPerms } = useSession();

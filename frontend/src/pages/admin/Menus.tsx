@@ -21,7 +21,7 @@ function toRows(nodes: MenuNode[]): FlatRow[] {
   return (nodes ?? []).map(n => ({ ...n, key: n.id, children: n.children ? toRows(n.children) : undefined }));
 }
 
-/** M9 菜单管理：菜单树入库，排序/显隐/路由可维护；导航即菜单（隐藏 = 从导航移除，路由保留） */
+/** 菜单管理：菜单树入库，排序/显隐/路由可维护；导航即菜单（隐藏 = 从导航移除，路由保留） */
 export default function Menus() {
   const { message } = App.useApp();
   const { bumpPerms } = useSession();

@@ -45,7 +45,7 @@ context: |
 rules:
   proposal:
     - 提案用中文撰写
-    - 明确影响的交付物（backend / prototype / frontend）与模块（M1-M9 对应域）
+    - 明确影响的交付物（backend / prototype / frontend）与模块（九大模块 对应域）
     - "**UI 原型先行**：带 UI 界面的能力必须先在 prototype/ 实现并经产品确认，才能开发对应的 backend/frontend；提案须注明原型落地情况"
     - 涉及数据写入的必须说明幂等策略
     - 适用时引用 docs/requirement/ 下的需求文档作为输入

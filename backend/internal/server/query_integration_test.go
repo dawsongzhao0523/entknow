@@ -1,6 +1,6 @@
 //go:build integration
 
-// M5 语义查询集成测试：统一检索分类命中 / 查询执行幂等与 DSL / 空 q 400 / 历史过滤。
+// 语义查询集成测试：统一检索分类命中 / 查询执行幂等与 DSL / 空 q 400 / 历史过滤。
 package server
 
 import (

@@ -1,4 +1,4 @@
-// M9 系统管理端点：总览聚合 / 菜单 / 行级规则 / 敏感级 / 依赖服务巡检 / 审计查询导出 / 个性化设置。
+// 系统管理端点：总览聚合 / 菜单 / 行级规则 / 敏感级 / 依赖服务巡检 / 审计查询导出 / 个性化设置。
 package server
 
 import (
@@ -45,7 +45,7 @@ func mountSysAdmin(api *http.ServeMux, st *store.Store) {
 		w.WriteHeader(http.StatusCreated)
 		writeJSON(w, out)
 	})
-	// 菜单 id 形如 m1/datasources（含斜杠），需多段通配 {id...} 才能整段取回
+	// 菜单 id 形如 assets/datasources（含斜杠），需多段通配 {id...} 才能整段取回
 	api.HandleFunc("PUT /api/v1/menus/{id...}", func(w http.ResponseWriter, r *http.Request) {
 		var m store.Menu
 		if err := json.NewDecoder(r.Body).Decode(&m); err != nil {

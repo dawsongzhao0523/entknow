@@ -19,7 +19,7 @@
 
 ## 4. 生产前端骨架
 
-- [x] 4.1 frontend/ Vite+React+antd 应用：theme/AppShell（导航 M1-M9 + 本体切换器接 API）
+- [x] 4.1 frontend/ Vite+React+antd 应用：theme/AppShell（导航 九大模块 + 本体切换器接 API）
 - [x] 4.2 页面：Home 统计、Ontologies 列表（角色/状态）、Registry（对象/关系/函数）、Datasources；其余模块 Placeholder（提示先在原型落地）
 - [x] 4.3 vite proxy /api→:28080；`tsc -b` 通过；frontend/Dockerfile + compose 服务（25190）
 

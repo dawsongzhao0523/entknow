@@ -225,12 +225,12 @@ export function filterRegistry(list: RegistryObject[], q: { treeKey?: string; kw
 
 /** 站内通知：待办处理 / 治理任务 / 协同分享 */
 export const NOTIFICATIONS = [
-  { id: 'n1', cat: '待办处理', title: '本体发布评审待处理：供应链本体 v0.4（+交付风险分函数）', time: '10 分钟前', to: '/m8/release?tab=review', unread: true },
-  { id: 'n2', cat: '待办处理', title: '术语归并「供应商 ≈ 供货商」待你裁决', time: '1 小时前', to: '/m2/governance?tab=synonym', unread: true },
-  { id: 'n3', cat: '治理任务', title: 'K3 知识临期：3 条知识将在 7 天内到期', time: '今天 08:30', to: '/m2/governance', unread: true },
-  { id: 'n4', cat: '治理任务', title: '映射断链：lv_order_delivery 上游 schema 变更，需影响确认', time: '昨天 18:02', to: '/m1/processing?tab=pipeline', unread: false },
-  { id: 'n5', cat: '协同分享', title: '王五 分享了画布「订单交付风险 v0.4」给你', time: '昨天 15:40', to: '/m3/designer', unread: false },
-  { id: 'n6', cat: '协同分享', title: '赵六 邀请你加入「设备运维本体」评审组', time: '2 天前', to: '/m3/ontology/detail?onto=equipment&sec=members', unread: false },
+  { id: 'n1', cat: '待办处理', title: '本体发布评审待处理：供应链本体 v0.4（+交付风险分函数）', time: '10 分钟前', to: '/governance/release?tab=review', unread: true },
+  { id: 'n2', cat: '待办处理', title: '术语归并「供应商 ≈ 供货商」待你裁决', time: '1 小时前', to: '/knowledge/governance?tab=synonym', unread: true },
+  { id: 'n3', cat: '治理任务', title: 'K3 知识临期：3 条知识将在 7 天内到期', time: '今天 08:30', to: '/knowledge/governance', unread: true },
+  { id: 'n4', cat: '治理任务', title: '映射断链：lv_order_delivery 上游 schema 变更，需影响确认', time: '昨天 18:02', to: '/assets/processing?tab=pipeline', unread: false },
+  { id: 'n5', cat: '协同分享', title: '王五 分享了画布「订单交付风险 v0.4」给你', time: '昨天 15:40', to: '/modeling/designer', unread: false },
+  { id: 'n6', cat: '协同分享', title: '赵六 邀请你加入「设备运维本体」评审组', time: '2 天前', to: '/modeling/ontology/detail?onto=equipment&sec=members', unread: false },
 ];
 
 export const fmtStatus = (s: string) =>

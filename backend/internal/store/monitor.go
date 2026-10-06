@@ -1,4 +1,4 @@
-// M9 依赖服务监控：服务登记查询、真实健康巡检（postgres 自库 / redis PING / http GET）
+// 依赖服务监控：服务登记查询、真实健康巡检（postgres 自库 / redis PING / http GET）
 // 与巡检历史（7 日可用率）聚合。
 package store
 

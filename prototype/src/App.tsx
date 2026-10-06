@@ -2,37 +2,37 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import AppShell from './layouts/AppShell';
 import Home from './pages/Home';
 
-import M1SourceHub from './pages/m1/SourceHub';
-import M1ProcessingHub from './pages/m1/ProcessingHub';
-import M1Market from './pages/m1/Market';
-import M1Workbench from './pages/m1/Workbench';
-import M1LogicalView from './pages/m1/LogicalView';
+import SourceHub from './pages/assets/SourceHub';
+import ProcessingHub from './pages/assets/ProcessingHub';
+import Market from './pages/assets/Market';
+import Workbench from './pages/assets/Workbench';
+import LogicalView from './pages/assets/LogicalView';
 
-import M2KnowledgeTree from './pages/m2/KnowledgeTree';
-import M2GovernanceHub from './pages/m2/GovernanceHub';
+import KnowledgeTree from './pages/knowledge/KnowledgeTree';
+import GovernanceHub from './pages/knowledge/GovernanceHub';
 
-import M3Ontology, { OntologyDetail } from './pages/m3/Ontology';
-import M3DesignerHub from './pages/m3/DesignerHub';
-import M3ModelingHub from './pages/m3/ModelingHub';
-import M3VersionHub from './pages/m3/VersionHub';
+import Ontology, { OntologyDetail } from './pages/modeling/Ontology';
+import DesignerHub from './pages/modeling/DesignerHub';
+import ModelingHub from './pages/modeling/ModelingHub';
+import VersionHub from './pages/modeling/VersionHub';
 
-import M4Binding from './pages/m4/Binding';
-import M4Instance360 from './pages/m4/Instance360';
-import M4RuntimeHub from './pages/m4/RuntimeHub';
+import Binding from './pages/runtime/Binding';
+import Instance360 from './pages/runtime/Instance360';
+import RuntimeHub from './pages/runtime/RuntimeHub';
 
-import M5ReasoningHub from './pages/m5/ReasoningHub';
+import ReasoningHub from './pages/reasoning/ReasoningHub';
 
-import M6Sandbox from './pages/m6/Sandbox';
+import Sandbox from './pages/sandbox/Sandbox';
 
-import M7CapabilityHub from './pages/m7/CapabilityHub';
+import CapabilityHub from './pages/apps/CapabilityHub';
 
-import M8ReleaseHub from './pages/m8/ReleaseHub';
-import M8EvolutionHub from './pages/m8/EvolutionHub';
+import ReleaseHub from './pages/governance/ReleaseHub';
+import EvolutionHub from './pages/governance/EvolutionHub';
 
-import M9Overview from './pages/m9/Overview';
-import M9OrgHub from './pages/m9/OrgHub';
-import M9OpsHub from './pages/m9/OpsHub';
-import M9Settings from './pages/m9/Settings';
+import Overview from './pages/admin/Overview';
+import OrgHub from './pages/admin/OrgHub';
+import OpsHub from './pages/admin/OpsHub';
+import Settings from './pages/admin/Settings';
 
 export default function App() {
   return (
@@ -41,67 +41,67 @@ export default function App() {
         <Route element={<AppShell />}>
           <Route index element={<Navigate to="/home" replace />} />
           <Route path="home" element={<Home />} />
-          <Route path="overview" element={<Navigate to="/m9/overview" replace />} />
+          <Route path="overview" element={<Navigate to="/admin/overview" replace />} />
           {/* 新菜单路由 */}
-          <Route path="m1/sources" element={<M1SourceHub />} />
-          <Route path="m1/market" element={<M1Market />} />
-          <Route path="m1/workbench" element={<M1Workbench />} />
-          <Route path="m1/processing" element={<M1ProcessingHub />} />
-          <Route path="m1/logical-view" element={<M1LogicalView />} />
-          <Route path="m2/workbench" element={<Navigate to="/m2/knowledge-tree" replace />} />
-          <Route path="m2/knowledge-tree" element={<M2KnowledgeTree />} />
-          <Route path="m2/governance" element={<M2GovernanceHub />} />
-          <Route path="m3/ontology" element={<M3Ontology />} />
-          <Route path="m3/ontology/detail" element={<OntologyDetail />} />
-          <Route path="m3/designer" element={<M3DesignerHub />} />
-          <Route path="m3/modeling" element={<M3ModelingHub />} />
-          <Route path="m3/version-ops" element={<M3VersionHub />} />
-          <Route path="m4/binding" element={<M4Binding />} />
-          <Route path="m4/instance-360" element={<M4Instance360 />} />
-          <Route path="m4/runtime" element={<M4RuntimeHub />} />
-          <Route path="m5/reasoning" element={<M5ReasoningHub />} />
-          <Route path="m6/sandbox" element={<M6Sandbox />} />
-          <Route path="m7/capability" element={<M7CapabilityHub />} />
-          <Route path="m8/release" element={<M8ReleaseHub />} />
-          <Route path="m8/evolution" element={<M8EvolutionHub />} />
-          <Route path="m9/overview" element={<M9Overview />} />
-          <Route path="m9/org" element={<M9OrgHub />} />
-          <Route path="m9/ops" element={<M9OpsHub />} />
-          <Route path="m9/settings" element={<M9Settings />} />
+          <Route path="assets/sources" element={<SourceHub />} />
+          <Route path="assets/market" element={<Market />} />
+          <Route path="assets/workbench" element={<Workbench />} />
+          <Route path="assets/processing" element={<ProcessingHub />} />
+          <Route path="assets/logical-view" element={<LogicalView />} />
+          <Route path="knowledge/workbench" element={<Navigate to="/knowledge/tree" replace />} />
+          <Route path="knowledge/tree" element={<KnowledgeTree />} />
+          <Route path="knowledge/governance" element={<GovernanceHub />} />
+          <Route path="modeling/ontology" element={<Ontology />} />
+          <Route path="modeling/ontology/detail" element={<OntologyDetail />} />
+          <Route path="modeling/designer" element={<DesignerHub />} />
+          <Route path="modeling/ai-modeling" element={<ModelingHub />} />
+          <Route path="modeling/version-ops" element={<VersionHub />} />
+          <Route path="runtime/binding" element={<Binding />} />
+          <Route path="runtime/instance-360" element={<Instance360 />} />
+          <Route path="runtime/rules" element={<RuntimeHub />} />
+          <Route path="reasoning/workbench" element={<ReasoningHub />} />
+          <Route path="sandbox/compare" element={<Sandbox />} />
+          <Route path="apps/capabilities" element={<CapabilityHub />} />
+          <Route path="governance/release" element={<ReleaseHub />} />
+          <Route path="governance/evolution" element={<EvolutionHub />} />
+          <Route path="admin/overview" element={<Overview />} />
+          <Route path="admin/org" element={<OrgHub />} />
+          <Route path="admin/ops" element={<OpsHub />} />
+          <Route path="admin/settings" element={<Settings />} />
           {/* 旧路径 → 新路径 redirect，保证页面内跳转不断链 */}
-          <Route path="m1/datasource-list" element={<Navigate to="/m1/sources?tab=list" replace />} />
-          <Route path="m1/sync-policy" element={<Navigate to="/m1/sources?tab=policy" replace />} />
-          <Route path="m1/profile-report" element={<Navigate to="/m1/sources?tab=profile" replace />} />
-          <Route path="m1/doc-source" element={<Navigate to="/m1/sources?tab=doc" replace />} />
-          <Route path="m1/pipeline" element={<Navigate to="/m1/processing?tab=pipeline" replace />} />
-          <Route path="m1/parse-profile" element={<Navigate to="/m1/processing?tab=parse" replace />} />
-          <Route path="m2/convergence" element={<Navigate to="/m2/governance?tab=convergence" replace />} />
-          <Route path="m2/synonym" element={<Navigate to="/m2/governance?tab=synonym" replace />} />
-          <Route path="m2/crosslink" element={<Navigate to="/m2/governance?tab=crosslink" replace />} />
-          <Route path="m3/ai-session" element={<Navigate to="/m3/designer" replace />} />
-          <Route path="m3/registry" element={<Navigate to="/m3/ontology/detail?onto=scm&sec=objects" replace />} />
-          <Route path="m3/learning" element={<Navigate to="/m3/modeling?tab=learning" replace />} />
-          <Route path="m3/wizard" element={<Navigate to="/m3/modeling?tab=wizard" replace />} />
-          <Route path="m3/versions" element={<Navigate to="/m3/ontology/detail?onto=scm&sec=versions" replace />} />
-          <Route path="m3/owl" element={<Navigate to="/m3/version-ops?tab=owl" replace />} />
-          <Route path="m3/edge-editor" element={<Navigate to="/m3/designer?tab=edge" replace />} />
-          <Route path="m4/propagation" element={<Navigate to="/m4/runtime?tab=propagation" replace />} />
-          <Route path="m4/action-gateway" element={<Navigate to="/m4/runtime?tab=action" replace />} />
-          <Route path="m5/semantic-query" element={<Navigate to="/m5/reasoning?tab=query" replace />} />
-          <Route path="m5/rule-reasoning" element={<Navigate to="/m5/reasoning?tab=rule" replace />} />
-          <Route path="m5/owl-reasoner" element={<Navigate to="/m5/reasoning?tab=owl" replace />} />
-          <Route path="m7/capability-catalog" element={<Navigate to="/m7/capability?tab=catalog" replace />} />
-          <Route path="m7/cli" element={<Navigate to="/m7/capability?tab=cli" replace />} />
-          <Route path="m8/review" element={<Navigate to="/m8/release?tab=review" replace />} />
-          <Route path="m8/release-gate" element={<Navigate to="/m8/release?tab=gate" replace />} />
-          <Route path="m8/branches" element={<Navigate to="/m8/evolution?tab=branches" replace />} />
-          <Route path="m8/retraction" element={<Navigate to="/m8/evolution?tab=retraction" replace />} />
-          <Route path="m9/users" element={<Navigate to="/m9/org?tab=users" replace />} />
-          <Route path="m9/roles" element={<Navigate to="/m9/org?tab=roles" replace />} />
-          <Route path="m9/menus" element={<Navigate to="/m9/org?tab=menus" replace />} />
-          <Route path="m9/permissions" element={<Navigate to="/m9/org?tab=permissions" replace />} />
-          <Route path="m9/monitor" element={<Navigate to="/m9/ops?tab=monitor" replace />} />
-          <Route path="m9/logs" element={<Navigate to="/m9/ops?tab=logs" replace />} />
+          <Route path="assets/datasource-list" element={<Navigate to="/assets/sources?tab=list" replace />} />
+          <Route path="assets/sync-policy" element={<Navigate to="/assets/sources?tab=policy" replace />} />
+          <Route path="assets/profile-report" element={<Navigate to="/assets/sources?tab=profile" replace />} />
+          <Route path="assets/doc-source" element={<Navigate to="/assets/sources?tab=doc" replace />} />
+          <Route path="assets/pipeline" element={<Navigate to="/assets/processing?tab=pipeline" replace />} />
+          <Route path="assets/parse-profile" element={<Navigate to="/assets/processing?tab=parse" replace />} />
+          <Route path="knowledge/convergence" element={<Navigate to="/knowledge/governance?tab=convergence" replace />} />
+          <Route path="knowledge/synonym" element={<Navigate to="/knowledge/governance?tab=synonym" replace />} />
+          <Route path="knowledge/crosslink" element={<Navigate to="/knowledge/governance?tab=crosslink" replace />} />
+          <Route path="modeling/ai-session" element={<Navigate to="/modeling/designer" replace />} />
+          <Route path="modeling/registry" element={<Navigate to="/modeling/ontology/detail?onto=scm&sec=objects" replace />} />
+          <Route path="modeling/learning" element={<Navigate to="/modeling/ai-modeling?tab=learning" replace />} />
+          <Route path="modeling/wizard" element={<Navigate to="/modeling/ai-modeling?tab=wizard" replace />} />
+          <Route path="modeling/versions" element={<Navigate to="/modeling/ontology/detail?onto=scm&sec=versions" replace />} />
+          <Route path="modeling/owl" element={<Navigate to="/modeling/version-ops?tab=owl" replace />} />
+          <Route path="modeling/edge-editor" element={<Navigate to="/modeling/designer?tab=edge" replace />} />
+          <Route path="runtime/propagation" element={<Navigate to="/runtime/rules?tab=propagation" replace />} />
+          <Route path="runtime/action-gateway" element={<Navigate to="/runtime/rules?tab=action" replace />} />
+          <Route path="reasoning/semantic-query" element={<Navigate to="/reasoning/workbench?tab=query" replace />} />
+          <Route path="reasoning/rule-reasoning" element={<Navigate to="/reasoning/workbench?tab=rule" replace />} />
+          <Route path="reasoning/owl-reasoner" element={<Navigate to="/reasoning/workbench?tab=owl" replace />} />
+          <Route path="apps/capabilities-catalog" element={<Navigate to="/apps/capabilities?tab=catalog" replace />} />
+          <Route path="apps/cli" element={<Navigate to="/apps/capabilities?tab=cli" replace />} />
+          <Route path="governance/review" element={<Navigate to="/governance/release?tab=review" replace />} />
+          <Route path="governance/release-gate" element={<Navigate to="/governance/release?tab=gate" replace />} />
+          <Route path="governance/branches" element={<Navigate to="/governance/evolution?tab=branches" replace />} />
+          <Route path="governance/retraction" element={<Navigate to="/governance/evolution?tab=retraction" replace />} />
+          <Route path="admin/users" element={<Navigate to="/admin/org?tab=users" replace />} />
+          <Route path="admin/roles" element={<Navigate to="/admin/org?tab=roles" replace />} />
+          <Route path="admin/menus" element={<Navigate to="/admin/org?tab=menus" replace />} />
+          <Route path="admin/permissions" element={<Navigate to="/admin/org?tab=permissions" replace />} />
+          <Route path="admin/monitor" element={<Navigate to="/admin/ops?tab=monitor" replace />} />
+          <Route path="admin/logs" element={<Navigate to="/admin/ops?tab=logs" replace />} />
         </Route>
       </Routes>
     </BrowserRouter>

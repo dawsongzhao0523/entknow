@@ -8,7 +8,7 @@ const { Title, Text } = Typography;
 const badgeOf = (s: string) =>
   s === '正常' ? 'success' : s === '延迟' ? 'warning' : s === '异常' ? 'error' : 'default';
 
-/** M9 依赖服务监控：真实探活（PG 自库 / Redis PING / MinIO health）+ 巡检历史聚合 */
+/** 依赖服务监控：真实探活（PG 自库 / Redis PING / MinIO health）+ 巡检历史聚合 */
 export default function Monitor() {
   const { message } = App.useApp();
   const [services, setServices] = useState<DepService[]>([]);

@@ -1,4 +1,4 @@
-// M7 能力出口：目录 CRUD、调用记录（幂等）与统计真实化（base_calls + 日志数）。
+// 能力出口：目录 CRUD、调用记录（幂等）与统计真实化（base_calls + 日志数）。
 package store
 
 import (

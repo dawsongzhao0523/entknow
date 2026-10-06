@@ -8,7 +8,7 @@ const { Title, Text } = Typography;
 const statusColor: Record<string, string> = { PUBLISHED: 'green', DRAFT: 'default', DEPRECATED: 'red' };
 const empty = { name: '', kind: 'LOGICAL', domain: '供应链', sensitive: 'L2', owner: '张三', refresh: '', upstream: '', boundBy: '' };
 
-/** M1 逻辑视图：联邦层视图管理（对象绑定视图而非裸表） */
+/** 逻辑视图：联邦层视图管理（对象绑定视图而非裸表） */
 export default function LogicalViews() {
   const { message } = App.useApp();
   const [views, setViews] = useState<LogicalView[]>([]);

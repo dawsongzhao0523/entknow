@@ -8,7 +8,7 @@
 
 ## 2. 前端
 
-- [x] 2.1 App.tsx 全路由语义化；pages/m9 → pages/admin 目录更名
+- [x] 2.1 App.tsx 全路由语义化；pages/admin → pages/admin 目录更名
 - [x] 2.2 AppShell 回退导航；Home/Overview 跳转；Settings 落地页选项
 - [x] 2.3 Logs 模块过滤选项；Permissions/OrgAdmin 回退模块常量；Menus 页示例文案
 - [x] 2.4 tsc + build 全绿

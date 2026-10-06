@@ -118,7 +118,7 @@ export interface User {
   roles: string[]; status: string; lastLogin: string;
 }
 
-// ─── M9 系统管理 ───
+// ─── 系统管理 ───
 
 export interface MenuNode {
   id: string; parentId: string; name: string; route: string; icon: string;

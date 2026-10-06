@@ -13,7 +13,7 @@ const CATS: [keyof NonNullable<ExecutedQuery['results']>, string, string][] = [
   ['synonyms', '同义词', 'orange'],
 ];
 
-/** M5 语义查询：统一检索（确定性内核）+ DSL + 查询历史（真实写路径） */
+/** 语义查询：统一检索（确定性内核）+ DSL + 查询历史（真实写路径） */
 export default function SemanticQuery() {
   const { message } = App.useApp();
   const [q, setQ] = useState('');

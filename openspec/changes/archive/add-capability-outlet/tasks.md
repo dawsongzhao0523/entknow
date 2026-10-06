@@ -14,10 +14,10 @@
 - [x] 3.1 集成：计数 = 基数+日志 / invoke 幂等不重复计数 / 未知能力 404 / 删除级联清理 / 注册幂等
 - [x] 3.2 go test 与 -tags integration 全绿
 
-## 4. 前端 M7
+## 4. 前端 智能应用
 
 - [x] 4.1 能力出口页（目录+真实计数+调用弹窗+最近调用抽屉+注册编辑）
-- [x] 4.2 路由 m7/capability + 导航；tsc/build 全绿
+- [x] 4.2 路由 apps/capabilities + 导航；tsc/build 全绿
 
 ## 5. 收尾
 

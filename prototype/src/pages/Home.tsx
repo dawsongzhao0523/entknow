@@ -11,27 +11,27 @@ interface Stage { no: number; title: string; desc: string; actions: { name: stri
 
 const STAGES: Stage[] = [
   { no: 1, title: '环境准备', desc: '准备用户权限与模型能力', actions: [
-    { name: '配置用户与权限', desc: '配置用户、角色和操作权限，建立可审计的协作边界。', to: '/m9/org?tab=users', done: true },
-    { name: '配置模型服务', desc: '设置默认大模型与本地小模型，支撑语义理解与抽取。', to: '/m9/settings' },
+    { name: '配置用户与权限', desc: '配置用户、角色和操作权限，建立可审计的协作边界。', to: '/admin/org?tab=users', done: true },
+    { name: '配置模型服务', desc: '设置默认大模型与本地小模型，支撑语义理解与抽取。', to: '/admin/settings' },
   ]},
   { no: 2, title: '数据准备', desc: '接入业务数据并沉淀为数据资产', actions: [
-    { name: '注册数据源', desc: '建立平台访问业务数据的连接并完成连通性验证。', to: '/m1/sources', done: true },
-    { name: '执行元数据探查', desc: '将库表结构与字段备注同步为数据资产画像。', to: '/m1/sources?tab=profile', done: true },
-    { name: '隐式本体收敛', optional: true, desc: '把表命名、指标口径、血缘识别为本体碎片并候选化。', to: '/m2/governance?tab=convergence' },
-    { name: '构建逻辑视图', optional: true, desc: '在联邦层沉淀跨源视图，对象绑定视图而非裸表。', to: '/m1/logical-view' },
+    { name: '注册数据源', desc: '建立平台访问业务数据的连接并完成连通性验证。', to: '/assets/sources', done: true },
+    { name: '执行元数据探查', desc: '将库表结构与字段备注同步为数据资产画像。', to: '/assets/sources?tab=profile', done: true },
+    { name: '隐式本体收敛', optional: true, desc: '把表命名、指标口径、血缘识别为本体碎片并候选化。', to: '/knowledge/governance?tab=convergence' },
+    { name: '构建逻辑视图', optional: true, desc: '在联邦层沉淀跨源视图，对象绑定视图而非裸表。', to: '/assets/logical-view' },
   ]},
   { no: 3, title: '本体建模', desc: '组织业务语义并配置可调用能力', actions: [
-    { name: '七步法建模向导', desc: '从范围、术语到约束，方法论引导完成最小可行本体。', to: '/m3/modeling?tab=wizard' },
-    { name: '配置对象与关系', desc: '定义业务对象、一等公民关系及其数据映射。', to: '/m3/designer' },
-    { name: '配置函数与行动', optional: true, desc: '指标/派生/行动/权限四类函数，固化业务度量与动作。', to: '/m4/runtime?tab=action' },
-    { name: '组织知识库', optional: true, desc: '按业务领域组织术语、口径与 SOP，收敛隐式知识。', to: '/m2/knowledge-tree' },
+    { name: '七步法建模向导', desc: '从范围、术语到约束，方法论引导完成最小可行本体。', to: '/modeling/ai-modeling?tab=wizard' },
+    { name: '配置对象与关系', desc: '定义业务对象、一等公民关系及其数据映射。', to: '/modeling/designer' },
+    { name: '配置函数与行动', optional: true, desc: '指标/派生/行动/权限四类函数，固化业务度量与动作。', to: '/runtime/rules?tab=action' },
+    { name: '组织知识库', optional: true, desc: '按业务领域组织术语、口径与 SOP，收敛隐式知识。', to: '/knowledge/tree' },
   ]},
   { no: 4, title: '验证与交付', desc: '验证效果并开放调用', actions: [
-    { name: '数据绑定与同步', desc: '将本体对象实例化，绑定联邦层视图并持续同步。', to: '/m4/binding' },
-    { name: '语义查询验证', desc: '用业务语言提问，验证本体语义是否正确表达。', to: '/m5/reasoning?tab=query' },
-    { name: '沙盘推演验证', optional: true, desc: '在克隆世界中验证行动效果，生产隔离。', to: '/m6/sandbox' },
-    { name: '评审与发布', desc: '评审 + 发布门禁（K 等级），通过后上线。', to: '/m8/release' },
-    { name: '开放能力调用', desc: 'MCP/REST/CLI 统一出口，供智能体与系统调用。', to: '/m7/capability' },
+    { name: '数据绑定与同步', desc: '将本体对象实例化，绑定联邦层视图并持续同步。', to: '/runtime/binding' },
+    { name: '语义查询验证', desc: '用业务语言提问，验证本体语义是否正确表达。', to: '/reasoning/workbench?tab=query' },
+    { name: '沙盘推演验证', optional: true, desc: '在克隆世界中验证行动效果，生产隔离。', to: '/sandbox/compare' },
+    { name: '评审与发布', desc: '评审 + 发布门禁（K 等级），通过后上线。', to: '/governance/release' },
+    { name: '开放能力调用', desc: 'MCP/REST/CLI 统一出口，供智能体与系统调用。', to: '/apps/capabilities' },
   ]},
 ];
 
@@ -56,10 +56,10 @@ function ManagerHome() {
       {/* 管辖范围运营看板 */}
       <Row gutter={12} style={{ marginBottom: 12 }}>
         {[
-          { t: '数据资产', v: 86, s: '张表 · 12 逻辑视图', extra: '探查覆盖 91%', to: '/m1/sources' },
-          { t: '本体运营', v: '21,254', s: '周调用次数', extra: '3 本体 · v0.3 生产中', to: '/m3/ontology' },
-          { t: '知识库', v: 214, s: '知识条目', extra: '领域覆盖 72%', to: '/m2/knowledge-tree' },
-          { t: '指标建设', v: 38, s: '项指标', extra: '达成率 84%', to: '/m5/reasoning?tab=query' },
+          { t: '数据资产', v: 86, s: '张表 · 12 逻辑视图', extra: '探查覆盖 91%', to: '/assets/sources' },
+          { t: '本体运营', v: '21,254', s: '周调用次数', extra: '3 本体 · v0.3 生产中', to: '/modeling/ontology' },
+          { t: '知识库', v: 214, s: '知识条目', extra: '领域覆盖 72%', to: '/knowledge/tree' },
+          { t: '指标建设', v: 38, s: '项指标', extra: '达成率 84%', to: '/reasoning/workbench?tab=query' },
         ].map(c => (
           <Col span={6} key={c.t}>
             <Card size="small" hoverable onClick={() => nav(c.to)}>
@@ -73,7 +73,7 @@ function ManagerHome() {
       <Row gutter={12} style={{ marginBottom: 12 }}>
         {/* 指标达成 */}
         <Col span={14}>
-          <Card size="small" title="关键指标达成（管辖范围）" extra={<a onClick={() => nav('/m5/reasoning?tab=query')}>语义问答深入分析 →</a>}>
+          <Card size="small" title="关键指标达成（管辖范围）" extra={<a onClick={() => nav('/reasoning/workbench?tab=query')}>语义问答深入分析 →</a>}>
             <Table size="small" rowKey="m" pagination={false}
               columns={[
                 { title: '指标', dataIndex: 'm', render: (v: string) => <b>{v}</b> },
@@ -98,9 +98,9 @@ function ManagerHome() {
         </Col>
         {/* 待处理审批（下级提交） */}
         <Col span={10}>
-          <Card size="small" title={<>待处理审批 <Tag color="red">4</Tag></>} extra={<a onClick={() => nav('/m8/release?tab=review')}>全部 →</a>}>
+          <Card size="small" title={<>待处理审批 <Tag color="red">4</Tag></>} extra={<a onClick={() => nav('/governance/release?tab=review')}>全部 →</a>}>
             {REVIEWS.map(r => (
-              <div key={r.id} onClick={() => nav('/m8/release?tab=review')}
+              <div key={r.id} onClick={() => nav('/governance/release?tab=review')}
                 style={{ padding: '10px 4px', borderTop: '1px solid #f1f3f5', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8 }}>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ fontSize: 13, fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{r.title}</div>
@@ -110,7 +110,7 @@ function ManagerHome() {
               </div>
             ))}
             <div style={{ padding: '10px 4px', borderTop: '1px solid #f1f3f5', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8 }}
-              onClick={() => nav('/m8/release?tab=review')}>
+              onClick={() => nav('/governance/release?tab=review')}>
               <div style={{ flex: 1 }}>
                 <div style={{ fontSize: 13, fontWeight: 600 }}>供应商准入规则变更：评分阈值 80→82</div>
                 <Text type="secondary" style={{ fontSize: 12 }}>王五 提交 · 规则变更 · SLA 剩 6 小时</Text>
@@ -124,10 +124,10 @@ function ManagerHome() {
       {/* 分析工具快捷入口 */}
       <Row gutter={12}>
         {[
-          { icon: <QuestionCircleOutlined />, t: '智能问答', d: '用业务语言提问：本月华南区交付风险最高的 10 个订单？', to: '/m5/reasoning?tab=query' },
-          { icon: <SearchOutlined />, t: '推理演绎', d: '多跳推理：供应商断供会影响哪些订单与产线？', to: '/m5/reasoning?tab=rule' },
-          { icon: <ExperimentOutlined />, t: '推演沙盘', d: '克隆世界模拟：切换备选供应商后风险分如何变化？', to: '/m6/sandbox' },
-          { icon: <SlidersOutlined />, t: '实例 360°', d: '下钻任意订单/供应商实例的完整事实与传播链', to: '/m4/instance-360' },
+          { icon: <QuestionCircleOutlined />, t: '智能问答', d: '用业务语言提问：本月华南区交付风险最高的 10 个订单？', to: '/reasoning/workbench?tab=query' },
+          { icon: <SearchOutlined />, t: '推理演绎', d: '多跳推理：供应商断供会影响哪些订单与产线？', to: '/reasoning/workbench?tab=rule' },
+          { icon: <ExperimentOutlined />, t: '推演沙盘', d: '克隆世界模拟：切换备选供应商后风险分如何变化？', to: '/sandbox/compare' },
+          { icon: <SlidersOutlined />, t: '实例 360°', d: '下钻任意订单/供应商实例的完整事实与传播链', to: '/runtime/instance-360' },
         ].map(c => (
           <Col span={6} key={c.t}>
             <Card size="small" hoverable onClick={() => nav(c.to)}>
@@ -194,7 +194,7 @@ export default function Home() {
   );
 
   const ai = (
-    <Card title={<b>AI Skills 辅助构建本体</b>} extra={<a onClick={() => nav('/m3/designer')}>进入 AI 协作建模（设计器右栏）→</a>}>
+    <Card title={<b>AI Skills 辅助构建本体</b>} extra={<a onClick={() => nav('/modeling/designer')}>进入 AI 协作建模（设计器右栏）→</a>}>
       <Paragraph type="secondary" style={{ fontSize: 12 }}>
         从业务材料出发，使用 AI Skills 完成需求澄清、设计和构建验证，形成可持续迭代的企业本体。
       </Paragraph>

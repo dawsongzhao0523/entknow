@@ -1,8 +1,8 @@
-# Proposal: add-datasource-ops（M1 数据资产运营写路径）
+# Proposal: add-datasource-ops（数据资产运营写路径）
 
 ## Background
 
-M1 目前只有只读数据源列表。原型的数据源注册/同步策略、逻辑视图管理、加工流水线均为假交互，需要真实写路径，这是「对象绑定视图而非裸表」联邦层语义的运营底座。
+数据资产 目前只有只读数据源列表。原型的数据源注册/同步策略、逻辑视图管理、加工流水线均为假交互，需要真实写路径，这是「对象绑定视图而非裸表」联邦层语义的运营底座。
 
 ## Goal
 
@@ -15,7 +15,7 @@ M1 目前只有只读数据源列表。原型的数据源注册/同步策略、�
 
 - schema：pipeline_tasks / pipeline_runs + seed（对照原型流水线节点）
 - API：datasources POST/PUT；views POST/PUT；pipeline-tasks GET/POST/PUT + run + runs 查询
-- frontend：m1/datasources 升级、m1/views、m1/pipelines 三页
+- frontend：assets/datasources 升级、assets/views、assets/processings 三页
 
 ## 非目标（后续提案）
 
@@ -25,7 +25,7 @@ M1 目前只有只读数据源列表。原型的数据源注册/同步策略、�
 
 ## 原型落地情况（UI 原型先行门槛）
 
-M1 DatasourceList/SyncPolicy/LogicalView/Pipeline 页面已落地并确认；复用其表格列、同步策略文案与流水线节点语义。
+数据资产 DatasourceList/SyncPolicy/LogicalView/Pipeline 页面已落地并确认；复用其表格列、同步策略文案与流水线节点语义。
 
 ## 输入需求
 

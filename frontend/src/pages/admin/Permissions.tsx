@@ -17,7 +17,7 @@ const FALLBACK_MODULES: [string, string][] = [
 
 const emptyRule = { id: '', target: '', rule: '', role: '', effect: '', updatedBy: '', updatedAt: '' };
 
-/** M9 权限管理：功能矩阵（roles.perms 派生，点击切换）· 行级规则 CRUD · 敏感级继承（只读推导） */
+/** 权限管理：功能矩阵（roles.perms 派生，点击切换）· 行级规则 CRUD · 敏感级继承（只读推导） */
 export default function Permissions() {
   const { message } = App.useApp();
   const { user, bumpPerms } = useSession();

@@ -22,7 +22,7 @@ function rangeSince(key: string): string {
   return '';
 }
 
-/** M9 日志查询：审计事件统一检索（服务端过滤分页）+ 详情 + CSV 导出 */
+/** 日志查询：审计事件统一检索（服务端过滤分页）+ 详情 + CSV 导出 */
 export default function Logs() {
   const { message } = App.useApp();
   const [module, setModule] = useState('all');

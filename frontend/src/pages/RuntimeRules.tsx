@@ -8,7 +8,7 @@ const { Title, Text } = Typography;
 const TRIGGER: Record<string, [string, string]> = { manual: ['手动', 'blue'], schedule: ['定时', 'purple'], event: ['事件', 'cyan'] };
 const ACT_COLOR: Record<string, string> = { 执行成功: 'green', 权限拒绝: 'red', 已回滚: 'orange', 待确认: 'blue' };
 
-/** M4 规则与行动：传播规则 / 触发记录 / 行动网关日志 */
+/** 规则与行动：传播规则 / 触发记录 / 行动网关日志 */
 export default function RuntimeRules() {
   const { message } = App.useApp();
   const [rules, setRules] = useState<Rule[]>([]);

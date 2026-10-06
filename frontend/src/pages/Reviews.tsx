@@ -11,7 +11,7 @@ const TERMINAL = ['已通过', '已驳回', '已撤回'];
 const ME = '张三';
 const TYPES = ['本体发布', '术语归并', '冲突裁决', '自进化补丁'];
 
-/** M8 评审与发布：替代原型 proto.tsx 弹窗的真实裁决闭环（事务 + 幂等 + 乐观并发） */
+/** 评审与发布：替代原型 proto.tsx 弹窗的真实裁决闭环（事务 + 幂等 + 乐观并发） */
 export default function Reviews() {
   const { message } = App.useApp();
   const [rows, setRows] = useState<Review[]>([]);

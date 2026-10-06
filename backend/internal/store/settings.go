@@ -1,4 +1,4 @@
-// M9 个性化设置：按账号 upsert 与读取（settings 为前端自有形状的 jsonb）。
+// 个性化设置：按账号 upsert 与读取（settings 为前端自有形状的 jsonb）。
 package store
 
 import (

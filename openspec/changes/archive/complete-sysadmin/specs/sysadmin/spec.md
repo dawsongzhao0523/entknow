@@ -13,11 +13,11 @@
 `GET /api/v1/menus` SHALL 返回两级菜单树（父节点携带 children，同级按 sort 升序）；带 `user` 参数时 SHALL 仅返回该用户角色 perms 并集内且 visible 的一级模块及其子菜单。`POST /api/v1/menus` SHALL 以客户端 id 幂等；`PUT /api/v1/menus/{id}` SHALL 可更新 name/route/icon/sort/visible（未知 404）；`DELETE /api/v1/menus/{id}` SHALL 拒绝仍有子菜单的节点（409）。生产前端导航 SHALL 由该端点驱动，visible=false 的菜单从导航移除。
 
 #### Scenario: 按角色权限过滤导航
-- **WHEN** GET /api/v1/menus?user=wangwu（角色=评审员，perms=m2,m3,m8）
+- **WHEN** GET /api/v1/menus?user=wangwu（角色=评审员，perms=knowledge,modeling,governance）
 - **THEN** 仅返回 知识运营/本体建模/治理演化 三个一级模块
 
 #### Scenario: 删除有子菜单的一级菜单
-- **WHEN** DELETE /api/v1/menus/m1（存在 m1/* 子菜单）
+- **WHEN** DELETE /api/v1/menus/assets（存在 assets/* 子菜单）
 - **THEN** 409，菜单树不变
 
 ### Requirement: 行级数据权限规则
@@ -46,7 +46,7 @@
 
 #### Scenario: 冲突请求记录 WARN
 - **WHEN** POST /api/v1/roles 触发账号/幂等外冲突返回 409
-- **THEN** audit_logs 新增一条 module=m9、level=WARN 的记录
+- **THEN** audit_logs 新增一条 module=admin、level=WARN 的记录
 
 ### Requirement: 审计日志检索与导出
 `GET /api/v1/audit-logs` SHALL 支持 module/level/kw（内容或 TraceID包含）/since（起始时间）过滤与 limit/offset 分页，按时间倒序返回 `{total,items}`；`GET /api/v1/audit-logs/export` SHALL 以相同过滤条件返回 CSV 附件（UTF-8 BOM）。

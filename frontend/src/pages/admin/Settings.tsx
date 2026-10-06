@@ -31,7 +31,7 @@ function Item({ label, hint, children }: { label: string; hint?: string; childre
   );
 }
 
-/** M9 个性化设置：按账号持久化，保存后主题/密度/字体/落地页/默认本体/通知过滤即时生效 */
+/** 个性化设置：按账号持久化，保存后主题/密度/字体/落地页/默认本体/通知过滤即时生效 */
 export default function Settings() {
   const { message } = App.useApp();
   const { user, prefs, savePrefs, prefsLoaded } = useSession();

@@ -19,27 +19,27 @@ export interface ShellCtx { onto: string; role: OntoRole; persona: Persona }
 
 const NAV: { key: string; label: string; icon?: React.ReactNode; children?: [string, string][] }[] = [
   { key: 'home', label: '首页', icon: <HomeOutlined /> },
-  { key: 'm1', label: '数据资产', icon: <DatabaseOutlined />, children: [
-    ['m1/sources', '数据源中心'], ['m1/market', '数据集市'], ['m1/workbench', '数据工作台'],
-    ['m1/processing', '数据加工'], ['m1/logical-view', '逻辑视图'],
+  { key: 'assets', label: '数据资产', icon: <DatabaseOutlined />, children: [
+    ['assets/sources', '数据源中心'], ['assets/market', '数据集市'], ['assets/workbench', '数据工作台'],
+    ['assets/processing', '数据加工'], ['assets/logical-view', '逻辑视图'],
   ]},
-  { key: 'm2', label: '知识运营', icon: <BookOutlined />, children: [
-    ['m2/knowledge-tree', '知识库'], ['m2/governance', '知识治理'],
+  { key: 'knowledge', label: '知识运营', icon: <BookOutlined />, children: [
+    ['knowledge/tree', '知识库'], ['knowledge/governance', '知识治理'],
   ]},
-  { key: 'm3', label: '本体建模', icon: <DeploymentUnitOutlined />, children: [
-    ['m3/ontology', '本体管理'], ['m3/designer', '本体设计器'], ['m3/modeling', '智能建模'],
+  { key: 'modeling', label: '本体建模', icon: <DeploymentUnitOutlined />, children: [
+    ['modeling/ontology', '本体管理'], ['modeling/designer', '本体设计器'], ['modeling/ai-modeling', '智能建模'],
   ]},
-  { key: 'm4', label: '本体运行时', icon: <ApiOutlined />, children: [
-    ['m4/binding', '数据绑定'], ['m4/instance-360', '实例 360°'], ['m4/runtime', '规则与行动'],
+  { key: 'runtime', label: '本体运行时', icon: <ApiOutlined />, children: [
+    ['runtime/binding', '数据绑定'], ['runtime/instance-360', '实例 360°'], ['runtime/rules', '规则与行动'],
   ]},
-  { key: 'm5', label: '推理演绎', icon: <BulbOutlined />, children: [['m5/reasoning', '推理演绎']]},
-  { key: 'm6', label: '推演沙盘', icon: <ExperimentOutlined />, children: [['m6/sandbox', '沙盘 · 多分支对比']]},
-  { key: 'm7', label: '智能应用', icon: <RocketOutlined />, children: [['m7/capability', '能力出口']]},
-  { key: 'm8', label: '治理演化', icon: <SafetyCertificateOutlined />, children: [
-    ['m8/release', '评审与发布'], ['m8/evolution', '版本与演化'],
+  { key: 'reasoning', label: '推理演绎', icon: <BulbOutlined />, children: [['reasoning/workbench', '推理演绎']]},
+  { key: 'sandbox', label: '推演沙盘', icon: <ExperimentOutlined />, children: [['sandbox/compare', '沙盘 · 多分支对比']]},
+  { key: 'apps', label: '智能应用', icon: <RocketOutlined />, children: [['apps/capabilities', '能力出口']]},
+  { key: 'governance', label: '治理演化', icon: <SafetyCertificateOutlined />, children: [
+    ['governance/release', '评审与发布'], ['governance/evolution', '版本与演化'],
   ]},
-  { key: 'm9', label: '系统管理', icon: <SettingOutlined />, children: [
-    ['m9/overview', '系统运营'], ['m9/org', '组织与权限'], ['m9/ops', '监控与日志'], ['m9/settings', '个性化设置'],
+  { key: 'admin', label: '系统管理', icon: <SettingOutlined />, children: [
+    ['admin/overview', '系统运营'], ['admin/org', '组织与权限'], ['admin/ops', '监控与日志'], ['admin/settings', '个性化设置'],
   ]},
 ];
 
@@ -83,8 +83,8 @@ export default function AppShell() {
               <>
                 {menu}
                 <div style={{ padding: '6px 12px', borderTop: '1px solid #f1f3f5', cursor: 'pointer', color: '#059669', fontSize: 12 }}
-                  onClick={() => nav('/m3/ontology')}>
-                  ⚙ 本体的创建与授权，在「M3 本体管理」集中维护 →
+                  onClick={() => nav('/modeling/ontology')}>
+                  ⚙ 本体的创建与授权，在「本体建模 本体管理」集中维护 →
                 </div>
               </>
             )}

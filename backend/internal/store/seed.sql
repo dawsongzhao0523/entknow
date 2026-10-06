@@ -121,7 +121,7 @@ INSERT INTO query_history (id, question, dsl, hits, latency_ms, by_user, at) VAL
 INSERT INTO pipeline_tasks (id, name, type, source, target, schedule, status, last_run) VALUES
 ('p1', '元数据探查 · scm_prod',   '探查',       'scm_prod（MySQL）',     '数据资产画像',    'CRON 0 2 * * *',  '运行中', '2026-10-03 02:00'),
 ('p2', '订单清洗 · purchase_order','清洗',      'purchase_order(scm_prod)', 'lv_order_delivery', 'CRON 0 3 * * *', '运行中', '2026-10-03 03:00'),
-('p3', '知识推送 · M2 → Utopia',  'UTOPIA_PUSH', 'M2 知识库条目',        'Utopia API source', 'EVENT',          '运行中', '2026-10-03 09:45'),
+('p3', '知识推送 · 知识库 → Utopia',  'UTOPIA_PUSH', '知识库条目',        'Utopia API source', 'EVENT',          '运行中', '2026-10-03 09:45'),
 ('p4', '库存采集 · wms_clickhouse','采集',      'wms_clickhouse',        'ods_inventory',    'CRON 0 4 * * *',  '已停用', '2026-09-20 04:00');
 
 INSERT INTO pipeline_runs (id, task_id, status, detail, at) VALUES
@@ -256,7 +256,7 @@ INSERT INTO table_profiles (name, comment, rows, fields, pk, fks, siblings, prof
    {"name":"updated_at","type":"datetime","nullRate":"0%","sample":"2026-10-02 18:44","comment":"更新时间"},
    {"name":"buyer","type":"varchar(16)","nullRate":"3.4%","sample":"B-038","comment":"","aiFilled":true}]');
 
--- ─── M9 系统管理（complete-sysadmin） ───
+-- ─── 系统管理（complete-sysadmin） ───
 
 -- 菜单树：与生产前端真实路由一一对应；roles.perms 引用一级模块 id
 INSERT INTO menus (id, parent_id, name, route, icon, sort, visible) VALUES
@@ -320,7 +320,7 @@ INSERT INTO audit_logs (at, module, level, operator, content, trace_id) VALUES
 ('2026-10-02 15:03:11', 'reasoning', 'INFO',  '王五', '语义查询：「华兴电子近三月准时率」→ DSL 编译成功，命中 lv_supplier_ontime，耗时 842ms', 'tr-33d7e2'),
 ('2026-10-02 11:26:55', 'governance', 'WARN',  '系统', '发布门禁告警：沙盘验证 warn（交付风险分 v0.2 未回归），评审 RV-2026-1002-003 挂起', 'tr-2a91f6'),
 ('2026-10-02 08:12:30', 'assets', 'ERROR', '系统', 'scm_prod CRON 抽取超时（>30min）：purchase_order 增量批次 #4812 失败，已自动重试成功', 'tr-10ce77'),
-('2026-10-01 22:40:19', 'admin', 'INFO',  '赵六', '角色权限变更：智能体开发 角色新增 M4 Action 执行网关（编辑），已生效', 'tr-0e5b42'),
+('2026-10-01 22:40:19', 'admin', 'INFO',  '赵六', '角色权限变更：智能体开发 角色新增 本体运行时 Action 执行网关（编辑），已生效', 'tr-0e5b42'),
 ('2026-10-01 16:02:03', 'apps', 'INFO',  '系统', '能力出口调用：supplier_risk_agent 经 MCP 调用 run_action（dry-run），返回沙箱结果', 'tr-08d319');
 
 INSERT INTO user_settings (account, settings) VALUES

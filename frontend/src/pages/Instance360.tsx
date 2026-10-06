@@ -11,7 +11,7 @@ const ME = '张三';
 
 const riskColor = (s: number) => (s > 80 ? '#c23b3b' : s > 60 ? '#c9861a' : '#2d8a4e');
 
-/** M4 实例 360°：属性 / 状态机 / 时间线 / 治理化行动执行（风险分>80 强制二次确认） */
+/** 实例 360°：属性 / 状态机 / 时间线 / 治理化行动执行（风险分>80 强制二次确认） */
 export default function Instance360() {
   const { message } = App.useApp();
   const [list, setList] = useState<Instance[]>([]);
