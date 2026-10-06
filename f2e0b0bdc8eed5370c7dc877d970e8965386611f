@@ -1,0 +1,33 @@
+docs/architecture/architecture-mindmap.mmd
+  12d7ced32ffbd6e0 1-143
+README.md
+  12d7ced32ffbd6e0 1-124
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.8.1",
+  "base_commit_sha": "f2e0b0bdc8eed5370c7dc877d970e8965386611f",
+  "prompts": {
+    "12d7ced32ffbd6e0": {
+      "agent_id": {
+        "tool": "zcode",
+        "id": "sess_3db04727-f961-41e3-ab68-c4c6fbb73f6c",
+        "model": "GLM-5.3"
+      },
+      "human_author": "zhaodongsheng <zhaodongsheng@cvte.com>",
+      "messages": [],
+      "total_additions": 257,
+      "total_deletions": 22,
+      "accepted_lines": 257,
+      "overriden_lines": 0,
+      "messages_url": "https://gitai.gz.cvte.cn/cas/55931b1878666180bf6ad9e0db461bc72b844db0291179c3f3edf0eaa4d8363d",
+      "token_usage": {
+        "input_tokens": 934040,
+        "output_tokens": 16993,
+        "cache_read_tokens": 888704,
+        "cache_creation_tokens": 0,
+        "total_cost": 0.0
+      }
+    }
+  }
+}
