@@ -118,6 +118,60 @@ export interface User {
   roles: string[]; status: string; lastLogin: string;
 }
 
+// ─── M9 系统管理 ───
+
+export interface MenuNode {
+  id: string; parentId: string; name: string; route: string; icon: string;
+  sort: number; visible: boolean; children?: MenuNode[];
+}
+
+export interface DataRule {
+  id: string; target: string; rule: string; role: string;
+  effect: string; updatedBy: string; updatedAt: string;
+}
+
+export interface SensRow {
+  asset: string; upstream: string[]; levels: string[];
+  inherited: string; stored: string; note: string; by: string;
+}
+
+export interface DepService {
+  id: string; name: string; descr: string; kind: string; target: string;
+  status: string; latencyMs: number; checkedAt: string;
+}
+
+export interface UptimePoint { serviceId: string; day: string; uptime: number }
+
+export interface AuditLog {
+  id: number; at: string; module: string; level: string;
+  operator: string; content: string; traceId: string;
+}
+
+export interface AuditPage { total: number; items: AuditLog[] }
+
+export interface StatsSnapshot {
+  users: number; roles: number; ontos: number; ontoPublished: number; ontoDraft: number;
+  objects: number; edges: number; instances: number;
+  dsTotal: number; dsNormal: number; dsError: number;
+  kbEntries: number; synonyms: number;
+  capabilities: number; capabilityCalls: number; queries: number;
+  reviews: number; reviewsPending: number;
+  pipelineTasks: number; tasksFailed: number; auditToday: number;
+  services: DepService[]; recentAlerts: AuditLog[];
+}
+
+/** 个性化设置（前端自有形状，整体存后端 user_settings.settings） */
+export interface PrefSettings {
+  theme?: 'light' | 'dark' | 'system';
+  density?: 'compact' | 'default' | 'loose';
+  monoFont?: boolean;
+  landingPage?: string;
+  defaultOnto?: string;
+  notifyCats?: string[];
+}
+
+export interface UserSetting { account: string; settings: PrefSettings }
+
 async function get<T>(path: string): Promise<T> {
   const res = await fetch(path);
   if (!res.ok) throw new Error(`${path} → HTTP ${res.status}`);
@@ -210,4 +264,25 @@ export const api = {
   createRole: (r: Role) => send<Role>('/api/v1/roles', 'POST', r),
   updateRole: (id: string, r: Role) => send<Role>(`/api/v1/roles/${id}`, 'PUT', r),
   deleteRole: (id: string) => send<null>(`/api/v1/roles/${id}`, 'DELETE'),
+  adminStats: () => get<StatsSnapshot>('/api/v1/admin/stats'),
+  menus: (user = '') =>
+    get<MenuNode[]>(`/api/v1/menus${user ? `?user=${encodeURIComponent(user)}` : ''}`),
+  createMenu: (m: MenuNode) => send<MenuNode>('/api/v1/menus', 'POST', m),
+  updateMenu: (id: string, m: MenuNode) => send<MenuNode>(`/api/v1/menus/${encodeURIComponent(id)}`, 'PUT', m),
+  deleteMenu: (id: string) => send<null>(`/api/v1/menus/${encodeURIComponent(id)}`, 'DELETE'),
+  dataRules: () => get<DataRule[]>('/api/v1/data-rules'),
+  createDataRule: (d: DataRule) => send<DataRule>('/api/v1/data-rules', 'POST', d),
+  updateDataRule: (id: string, d: DataRule) => send<DataRule>(`/api/v1/data-rules/${id}`, 'PUT', d),
+  deleteDataRule: (id: string) => send<null>(`/api/v1/data-rules/${id}`, 'DELETE'),
+  sensitivity: () => get<SensRow[]>('/api/v1/sensitivity'),
+  depServices: () => get<DepService[]>('/api/v1/dep-services'),
+  depUptime: () => get<UptimePoint[]>('/api/v1/dep-services/uptime'),
+  inspectDepServices: () => send<DepService[]>('/api/v1/dep-services/inspect', 'POST'),
+  auditLogs: (p: { module?: string; level?: string; kw?: string; since?: string; limit?: number; offset?: number } = {}) => {
+    const qs = Object.entries(p).filter(([, v]) => v !== undefined && v !== '')
+      .map(([k, v]) => `${k}=${encodeURIComponent(String(v))}`).join('&');
+    return get<AuditPage>(`/api/v1/audit-logs${qs ? '?' + qs : ''}`);
+  },
+  settings: (user: string) => get<UserSetting>(`/api/v1/settings?user=${encodeURIComponent(user)}`),
+  saveSettings: (u: UserSetting) => send<UserSetting>('/api/v1/settings', 'PUT', u),
 };

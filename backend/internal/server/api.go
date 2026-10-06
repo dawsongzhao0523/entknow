@@ -63,62 +63,66 @@ func mapStoreErr(w http.ResponseWriter, err error) {
 	}
 }
 
-// MountAPI 把 /api/v1 读端点挂到 mux。
+// MountAPI 把 /api/v1 端点挂到 mux：全部注册进子 mux，再经审计中间件包装（写操作自动落审计）。
+// ServeMux 注册顺序与匹配无关，子 mux 的挂载可先于具体路由完成。
 func MountAPI(mux *http.ServeMux, st *store.Store) {
-	mux.HandleFunc("GET /api/v1/ontologies", handle(func(r *http.Request) ([]store.Ontology, error) {
+	api := http.NewServeMux()
+	mux.Handle("/api/", withAudit(st, api))
+	mountSysAdmin(api, st)
+	api.HandleFunc("GET /api/v1/ontologies", handle(func(r *http.Request) ([]store.Ontology, error) {
 		user := r.URL.Query().Get("user")
 		if user == "" {
 			user = "zhangsan"
 		}
 		return st.ListOntologies(r.Context(), user)
 	}))
-	mux.HandleFunc("GET /api/v1/role-matrix", handle(func(*http.Request) (any, error) {
+	api.HandleFunc("GET /api/v1/role-matrix", handle(func(*http.Request) (any, error) {
 		return RoleMatrix, nil
 	}))
-	mux.HandleFunc("GET /api/v1/objects", handle(func(r *http.Request) ([]store.Object, error) {
+	api.HandleFunc("GET /api/v1/objects", handle(func(r *http.Request) ([]store.Object, error) {
 		return st.ListObjects(r.Context(), r.URL.Query().Get("scope"))
 	}))
-	mux.HandleFunc("GET /api/v1/edges", handle(func(r *http.Request) ([]store.Edge, error) {
+	api.HandleFunc("GET /api/v1/edges", handle(func(r *http.Request) ([]store.Edge, error) {
 		return st.ListEdges(r.Context())
 	}))
-	mux.HandleFunc("GET /api/v1/functions", handle(func(r *http.Request) ([]store.Func, error) {
+	api.HandleFunc("GET /api/v1/functions", handle(func(r *http.Request) ([]store.Func, error) {
 		return st.ListFuncs(r.Context())
 	}))
-	mux.HandleFunc("GET /api/v1/views", handle(func(r *http.Request) ([]store.View, error) {
+	api.HandleFunc("GET /api/v1/views", handle(func(r *http.Request) ([]store.View, error) {
 		return st.ListViews(r.Context())
 	}))
-	mux.HandleFunc("GET /api/v1/datasources", handle(func(r *http.Request) ([]store.Datasource, error) {
+	api.HandleFunc("GET /api/v1/datasources", handle(func(r *http.Request) ([]store.Datasource, error) {
 		return st.ListDatasources(r.Context())
 	}))
-	mux.HandleFunc("GET /api/v1/rules", handle(func(r *http.Request) ([]store.Rule, error) {
+	api.HandleFunc("GET /api/v1/rules", handle(func(r *http.Request) ([]store.Rule, error) {
 		return st.ListRules(r.Context())
 	}))
-	mux.HandleFunc("GET /api/v1/reviews", handle(func(r *http.Request) ([]store.Review, error) {
+	api.HandleFunc("GET /api/v1/reviews", handle(func(r *http.Request) ([]store.Review, error) {
 		return st.ListReviews(r.Context())
 	}))
-	mux.HandleFunc("GET /api/v1/notifications", handle(func(r *http.Request) ([]store.Notification, error) {
+	api.HandleFunc("GET /api/v1/notifications", handle(func(r *http.Request) ([]store.Notification, error) {
 		return st.ListNotifications(r.Context())
 	}))
-	mux.HandleFunc("GET /api/v1/users", handle(func(r *http.Request) ([]store.User, error) {
+	api.HandleFunc("GET /api/v1/users", handle(func(r *http.Request) ([]store.User, error) {
 		return st.ListUsers(r.Context())
 	}))
-	mux.HandleFunc("GET /api/v1/capabilities", handle(func(r *http.Request) ([]store.Capability, error) {
+	api.HandleFunc("GET /api/v1/capabilities", handle(func(r *http.Request) ([]store.Capability, error) {
 		return st.ListCapabilities(r.Context())
 	}))
-	mux.HandleFunc("GET /api/v1/versions", handle(func(r *http.Request) ([]store.Version, error) {
+	api.HandleFunc("GET /api/v1/versions", handle(func(r *http.Request) ([]store.Version, error) {
 		onto := r.URL.Query().Get("onto")
 		if onto == "" {
 			onto = "scm"
 		}
 		return st.ListVersions(r.Context(), onto)
 	}))
-	mux.HandleFunc("GET /api/v1/table-profiles/{name}", handle(func(r *http.Request) (store.TableProfile, error) {
+	api.HandleFunc("GET /api/v1/table-profiles/{name}", handle(func(r *http.Request) (store.TableProfile, error) {
 		return st.GetTableProfile(r.Context(), r.PathValue("name"))
 	}))
 
 	// ─── 评审流转（写路径） ───
 
-	mux.HandleFunc("POST /api/v1/reviews", func(w http.ResponseWriter, r *http.Request) {
+	api.HandleFunc("POST /api/v1/reviews", func(w http.ResponseWriter, r *http.Request) {
 		var in store.Review
 		if err := json.NewDecoder(r.Body).Decode(&in); err != nil {
 			writeErr(w, http.StatusBadRequest, "请求体不是合法 JSON")
@@ -140,7 +144,7 @@ func MountAPI(mux *http.ServeMux, st *store.Store) {
 		writeJSON(w, out)
 	})
 
-	mux.HandleFunc("PUT /api/v1/reviews/{id}/decision", func(w http.ResponseWriter, r *http.Request) {
+	api.HandleFunc("PUT /api/v1/reviews/{id}/decision", func(w http.ResponseWriter, r *http.Request) {
 		var d store.Decision
 		if err := json.NewDecoder(r.Body).Decode(&d); err != nil {
 			writeErr(w, http.StatusBadRequest, "请求体不是合法 JSON")
@@ -170,18 +174,18 @@ func MountAPI(mux *http.ServeMux, st *store.Store) {
 
 	// ─── M2 知识运营 ───
 
-	mux.HandleFunc("GET /api/v1/kb/domains", handle(func(r *http.Request) ([]store.KbDomain, error) {
+	api.HandleFunc("GET /api/v1/kb/domains", handle(func(r *http.Request) ([]store.KbDomain, error) {
 		return st.ListKbDomains(r.Context())
 	}))
-	mux.HandleFunc("GET /api/v1/kb/entries", handle(func(r *http.Request) ([]store.KbEntry, error) {
+	api.HandleFunc("GET /api/v1/kb/entries", handle(func(r *http.Request) ([]store.KbEntry, error) {
 		q := r.URL.Query()
 		return st.ListKbEntries(r.Context(), q.Get("domain"), q.Get("kw"))
 	}))
-	mux.HandleFunc("GET /api/v1/kb/entries/{id}", handle(func(r *http.Request) (store.KbEntry, error) {
+	api.HandleFunc("GET /api/v1/kb/entries/{id}", handle(func(r *http.Request) (store.KbEntry, error) {
 		return st.GetKbEntry(r.Context(), r.PathValue("id"))
 	}))
 
-	mux.HandleFunc("POST /api/v1/kb/entries", func(w http.ResponseWriter, r *http.Request) {
+	api.HandleFunc("POST /api/v1/kb/entries", func(w http.ResponseWriter, r *http.Request) {
 		var e store.KbEntry
 		if err := json.NewDecoder(r.Body).Decode(&e); err != nil {
 			writeErr(w, http.StatusBadRequest, "请求体不是合法 JSON")
@@ -207,7 +211,7 @@ func MountAPI(mux *http.ServeMux, st *store.Store) {
 		writeJSON(w, out)
 	})
 
-	mux.HandleFunc("PUT /api/v1/kb/entries/{id}", func(w http.ResponseWriter, r *http.Request) {
+	api.HandleFunc("PUT /api/v1/kb/entries/{id}", func(w http.ResponseWriter, r *http.Request) {
 		var e store.KbEntry
 		if err := json.NewDecoder(r.Body).Decode(&e); err != nil {
 			writeErr(w, http.StatusBadRequest, "请求体不是合法 JSON")
@@ -230,15 +234,15 @@ func MountAPI(mux *http.ServeMux, st *store.Store) {
 		writeStoreResult(w, out, err)
 	})
 
-	mux.HandleFunc("DELETE /api/v1/kb/entries/{id}", func(w http.ResponseWriter, r *http.Request) {
+	api.HandleFunc("DELETE /api/v1/kb/entries/{id}", func(w http.ResponseWriter, r *http.Request) {
 		out, err := st.DeleteKbEntry(r.Context(), r.PathValue("id"))
 		writeStoreResult(w, out, err)
 	})
 
-	mux.HandleFunc("GET /api/v1/synonyms", handle(func(r *http.Request) ([]store.Synonym, error) {
+	api.HandleFunc("GET /api/v1/synonyms", handle(func(r *http.Request) ([]store.Synonym, error) {
 		return st.ListSynonyms(r.Context(), r.URL.Query().Get("status"))
 	}))
-	mux.HandleFunc("POST /api/v1/synonyms/{id}/merge", func(w http.ResponseWriter, r *http.Request) {
+	api.HandleFunc("POST /api/v1/synonyms/{id}/merge", func(w http.ResponseWriter, r *http.Request) {
 		var in struct {
 			Standard string `json:"standard"`
 			By       string `json:"by"`
@@ -257,14 +261,14 @@ func MountAPI(mux *http.ServeMux, st *store.Store) {
 
 	// ─── M4 本体运行时 ───
 
-	mux.HandleFunc("GET /api/v1/instances", handle(func(r *http.Request) ([]store.Instance, error) {
+	api.HandleFunc("GET /api/v1/instances", handle(func(r *http.Request) ([]store.Instance, error) {
 		q := r.URL.Query()
 		return st.ListInstances(r.Context(), q.Get("object"), q.Get("kw"))
 	}))
-	mux.HandleFunc("GET /api/v1/instances/{id}", handle(func(r *http.Request) (store.Instance, error) {
+	api.HandleFunc("GET /api/v1/instances/{id}", handle(func(r *http.Request) (store.Instance, error) {
 		return st.GetInstance(r.Context(), r.PathValue("id"))
 	}))
-	mux.HandleFunc("POST /api/v1/instances/{id}/events", func(w http.ResponseWriter, r *http.Request) {
+	api.HandleFunc("POST /api/v1/instances/{id}/events", func(w http.ResponseWriter, r *http.Request) {
 		var in struct {
 			T string `json:"t"`
 			E string `json:"e"`
@@ -281,10 +285,10 @@ func MountAPI(mux *http.ServeMux, st *store.Store) {
 		writeStoreResult(w, out, err)
 	})
 
-	mux.HandleFunc("GET /api/v1/rule-firings", handle(func(r *http.Request) ([]store.RuleFiring, error) {
+	api.HandleFunc("GET /api/v1/rule-firings", handle(func(r *http.Request) ([]store.RuleFiring, error) {
 		return st.ListRuleFirings(r.Context(), r.URL.Query().Get("rule"))
 	}))
-	mux.HandleFunc("POST /api/v1/rule-firings", func(w http.ResponseWriter, r *http.Request) {
+	api.HandleFunc("POST /api/v1/rule-firings", func(w http.ResponseWriter, r *http.Request) {
 		var f store.RuleFiring
 		if err := json.NewDecoder(r.Body).Decode(&f); err != nil {
 			writeErr(w, http.StatusBadRequest, "请求体不是合法 JSON")
@@ -306,10 +310,10 @@ func MountAPI(mux *http.ServeMux, st *store.Store) {
 		writeJSON(w, out)
 	})
 
-	mux.HandleFunc("GET /api/v1/actions", handle(func(r *http.Request) ([]store.Action, error) {
+	api.HandleFunc("GET /api/v1/actions", handle(func(r *http.Request) ([]store.Action, error) {
 		return st.ListActions(r.Context(), r.URL.Query().Get("instance"))
 	}))
-	mux.HandleFunc("POST /api/v1/actions", func(w http.ResponseWriter, r *http.Request) {
+	api.HandleFunc("POST /api/v1/actions", func(w http.ResponseWriter, r *http.Request) {
 		var in struct {
 			ID         string `json:"id"`
 			FuncID     string `json:"funcId"`
@@ -343,10 +347,10 @@ func MountAPI(mux *http.ServeMux, st *store.Store) {
 
 	// ─── M9 组织与权限 ───
 
-	mux.HandleFunc("GET /api/v1/roles", handle(func(r *http.Request) ([]store.Role, error) {
+	api.HandleFunc("GET /api/v1/roles", handle(func(r *http.Request) ([]store.Role, error) {
 		return st.ListRoles(r.Context())
 	}))
-	mux.HandleFunc("POST /api/v1/roles", func(w http.ResponseWriter, r *http.Request) {
+	api.HandleFunc("POST /api/v1/roles", func(w http.ResponseWriter, r *http.Request) {
 		var role store.Role
 		if err := json.NewDecoder(r.Body).Decode(&role); err != nil {
 			writeErr(w, http.StatusBadRequest, "请求体不是合法 JSON")
@@ -367,7 +371,7 @@ func MountAPI(mux *http.ServeMux, st *store.Store) {
 		w.WriteHeader(http.StatusCreated)
 		writeJSON(w, out)
 	})
-	mux.HandleFunc("PUT /api/v1/roles/{id}", func(w http.ResponseWriter, r *http.Request) {
+	api.HandleFunc("PUT /api/v1/roles/{id}", func(w http.ResponseWriter, r *http.Request) {
 		var role store.Role
 		if err := json.NewDecoder(r.Body).Decode(&role); err != nil {
 			writeErr(w, http.StatusBadRequest, "请求体不是合法 JSON")
@@ -381,7 +385,7 @@ func MountAPI(mux *http.ServeMux, st *store.Store) {
 		out, err := st.UpdateRole(r.Context(), role)
 		writeStoreResult(w, out, err)
 	})
-	mux.HandleFunc("DELETE /api/v1/roles/{id}", func(w http.ResponseWriter, r *http.Request) {
+	api.HandleFunc("DELETE /api/v1/roles/{id}", func(w http.ResponseWriter, r *http.Request) {
 		if err := st.DeleteRole(r.Context(), r.PathValue("id")); err != nil {
 			writeStoreResult(w, nil, err)
 			return
@@ -389,7 +393,7 @@ func MountAPI(mux *http.ServeMux, st *store.Store) {
 		w.WriteHeader(http.StatusNoContent)
 	})
 
-	mux.HandleFunc("POST /api/v1/users", func(w http.ResponseWriter, r *http.Request) {
+	api.HandleFunc("POST /api/v1/users", func(w http.ResponseWriter, r *http.Request) {
 		var u store.User
 		if err := json.NewDecoder(r.Body).Decode(&u); err != nil {
 			writeErr(w, http.StatusBadRequest, "请求体不是合法 JSON")
@@ -414,7 +418,7 @@ func MountAPI(mux *http.ServeMux, st *store.Store) {
 		w.WriteHeader(http.StatusCreated)
 		writeJSON(w, out)
 	})
-	mux.HandleFunc("PUT /api/v1/users/{id}", func(w http.ResponseWriter, r *http.Request) {
+	api.HandleFunc("PUT /api/v1/users/{id}", func(w http.ResponseWriter, r *http.Request) {
 		var u store.User
 		if err := json.NewDecoder(r.Body).Decode(&u); err != nil {
 			writeErr(w, http.StatusBadRequest, "请求体不是合法 JSON")
@@ -435,7 +439,7 @@ func MountAPI(mux *http.ServeMux, st *store.Store) {
 
 	// ─── M7 能力出口 ───
 
-	mux.HandleFunc("POST /api/v1/capabilities", func(w http.ResponseWriter, r *http.Request) {
+	api.HandleFunc("POST /api/v1/capabilities", func(w http.ResponseWriter, r *http.Request) {
 		var c store.Capability
 		if err := json.NewDecoder(r.Body).Decode(&c); err != nil {
 			writeErr(w, http.StatusBadRequest, "请求体不是合法 JSON")
@@ -456,7 +460,7 @@ func MountAPI(mux *http.ServeMux, st *store.Store) {
 		w.WriteHeader(http.StatusCreated)
 		writeJSON(w, out)
 	})
-	mux.HandleFunc("PUT /api/v1/capabilities/{id}", func(w http.ResponseWriter, r *http.Request) {
+	api.HandleFunc("PUT /api/v1/capabilities/{id}", func(w http.ResponseWriter, r *http.Request) {
 		var c store.Capability
 		if err := json.NewDecoder(r.Body).Decode(&c); err != nil {
 			writeErr(w, http.StatusBadRequest, "请求体不是合法 JSON")
@@ -470,14 +474,14 @@ func MountAPI(mux *http.ServeMux, st *store.Store) {
 		out, err := st.UpdateCapability(r.Context(), c)
 		writeStoreResult(w, out, err)
 	})
-	mux.HandleFunc("DELETE /api/v1/capabilities/{id}", func(w http.ResponseWriter, r *http.Request) {
+	api.HandleFunc("DELETE /api/v1/capabilities/{id}", func(w http.ResponseWriter, r *http.Request) {
 		if err := st.DeleteCapability(r.Context(), r.PathValue("id")); err != nil {
 			writeStoreResult(w, nil, err)
 			return
 		}
 		w.WriteHeader(http.StatusNoContent)
 	})
-	mux.HandleFunc("POST /api/v1/capabilities/{id}/invoke", func(w http.ResponseWriter, r *http.Request) {
+	api.HandleFunc("POST /api/v1/capabilities/{id}/invoke", func(w http.ResponseWriter, r *http.Request) {
 		var in struct {
 			ID        string `json:"id"`
 			Caller    string `json:"caller"`
@@ -502,7 +506,7 @@ func MountAPI(mux *http.ServeMux, st *store.Store) {
 		})
 		writeStoreResult(w, out, err)
 	})
-	mux.HandleFunc("GET /api/v1/capabilities/{id}/calls", handle(func(r *http.Request) ([]store.CapabilityCall, error) {
+	api.HandleFunc("GET /api/v1/capabilities/{id}/calls", handle(func(r *http.Request) ([]store.CapabilityCall, error) {
 		limit := 0
 		if v := r.URL.Query().Get("limit"); v != "" {
 			fmt.Sscanf(v, "%d", &limit)
@@ -512,14 +516,14 @@ func MountAPI(mux *http.ServeMux, st *store.Store) {
 
 	// ─── M5 语义查询 ───
 
-	mux.HandleFunc("GET /api/v1/search", handle(func(r *http.Request) (store.SearchResults, error) {
+	api.HandleFunc("GET /api/v1/search", handle(func(r *http.Request) (store.SearchResults, error) {
 		q := r.URL.Query().Get("q")
 		if q == "" {
 			return store.SearchResults{}, store.ErrInvalid
 		}
 		return st.Search(r.Context(), q)
 	}))
-	mux.HandleFunc("POST /api/v1/queries", func(w http.ResponseWriter, r *http.Request) {
+	api.HandleFunc("POST /api/v1/queries", func(w http.ResponseWriter, r *http.Request) {
 		var in store.QueryRecord
 		if err := json.NewDecoder(r.Body).Decode(&in); err != nil {
 			writeErr(w, http.StatusBadRequest, "请求体不是合法 JSON")
@@ -537,7 +541,7 @@ func MountAPI(mux *http.ServeMux, st *store.Store) {
 		w.WriteHeader(http.StatusCreated)
 		writeJSON(w, out)
 	})
-	mux.HandleFunc("GET /api/v1/queries", handle(func(r *http.Request) ([]store.QueryRecord, error) {
+	api.HandleFunc("GET /api/v1/queries", handle(func(r *http.Request) ([]store.QueryRecord, error) {
 		limit := 0
 		if v := r.URL.Query().Get("limit"); v != "" {
 			fmt.Sscanf(v, "%d", &limit)
@@ -547,7 +551,7 @@ func MountAPI(mux *http.ServeMux, st *store.Store) {
 
 	// ─── M1 数据资产运营 ───
 
-	mux.HandleFunc("POST /api/v1/datasources", func(w http.ResponseWriter, r *http.Request) {
+	api.HandleFunc("POST /api/v1/datasources", func(w http.ResponseWriter, r *http.Request) {
 		var d store.Datasource
 		if err := json.NewDecoder(r.Body).Decode(&d); err != nil {
 			writeErr(w, http.StatusBadRequest, "请求体不是合法 JSON")
@@ -568,7 +572,7 @@ func MountAPI(mux *http.ServeMux, st *store.Store) {
 		w.WriteHeader(http.StatusCreated)
 		writeJSON(w, out)
 	})
-	mux.HandleFunc("PUT /api/v1/datasources/{id}", func(w http.ResponseWriter, r *http.Request) {
+	api.HandleFunc("PUT /api/v1/datasources/{id}", func(w http.ResponseWriter, r *http.Request) {
 		var d store.Datasource
 		if err := json.NewDecoder(r.Body).Decode(&d); err != nil {
 			writeErr(w, http.StatusBadRequest, "请求体不是合法 JSON")
@@ -583,7 +587,7 @@ func MountAPI(mux *http.ServeMux, st *store.Store) {
 		writeStoreResult(w, out, err)
 	})
 
-	mux.HandleFunc("POST /api/v1/views", func(w http.ResponseWriter, r *http.Request) {
+	api.HandleFunc("POST /api/v1/views", func(w http.ResponseWriter, r *http.Request) {
 		var v store.View
 		if err := json.NewDecoder(r.Body).Decode(&v); err != nil {
 			writeErr(w, http.StatusBadRequest, "请求体不是合法 JSON")
@@ -610,7 +614,7 @@ func MountAPI(mux *http.ServeMux, st *store.Store) {
 		w.WriteHeader(http.StatusCreated)
 		writeJSON(w, out)
 	})
-	mux.HandleFunc("PUT /api/v1/views/{id}", func(w http.ResponseWriter, r *http.Request) {
+	api.HandleFunc("PUT /api/v1/views/{id}", func(w http.ResponseWriter, r *http.Request) {
 		var v store.View
 		if err := json.NewDecoder(r.Body).Decode(&v); err != nil {
 			writeErr(w, http.StatusBadRequest, "请求体不是合法 JSON")
@@ -625,10 +629,10 @@ func MountAPI(mux *http.ServeMux, st *store.Store) {
 		writeStoreResult(w, out, err)
 	})
 
-	mux.HandleFunc("GET /api/v1/pipeline-tasks", handle(func(r *http.Request) ([]store.PipelineTask, error) {
+	api.HandleFunc("GET /api/v1/pipeline-tasks", handle(func(r *http.Request) ([]store.PipelineTask, error) {
 		return st.ListPipelineTasks(r.Context())
 	}))
-	mux.HandleFunc("POST /api/v1/pipeline-tasks", func(w http.ResponseWriter, r *http.Request) {
+	api.HandleFunc("POST /api/v1/pipeline-tasks", func(w http.ResponseWriter, r *http.Request) {
 		var p store.PipelineTask
 		if err := json.NewDecoder(r.Body).Decode(&p); err != nil {
 			writeErr(w, http.StatusBadRequest, "请求体不是合法 JSON")
@@ -649,7 +653,7 @@ func MountAPI(mux *http.ServeMux, st *store.Store) {
 		w.WriteHeader(http.StatusCreated)
 		writeJSON(w, out)
 	})
-	mux.HandleFunc("PUT /api/v1/pipeline-tasks/{id}/status", func(w http.ResponseWriter, r *http.Request) {
+	api.HandleFunc("PUT /api/v1/pipeline-tasks/{id}/status", func(w http.ResponseWriter, r *http.Request) {
 		var in struct {
 			Status string `json:"status"`
 		}
@@ -660,7 +664,7 @@ func MountAPI(mux *http.ServeMux, st *store.Store) {
 		out, err := st.UpdatePipelineTaskStatus(r.Context(), r.PathValue("id"), in.Status)
 		writeStoreResult(w, out, err)
 	})
-	mux.HandleFunc("POST /api/v1/pipeline-tasks/{id}/run", func(w http.ResponseWriter, r *http.Request) {
+	api.HandleFunc("POST /api/v1/pipeline-tasks/{id}/run", func(w http.ResponseWriter, r *http.Request) {
 		var in struct {
 			ID     string `json:"id"`
 			Detail string `json:"detail"`
@@ -678,13 +682,13 @@ func MountAPI(mux *http.ServeMux, st *store.Store) {
 		}
 		writeJSON(w, map[string]any{"task": task, "run": run})
 	})
-	mux.HandleFunc("GET /api/v1/pipeline-runs", handle(func(r *http.Request) ([]store.PipelineRun, error) {
+	api.HandleFunc("GET /api/v1/pipeline-runs", handle(func(r *http.Request) ([]store.PipelineRun, error) {
 		return st.ListPipelineRuns(r.Context(), r.URL.Query().Get("task"))
 	}))
 
 	// ─── M3 本体设计器 ───
 
-	mux.HandleFunc("POST /api/v1/objects", func(w http.ResponseWriter, r *http.Request) {
+	api.HandleFunc("POST /api/v1/objects", func(w http.ResponseWriter, r *http.Request) {
 		var o store.Object
 		if err := json.NewDecoder(r.Body).Decode(&o); err != nil {
 			writeErr(w, http.StatusBadRequest, "请求体不是合法 JSON")
@@ -705,7 +709,7 @@ func MountAPI(mux *http.ServeMux, st *store.Store) {
 		w.WriteHeader(http.StatusCreated)
 		writeJSON(w, out)
 	})
-	mux.HandleFunc("PUT /api/v1/objects/{id}", func(w http.ResponseWriter, r *http.Request) {
+	api.HandleFunc("PUT /api/v1/objects/{id}", func(w http.ResponseWriter, r *http.Request) {
 		var o store.Object
 		if err := json.NewDecoder(r.Body).Decode(&o); err != nil {
 			writeErr(w, http.StatusBadRequest, "请求体不是合法 JSON")
@@ -719,7 +723,7 @@ func MountAPI(mux *http.ServeMux, st *store.Store) {
 		out, err := st.UpdateObject(r.Context(), o)
 		writeStoreResult(w, out, err)
 	})
-	mux.HandleFunc("POST /api/v1/edges", func(w http.ResponseWriter, r *http.Request) {
+	api.HandleFunc("POST /api/v1/edges", func(w http.ResponseWriter, r *http.Request) {
 		var e store.Edge
 		if err := json.NewDecoder(r.Body).Decode(&e); err != nil {
 			writeErr(w, http.StatusBadRequest, "请求体不是合法 JSON")
@@ -740,7 +744,7 @@ func MountAPI(mux *http.ServeMux, st *store.Store) {
 		w.WriteHeader(http.StatusCreated)
 		writeJSON(w, out)
 	})
-	mux.HandleFunc("PUT /api/v1/edges/{id}", func(w http.ResponseWriter, r *http.Request) {
+	api.HandleFunc("PUT /api/v1/edges/{id}", func(w http.ResponseWriter, r *http.Request) {
 		var e store.Edge
 		if err := json.NewDecoder(r.Body).Decode(&e); err != nil {
 			writeErr(w, http.StatusBadRequest, "请求体不是合法 JSON")
@@ -754,7 +758,7 @@ func MountAPI(mux *http.ServeMux, st *store.Store) {
 		out, err := st.UpdateEdge(r.Context(), e)
 		writeStoreResult(w, out, err)
 	})
-	mux.HandleFunc("POST /api/v1/functions", func(w http.ResponseWriter, r *http.Request) {
+	api.HandleFunc("POST /api/v1/functions", func(w http.ResponseWriter, r *http.Request) {
 		var f store.Func
 		if err := json.NewDecoder(r.Body).Decode(&f); err != nil {
 			writeErr(w, http.StatusBadRequest, "请求体不是合法 JSON")
@@ -775,7 +779,7 @@ func MountAPI(mux *http.ServeMux, st *store.Store) {
 		w.WriteHeader(http.StatusCreated)
 		writeJSON(w, out)
 	})
-	mux.HandleFunc("PUT /api/v1/functions/{id}", func(w http.ResponseWriter, r *http.Request) {
+	api.HandleFunc("PUT /api/v1/functions/{id}", func(w http.ResponseWriter, r *http.Request) {
 		var f store.Func
 		if err := json.NewDecoder(r.Body).Decode(&f); err != nil {
 			writeErr(w, http.StatusBadRequest, "请求体不是合法 JSON")
@@ -789,7 +793,7 @@ func MountAPI(mux *http.ServeMux, st *store.Store) {
 		out, err := st.UpdateFunc(r.Context(), f)
 		writeStoreResult(w, out, err)
 	})
-	mux.HandleFunc("POST /api/v1/elements/{type}/{id}/transition", func(w http.ResponseWriter, r *http.Request) {
+	api.HandleFunc("POST /api/v1/elements/{type}/{id}/transition", func(w http.ResponseWriter, r *http.Request) {
 		var in struct {
 			Action string `json:"action"`
 			By     string `json:"by"`
@@ -804,10 +808,10 @@ func MountAPI(mux *http.ServeMux, st *store.Store) {
 
 	// ─── M6 推演沙盘 ───
 
-	mux.HandleFunc("GET /api/v1/sandbox-branches", handle(func(r *http.Request) ([]store.SandboxBranch, error) {
+	api.HandleFunc("GET /api/v1/sandbox-branches", handle(func(r *http.Request) ([]store.SandboxBranch, error) {
 		return st.ListSandboxBranches(r.Context())
 	}))
-	mux.HandleFunc("POST /api/v1/sandbox-branches", func(w http.ResponseWriter, r *http.Request) {
+	api.HandleFunc("POST /api/v1/sandbox-branches", func(w http.ResponseWriter, r *http.Request) {
 		var b store.SandboxBranch
 		if err := json.NewDecoder(r.Body).Decode(&b); err != nil {
 			writeErr(w, http.StatusBadRequest, "请求体不是合法 JSON")
@@ -828,7 +832,7 @@ func MountAPI(mux *http.ServeMux, st *store.Store) {
 		w.WriteHeader(http.StatusCreated)
 		writeJSON(w, out)
 	})
-	mux.HandleFunc("POST /api/v1/sandbox-branches/{id}/simulate", func(w http.ResponseWriter, r *http.Request) {
+	api.HandleFunc("POST /api/v1/sandbox-branches/{id}/simulate", func(w http.ResponseWriter, r *http.Request) {
 		var in struct {
 			RiskAfter int    `json:"riskAfter"`
 			Cost      string `json:"cost"`
@@ -846,7 +850,7 @@ func MountAPI(mux *http.ServeMux, st *store.Store) {
 		out, err := st.SimulateBranch(r.Context(), r.PathValue("id"), in.RiskAfter, in.Cost, in.Note, in.By)
 		writeStoreResult(w, out, err)
 	})
-	mux.HandleFunc("POST /api/v1/sandbox-branches/{id}/rollback", func(w http.ResponseWriter, r *http.Request) {
+	api.HandleFunc("POST /api/v1/sandbox-branches/{id}/rollback", func(w http.ResponseWriter, r *http.Request) {
 		var in struct {
 			By string `json:"by"`
 		}

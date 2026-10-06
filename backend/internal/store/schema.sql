@@ -306,6 +306,67 @@ CREATE TABLE IF NOT EXISTS sandbox_branches (
   at           text NOT NULL DEFAULT ''
 );
 
+-- ─── M9 系统管理（complete-sysadmin） ───
+
+-- 菜单树（两级：parent_id 为空是一级模块；route 对应前端路由）
+CREATE TABLE IF NOT EXISTS menus (
+  id        text PRIMARY KEY,
+  parent_id text NOT NULL DEFAULT '',
+  name      text NOT NULL,
+  route     text NOT NULL DEFAULT '',
+  icon      text NOT NULL DEFAULT '',
+  sort      integer NOT NULL DEFAULT 0,
+  visible   boolean NOT NULL DEFAULT true
+);
+
+-- 行级数据权限规则（role 引用 roles.name，应用层校验）
+CREATE TABLE IF NOT EXISTS data_rules (
+  id         text PRIMARY KEY,
+  target     text NOT NULL,               -- 对象[采购订单] / 视图[lv_...]
+  rule       text NOT NULL,
+  role       text NOT NULL,
+  effect     text NOT NULL DEFAULT '',
+  updated_by text NOT NULL DEFAULT '',
+  updated_at text NOT NULL DEFAULT ''
+);
+
+-- 依赖服务与健康巡检（kind: postgres=自库 | redis | http）
+CREATE TABLE IF NOT EXISTS dep_services (
+  id         text PRIMARY KEY,
+  name       text NOT NULL,
+  descr      text NOT NULL DEFAULT '',
+  kind       text NOT NULL,
+  target     text NOT NULL DEFAULT '',
+  status     text NOT NULL DEFAULT '未巡检', -- 正常 | 延迟 | 异常 | 未巡检
+  latency_ms integer NOT NULL DEFAULT 0,
+  checked_at text NOT NULL DEFAULT ''
+);
+
+CREATE TABLE IF NOT EXISTS dep_checks (
+  id         serial PRIMARY KEY,
+  service_id text NOT NULL,
+  ok         boolean NOT NULL,
+  latency_ms integer NOT NULL DEFAULT 0,
+  at         text NOT NULL DEFAULT ''      -- YYYY-MM-DD HH:MM
+);
+
+-- 审计日志（写操作由中间件自动落库；level: INFO | WARN | ERROR）
+CREATE TABLE IF NOT EXISTS audit_logs (
+  id       serial PRIMARY KEY,
+  at       text NOT NULL,
+  module   text NOT NULL,                 -- m1..m9
+  level    text NOT NULL,
+  operator text NOT NULL DEFAULT '系统',
+  content  text NOT NULL,
+  trace_id text NOT NULL DEFAULT ''
+);
+
+-- 个性化设置（settings 为前端自有形状，按账号隔离）
+CREATE TABLE IF NOT EXISTS user_settings (
+  account  text PRIMARY KEY,
+  settings jsonb NOT NULL DEFAULT '{}'
+);
+
 -- 幂等演进（已有库补列；新库因 CREATE 已含而 no-op）
 ALTER TABLE reviews ADD COLUMN IF NOT EXISTS decided_by text NOT NULL DEFAULT '';
 ALTER TABLE reviews ADD COLUMN IF NOT EXISTS decided_at text NOT NULL DEFAULT '';

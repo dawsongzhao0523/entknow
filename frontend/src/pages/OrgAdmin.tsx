@@ -4,11 +4,13 @@ import {
   Table, Tabs, Tag, Typography,
 } from 'antd';
 import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
-import { api, type Role, type User } from '../api';
+import { api, type MenuNode, type Role, type User } from '../api';
+import { useSession } from '../session';
 
 const { Title, Text } = Typography;
 
-const MODULES: [string, string][] = [
+/** 模块权限选项兜底（菜单 API 不可用时） */
+const FALLBACK_MODULES: [string, string][] = [
   ['m1', '数据资产'], ['m2', '知识运营'], ['m3', '本体建模'], ['m4', '本体运行时'], ['m5', '推理演绎'],
   ['m6', '推演沙盘'], ['m7', '智能应用'], ['m8', '治理演化'], ['m9', '系统管理'],
 ];
@@ -19,8 +21,10 @@ const emptyRole = { name: '', desc: '', perms: [] as string[] };
 /** M9 组织与权限：用户 / 角色 管理（内置角色保护、引用保护、账号唯一） */
 export default function OrgAdmin() {
   const { message } = App.useApp();
+  const { bumpPerms } = useSession();
   const [users, setUsers] = useState<User[]>([]);
   const [roles, setRoles] = useState<Role[]>([]);
+  const [modules, setModules] = useState<[string, string][]>(FALLBACK_MODULES);
   const [userForm] = Form.useForm();
   const [roleForm] = Form.useForm();
   const [editingUser, setEditingUser] = useState<User | null>(null);
@@ -29,8 +33,11 @@ export default function OrgAdmin() {
   const [roleOpen, setRoleOpen] = useState(false);
 
   const reload = useCallback(() => {
-    api.users().then(setUsers).catch(e => message.error(String((e as Error).message)));
+    api.users().then(setUsers).catch(e => message.error(String(e.message)));
     api.roles().then(setRoles).catch(() => {});
+    api.menus().then((tree: MenuNode[]) => {
+      if (tree.length) setModules(tree.map(m => [m.id, m.name] as [string, string]));
+    }).catch(() => {});
   }, [message]);
 
   useEffect(() => { reload(); }, [reload]);
@@ -59,10 +66,12 @@ export default function OrgAdmin() {
       if (editingRole) {
         await api.updateRole(editingRole.id, { ...v, id: editingRole.id, builtIn: editingRole.builtIn });
         message.success('角色已更新');
+        bumpPerms();
       } else {
         const id = `role-${Date.now().toString(36)}`;
         await api.createRole({ ...v, id, builtIn: false });
         message.success(`角色已创建：${id}（幂等）`);
+        bumpPerms();
       }
       setRoleOpen(false);
       reload();
@@ -75,6 +84,7 @@ export default function OrgAdmin() {
     try {
       await api.deleteRole(r.id);
       message.success(`角色「${r.name}」已删除`);
+      bumpPerms();
       reload();
     } catch (e) {
       message.error(String((e as Error).message)); // 内置 400 / 被引用 409
@@ -127,7 +137,7 @@ export default function OrgAdmin() {
           { title: '角色', dataIndex: 'name', render: (v: string, r) => <Space size={6}><b>{v}</b>{r.builtIn && <Tag color="gold">内置</Tag>}</Space> },
           { title: '说明', dataIndex: 'desc' },
           { title: '模块权限', dataIndex: 'perms', render: (ps: string[]) => ps.map(p => (
-            <Tag key={p} color="green" style={{ marginInlineEnd: 4 }}>{MODULES.find(([k]) => k === p)?.[1] ?? p}</Tag>
+            <Tag key={p} color="green" style={{ marginInlineEnd: 4 }}>{modules.find(([k]) => k === p)?.[1] ?? p}</Tag>
           )) },
           { title: '操作', key: 'op', width: 150, render: (_, r) => (
             <Space size={0}>
@@ -179,7 +189,7 @@ export default function OrgAdmin() {
           <Form.Item name="name" label="角色名" rules={[{ required: true }]}><Input placeholder="如 计划主管" /></Form.Item>
           <Form.Item name="desc" label="说明"><Input placeholder="职责说明" /></Form.Item>
           <Form.Item name="perms" label="模块权限">
-            <Checkbox.Group options={MODULES.map(([k, label]) => ({ value: k, label }))} />
+            <Checkbox.Group options={modules.map(([k, label]) => ({ value: k, label }))} />
           </Form.Item>
         </Form>
       </Modal>

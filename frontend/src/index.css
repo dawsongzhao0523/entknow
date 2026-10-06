@@ -3,3 +3,12 @@ body {
   font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Segoe UI', sans-serif;
   -webkit-font-smoothing: antialiased;
 }
+
+.mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+/* 个性化设置「代码/ID 字体」关闭时回退系统字体 */
+body.no-mono .mono {
+  font-family: inherit;
+}

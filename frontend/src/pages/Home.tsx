@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Card, Col, List, Row, Statistic, Table, Tag, Typography } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import { api, type Notification, type Ontology, type Review } from '../api';
+import { useSession } from '../session';
 
 const { Title } = Typography;
 
@@ -10,22 +11,33 @@ const statusColor: Record<string, string> =
 
 export default function Home() {
   const nav = useNavigate();
+  const { user, prefs, prefsLoaded } = useSession();
   const [ontos, setOntos] = useState<Ontology[]>([]);
   const [reviews, setReviews] = useState<Review[]>([]);
   const [notifs, setNotifs] = useState<Notification[]>([]);
   const [err, setErr] = useState('');
 
   useEffect(() => {
-    Promise.all([api.ontologies(), api.reviews(), api.notifications()])
+    Promise.all([api.ontologies(user), api.reviews(), api.notifications()])
       .then(([o, r, n]) => { setOntos(o); setReviews(r); setNotifs(n); })
       .catch(e => setErr(String(e.message ?? e)));
-  }, []);
+  }, [user]);
+
+  // 个性化设置：默认落地页（每会话仅首次进入时跳转，之后可正常回到首页）
+  useEffect(() => {
+    if (prefsLoaded && prefs.landingPage && !sessionStorage.getItem('entknow.landed')) {
+      sessionStorage.setItem('entknow.landed', '1');
+      nav('/' + prefs.landingPage);
+    }
+  }, [prefsLoaded, prefs.landingPage, nav]);
 
   if (err) return <Card>无法连接后端 API（{err}）。请确认后端已启动：cd backend && go run ./cmd/entknow</Card>;
 
   const draft = ontos.filter(o => o.status === 'DRAFT').length;
   const pendingReviews = reviews.filter(r => r.status !== '已通过').length;
-  const unread = notifs.filter(n => n.unread).length;
+  // 个性化设置：通知类别过滤（空 = 全部隐藏）
+  const shown = prefs.notifyCats?.length ? notifs.filter(n => prefs.notifyCats!.includes(n.cat)) : [];
+  const unread = shown.filter(n => n.unread).length;
 
   return (
     <div>
@@ -39,7 +51,7 @@ export default function Home() {
         {[
           { t: '本体', v: ontos.length, s: `草稿 ${draft} / 已发布 ${ontos.length - draft}`, to: '/m3/ontologies' },
           { t: '待评审', v: pendingReviews, s: `共 ${reviews.length} 条评审记录`, to: '/m8/reviews' },
-          { t: '未读通知', v: unread, s: `共 ${notifs.length} 条`, to: '/' },
+          { t: '未读通知', v: unread, s: `共 ${shown.length} 条（按个人设置过滤）`, to: '/' },
           { t: '画布对象', v: 7, s: '注册中心 11 个对象', to: '/m3/registry' },
         ].map(c => (
           <Col span={6} key={c.t}>
@@ -64,7 +76,9 @@ export default function Home() {
         </Col>
         <Col span={10}>
           <Card size="small" title="消息通知" extra={<Tag>{unread} 未读</Tag>}>
-            <List size="small" dataSource={notifs} renderItem={n => (
+            <List size="small" dataSource={shown}
+              locale={{ emptyText: prefs.notifyCats?.length ? '暂无消息' : '通知类别已全部关闭（个性化设置）' }}
+              renderItem={n => (
               <List.Item style={{ opacity: n.unread ? 1 : 0.55 }}>
                 <List.Item.Meta
                   title={<span style={{ fontSize: 13, fontWeight: n.unread ? 600 : 400 }}>{n.title}</span>}

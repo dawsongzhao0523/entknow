@@ -9,13 +9,19 @@ import KnowledgeBase from './pages/KnowledgeBase';
 import Synonyms from './pages/Synonyms';
 import Instance360 from './pages/Instance360';
 import RuntimeRules from './pages/RuntimeRules';
-import OrgAdmin from './pages/OrgAdmin';
 import CapabilityOutlet from './pages/CapabilityOutlet';
 import SemanticQuery from './pages/SemanticQuery';
 import LogicalViews from './pages/LogicalViews';
 import Pipelines from './pages/Pipelines';
 import Sandbox from './pages/Sandbox';
 import Placeholder from './pages/Placeholder';
+import Overview from './pages/m9/Overview';
+import OrgAdmin from './pages/OrgAdmin';
+import Permissions from './pages/m9/Permissions';
+import Menus from './pages/m9/Menus';
+import Monitor from './pages/m9/Monitor';
+import Logs from './pages/m9/Logs';
+import Settings from './pages/m9/Settings';
 
 export default function App() {
   return (
@@ -35,7 +41,13 @@ export default function App() {
         <Route path="m7/capability" element={<CapabilityOutlet />} />
         <Route path="m5/query" element={<SemanticQuery />} />
         <Route path="m6/sandbox" element={<Sandbox />} />
+        <Route path="m9/overview" element={<Overview />} />
         <Route path="m9/org" element={<OrgAdmin />} />
+        <Route path="m9/permissions" element={<Permissions />} />
+        <Route path="m9/menus" element={<Menus />} />
+        <Route path="m9/monitor" element={<Monitor />} />
+        <Route path="m9/logs" element={<Logs />} />
+        <Route path="m9/settings" element={<Settings />} />
         <Route path="*" element={<Placeholder />} />
       </Route>
     </Routes>
