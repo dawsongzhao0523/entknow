@@ -52,6 +52,22 @@ export interface KbDomain { id: string; name: string; parentId: string; entryCou
 
 export interface Synonym { id: string; terms: string[]; standard: string; status: string; by?: string; at?: string }
 
+export interface InstanceEvent { t: string; e: string }
+
+export interface Instance {
+  id: string; objectId: string; status: string; props: Record<string, string>;
+  riskScore: number; orderDt?: string; promiseDt?: string; timeline?: InstanceEvent[];
+}
+
+export interface RuleFiring { id: string; ruleId: string; instanceId?: string; detail: string; firedAt?: string }
+
+export interface Rule { id: string; def: string; kind: string; status: string; fired: number }
+
+export interface Action {
+  id: string; funcId: string; instanceId: string; user: string; trigger: string;
+  status: string; detail?: string; time: string;
+}
+
 async function get<T>(path: string): Promise<T> {
   const res = await fetch(path);
   if (!res.ok) throw new Error(`${path} → HTTP ${res.status}`);
@@ -95,4 +111,16 @@ export const api = {
   synonyms: (status = '') => get<Synonym[]>(`/api/v1/synonyms?status=${status}`),
   mergeSynonym: (id: string, standard: string, by: string) =>
     send<Synonym>(`/api/v1/synonyms/${id}/merge`, 'POST', { standard, by }),
+  instances: (object = '', kw = '') =>
+    get<Instance[]>(`/api/v1/instances?object=${object}&kw=${kw}`),
+  instance: (id: string) => get<Instance>(`/api/v1/instances/${id}`),
+  appendEvent: (id: string, t: string, e: string) =>
+    send<Instance>(`/api/v1/instances/${id}/events`, 'POST', { t, e }),
+  ruleFirings: (rule = '') => get<RuleFiring[]>(`/api/v1/rule-firings?rule=${rule}`),
+  createRuleFiring: (f: Pick<RuleFiring, 'id' | 'ruleId' | 'detail'> & { instanceId?: string }) =>
+    send<RuleFiring>('/api/v1/rule-firings', 'POST', f),
+  rules: () => get<Rule[]>('/api/v1/rules'),
+  actions: (instance = '') => get<Action[]>(`/api/v1/actions?instance=${instance}`),
+  executeAction: (p: { id: string; funcId: string; instanceId: string; user: string; trigger?: string; confirm?: boolean }) =>
+    send<Action>('/api/v1/actions', 'POST', p),
 };

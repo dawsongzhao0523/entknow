@@ -19,7 +19,9 @@ const NAV: { key: string; label: string; icon?: React.ReactNode; children?: [str
   { key: 'm3', label: '本体建模', icon: <DeploymentUnitOutlined />, children: [
     ['m3/ontologies', '本体管理'], ['m3/registry', '注册中心'],
   ]},
-  { key: 'm4', label: '本体运行时', icon: <ApiOutlined /> },
+  { key: 'm4', label: '本体运行时', icon: <ApiOutlined />, children: [
+    ['m4/instance-360', '实例 360°'], ['m4/runtime', '规则与行动'],
+  ]},
   { key: 'm5', label: '推理演绎', icon: <BulbOutlined /> },
   { key: 'm6', label: '推演沙盘', icon: <ExperimentOutlined /> },
   { key: 'm7', label: '智能应用', icon: <RocketOutlined /> },

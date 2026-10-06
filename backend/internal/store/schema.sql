@@ -197,6 +197,45 @@ CREATE TABLE IF NOT EXISTS synonyms (
   at       text NOT NULL DEFAULT ''
 );
 
+-- ─── M4 本体运行时 ───
+
+CREATE TABLE IF NOT EXISTS instances (
+  id         text PRIMARY KEY,
+  object_id  text NOT NULL,                  -- 对应 objects.id（如 o4 采购订单）
+  status     text NOT NULL DEFAULT '',       -- 对象状态机当前态
+  props      jsonb NOT NULL DEFAULT '{}',    -- 业务属性（supplier/plant/amount…）
+  risk_score integer NOT NULL DEFAULT 0,
+  order_dt   text NOT NULL DEFAULT '',
+  promise_dt text NOT NULL DEFAULT ''
+);
+
+CREATE TABLE IF NOT EXISTS instance_events (
+  id          serial PRIMARY KEY,
+  instance_id text NOT NULL,
+  t           text NOT NULL,
+  e           text NOT NULL,
+  UNIQUE (instance_id, t, e)                 -- 时间线追加幂等键
+);
+
+CREATE TABLE IF NOT EXISTS rule_firings (
+  id          text PRIMARY KEY,
+  rule_id     text NOT NULL,
+  instance_id text NOT NULL DEFAULT '',
+  detail      text NOT NULL DEFAULT '',
+  fired_at    text NOT NULL DEFAULT ''
+);
+
+CREATE TABLE IF NOT EXISTS actions (
+  id          text PRIMARY KEY,
+  func_id     text NOT NULL,
+  instance_id text NOT NULL,
+  user_name   text NOT NULL,
+  trigger     text NOT NULL DEFAULT 'manual', -- manual | event | schedule
+  status      text NOT NULL DEFAULT '执行成功', -- 执行成功 | 权限拒绝 | 已回滚 | 待确认
+  detail      text NOT NULL DEFAULT '',
+  time        text NOT NULL DEFAULT ''
+);
+
 -- 幂等演进（已有库补列；新库因 CREATE 已含而 no-op）
 ALTER TABLE reviews ADD COLUMN IF NOT EXISTS decided_by text NOT NULL DEFAULT '';
 ALTER TABLE reviews ADD COLUMN IF NOT EXISTS decided_at text NOT NULL DEFAULT '';

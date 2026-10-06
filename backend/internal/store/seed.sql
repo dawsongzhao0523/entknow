@@ -3,7 +3,7 @@ BEGIN;
 
 TRUNCATE users, ontologies, memberships, objects, edges, functions, views,
          datasources, rules, reviews, notifications, capabilities, versions, table_profiles,
-         kb_domains, kb_entries, synonyms;
+         kb_domains, kb_entries, synonyms, instances, instance_events, rule_firings, actions;
 
 INSERT INTO users (id, account, name, dept, post, roles, status, last_login) VALUES
 ('u1', 'zhangsan', '张三', '平台部 / 数据AI部', '数据架构师', ARRAY['本体管理员','数据开发'], '正常', '2026-10-03 09:12'),
@@ -179,6 +179,36 @@ INSERT INTO synonyms (id, terms, standard, status, by, at) VALUES
 ('s1', ARRAY['供应商','供货商','Vendor'], '', '待归并', '', ''),
 ('s2', ARRAY['客户','顾客','Customer'], '', '待归并', '', ''),
 ('s3', ARRAY['准时率','及时率','OnTimeRate'], '', '待归并', '', '');
+
+INSERT INTO instances (id, object_id, status, props, risk_score, order_dt, promise_dt) VALUES
+('PO20260930001', 'o4', '已发货',
+ '{"type":"采购订单","supplier":"S-0012 华兴电子","plant":"RCBJ-YK","material":"M-100233 电容 0402","amount":"58,200.00 CNY"}',
+ 76, '2026-09-30 10:21', '2026-10-15 00:00'),
+('PO20261002091', 'o4', '已下达',
+ '{"type":"采购订单","supplier":"S-0031 翔宇科技","plant":"RCBJ-BSE","material":"M-100870 MCU","amount":"128,400.00 CNY"}',
+ 92, '2026-10-02 14:05', '2026-10-25 00:00'),
+('QA-118', 'o7', '已通过',
+ '{"type":"准入评估","supplier":"S-0031 翔宇科技","score":"86","conclusion":"准入"}',
+ 0, '2026-09-12 09:30', '');
+
+INSERT INTO instance_events (instance_id, t, e) VALUES
+('PO20260930001', '2026-09-30 10:21', '订单创建（草稿）'),
+('PO20260930001', '2026-09-30 14:02', '已下达 → 供应商确认'),
+('PO20260930001', '2026-10-01 09:10', '已发货 · 物流单 SF880123'),
+('PO20260930001', '2026-10-02 18:44', '传播引擎：交付风险分 71→76（SUPPLY.delay 上升）'),
+('PO20261002091', '2026-10-02 14:05', '订单创建（草稿）'),
+('PO20261002091', '2026-10-02 15:30', '已下达 → 供应商确认（未回签，风险分升至 92）');
+
+INSERT INTO rule_firings (id, rule_id, instance_id, detail, fired_at) VALUES
+('rf1', 'R1', 'PO20260930001', 'SUPPLY.delay 月均值 +23% → 采购订单.交付风险分 重算 71→76', '2026-10-02 18:44'),
+('rf2', 'R2', 'PO20261002055', '采购订单.状态→已收货 → 供应商.准时率 更新（S-0012 92.4%）', '2026-10-03 09:30');
+
+INSERT INTO actions (id, func_id, instance_id, user_name, trigger, status, detail, time) VALUES
+('ACT-1003-1017', 'f3', 'PO20261002091', '张三', 'manual',   '执行成功', '冻结订单（已二次确认，风险分 92）', '2026-10-03 10:17'),
+('ACT-1003-0952', 'f3', 'PO20261002087', '张三', 'manual',   '执行成功', '冻结订单', '2026-10-03 09:52'),
+('ACT-1003-0930', 'f3', 'PO20261002055', 'system', 'event',   '执行成功', '规则 R2 联动：收货超时自动冻结', '2026-10-03 09:30'),
+('ACT-1003-0911', 'f3', 'PO20261002112', '王五', 'manual',   '权限拒绝', '计划员无 execute 权限（需计划主管）', '2026-10-03 09:11'),
+('ACT-1003-0600', 'f3', 'PO20261002031', 'system', 'schedule', '已回滚', '定时批量冻结误触发 → 自动回滚', '2026-10-03 06:00');
 
 INSERT INTO table_profiles (name, comment, rows, fields, pk, fks, siblings, profile_fields) VALUES
 ('purchase_order', '采购订单', '2,140,331', 18, 'po_id',

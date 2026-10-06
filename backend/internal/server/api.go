@@ -241,9 +241,95 @@ func MountAPI(mux *http.ServeMux, st *store.Store) {
 		out, err := st.MergeSynonym(r.Context(), r.PathValue("id"), in.Standard, in.By)
 		writeStoreResult(w, out, err)
 	})
+
+	// ─── M4 本体运行时 ───
+
+	mux.HandleFunc("GET /api/v1/instances", handle(func(r *http.Request) ([]store.Instance, error) {
+		q := r.URL.Query()
+		return st.ListInstances(r.Context(), q.Get("object"), q.Get("kw"))
+	}))
+	mux.HandleFunc("GET /api/v1/instances/{id}", handle(func(r *http.Request) (store.Instance, error) {
+		return st.GetInstance(r.Context(), r.PathValue("id"))
+	}))
+	mux.HandleFunc("POST /api/v1/instances/{id}/events", func(w http.ResponseWriter, r *http.Request) {
+		var in struct {
+			T string `json:"t"`
+			E string `json:"e"`
+		}
+		if err := json.NewDecoder(r.Body).Decode(&in); err != nil {
+			writeErr(w, http.StatusBadRequest, "请求体不是合法 JSON")
+			return
+		}
+		if in.T == "" || in.E == "" {
+			writeErr(w, http.StatusBadRequest, "t / e 均为必填")
+			return
+		}
+		out, err := st.AppendInstanceEvent(r.Context(), r.PathValue("id"), in.T, in.E)
+		writeStoreResult(w, out, err)
+	})
+
+	mux.HandleFunc("GET /api/v1/rule-firings", handle(func(r *http.Request) ([]store.RuleFiring, error) {
+		return st.ListRuleFirings(r.Context(), r.URL.Query().Get("rule"))
+	}))
+	mux.HandleFunc("POST /api/v1/rule-firings", func(w http.ResponseWriter, r *http.Request) {
+		var f store.RuleFiring
+		if err := json.NewDecoder(r.Body).Decode(&f); err != nil {
+			writeErr(w, http.StatusBadRequest, "请求体不是合法 JSON")
+			return
+		}
+		if f.ID == "" || f.RuleID == "" || f.Detail == "" {
+			writeErr(w, http.StatusBadRequest, "id / ruleId / detail 均为必填")
+			return
+		}
+		out, created, err := st.CreateRuleFiring(r.Context(), f)
+		if err != nil {
+			writeStoreResult(w, out, err)
+			return
+		}
+		if !created {
+			w.Header().Set("X-Idempotent-Replay", "true")
+		}
+		w.WriteHeader(http.StatusCreated)
+		writeJSON(w, out)
+	})
+
+	mux.HandleFunc("GET /api/v1/actions", handle(func(r *http.Request) ([]store.Action, error) {
+		return st.ListActions(r.Context(), r.URL.Query().Get("instance"))
+	}))
+	mux.HandleFunc("POST /api/v1/actions", func(w http.ResponseWriter, r *http.Request) {
+		var in struct {
+			ID         string `json:"id"`
+			FuncID     string `json:"funcId"`
+			InstanceID string `json:"instanceId"`
+			User       string `json:"user"`
+			Trigger    string `json:"trigger"`
+			Confirm    bool   `json:"confirm"`
+		}
+		if err := json.NewDecoder(r.Body).Decode(&in); err != nil {
+			writeErr(w, http.StatusBadRequest, "请求体不是合法 JSON")
+			return
+		}
+		if in.ID == "" || in.FuncID == "" || in.InstanceID == "" || in.User == "" {
+			writeErr(w, http.StatusBadRequest, "id / funcId / instanceId / user 均为必填")
+			return
+		}
+		out, created, err := st.ExecuteAction(r.Context(), store.ActionRequest{
+			ID: in.ID, FuncID: in.FuncID, InstanceID: in.InstanceID,
+			User: in.User, Trigger: in.Trigger, Confirm: in.Confirm,
+		})
+		if err != nil {
+			writeStoreResult(w, out, err)
+			return
+		}
+		if !created {
+			w.Header().Set("X-Idempotent-Replay", "true")
+		}
+		w.WriteHeader(http.StatusCreated)
+		writeJSON(w, out)
+	})
 }
 
-// writeStoreResult 统一写端点错误映射：404 / 409 / 400 / 500。
+// writeStoreResult 统一写端点错误映射：404 / 409 / 403 / 400 / 500。
 func writeStoreResult(w http.ResponseWriter, out any, err error) {
 	switch {
 	case err == nil:
@@ -252,6 +338,8 @@ func writeStoreResult(w http.ResponseWriter, out any, err error) {
 		writeErr(w, http.StatusNotFound, "资源不存在")
 	case errors.Is(err, store.ErrConflict):
 		writeErr(w, http.StatusConflict, err.Error())
+	case errors.Is(err, store.ErrForbidden):
+		writeErr(w, http.StatusForbidden, err.Error())
 	case errors.Is(err, store.ErrInvalid):
 		writeErr(w, http.StatusBadRequest, err.Error())
 	default:
