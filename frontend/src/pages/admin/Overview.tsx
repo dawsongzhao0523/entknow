@@ -53,7 +53,7 @@ export default function Overview() {
 
       <Row gutter={12} style={{ marginBottom: 12 }}>
         <Col span={14}>
-          <Card title="依赖服务健康" size="small" extra={<a onClick={() => nav('/m9/monitor')}>监控与巡检 →</a>}
+          <Card title="依赖服务健康" size="small" extra={<a onClick={() => nav('/admin/monitor')}>监控与巡检 →</a>}
             style={{ height: '100%' }}>
             <Table size="small" rowKey="id" pagination={false} dataSource={stats.services}
               columns={[
@@ -67,7 +67,7 @@ export default function Overview() {
           </Card>
         </Col>
         <Col span={10}>
-          <Card title="最近告警（审计 WARN/ERROR）" size="small" extra={<a onClick={() => nav('/m9/logs')}>日志查询 →</a>}
+          <Card title="最近告警（审计 WARN/ERROR）" size="small" extra={<a onClick={() => nav('/admin/logs')}>日志查询 →</a>}
             style={{ height: '100%' }}>
             <List
               size="small" dataSource={stats.recentAlerts ?? []} locale={{ emptyText: '暂无告警' }}

@@ -10,11 +10,11 @@ const { Title, Text } = Typography;
 
 const LANDING_OPTIONS = [
   { value: '', label: '首页（数据总览）' },
-  { value: 'm1/datasources', label: '数据源中心' },
-  { value: 'm3/registry', label: '注册中心' },
-  { value: 'm5/query', label: '语义查询' },
-  { value: 'm8/reviews', label: '治理评审台' },
-  { value: 'm9/overview', label: '系统运营' },
+  { value: 'assets/datasources', label: '数据源中心' },
+  { value: 'modeling/registry', label: '注册中心' },
+  { value: 'reasoning/query', label: '语义查询' },
+  { value: 'governance/reviews', label: '治理评审台' },
+  { value: 'admin/overview', label: '系统运营' },
 ];
 
 const NOTIFY_CATS = ['待办处理', '治理任务', '协同分享'];

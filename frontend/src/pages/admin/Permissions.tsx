@@ -11,8 +11,8 @@ const { Title, Text } = Typography;
 
 /** 矩阵列兜底（菜单 API 不可用时） */
 const FALLBACK_MODULES: [string, string][] = [
-  ['m1', '数据资产'], ['m2', '知识运营'], ['m3', '本体建模'], ['m4', '本体运行时'], ['m5', '推理演绎'],
-  ['m6', '推演沙盘'], ['m7', '智能应用'], ['m8', '治理演化'], ['m9', '系统管理'],
+  ['assets', '数据资产'], ['knowledge', '知识运营'], ['modeling', '本体建模'], ['runtime', '本体运行时'],
+  ['reasoning', '推理演绎'], ['sandbox', '推演沙盘'], ['apps', '智能应用'], ['governance', '治理演化'], ['admin', '系统管理'],
 ];
 
 const emptyRule = { id: '', target: '', rule: '', role: '', effect: '', updatedBy: '', updatedAt: '' };

@@ -22,17 +22,17 @@ func TestRoleCRUD(t *testing.T) {
 	h := demoServer(t)
 
 	// 幂等创建
-	rec := callJSON(t, h, http.MethodPost, "/api/v1/roles", roleBody("role-t1", "测试角色", "m1", "m2"))
+	rec := callJSON(t, h, http.MethodPost, "/api/v1/roles", roleBody("role-t1", "测试角色", "assets", "knowledge"))
 	if rec.Code != http.StatusCreated {
 		t.Fatalf("创建角色 status = %d, body = %s", rec.Code, rec.Body.String())
 	}
-	rec = callJSON(t, h, http.MethodPost, "/api/v1/roles", roleBody("role-t1", "测试角色", "m1"))
+	rec = callJSON(t, h, http.MethodPost, "/api/v1/roles", roleBody("role-t1", "测试角色", "assets"))
 	if rec.Code != http.StatusCreated || rec.Header().Get("X-Idempotent-Replay") != "true" {
 		t.Fatalf("重放应 201+replay，实际 %d", rec.Code)
 	}
 
 	// 更新
-	rec = callJSON(t, h, http.MethodPut, "/api/v1/roles/role-t1", roleBody("role-t1", "测试角色改", "m3"))
+	rec = callJSON(t, h, http.MethodPut, "/api/v1/roles/role-t1", roleBody("role-t1", "测试角色改", "modeling"))
 	if rec.Code != http.StatusOK || decodeMap(t, rec)["name"] != "测试角色改" {
 		t.Fatalf("更新角色失败: %d %s", rec.Code, rec.Body.String())
 	}
@@ -60,7 +60,7 @@ func TestRoleCRUD(t *testing.T) {
 	}
 
 	// 未知角色 404
-	rec = callJSON(t, h, http.MethodPut, "/api/v1/roles/role-nope", roleBody("role-nope", "x", "m1"))
+	rec = callJSON(t, h, http.MethodPut, "/api/v1/roles/role-nope", roleBody("role-nope", "x", "assets"))
 	if rec.Code != http.StatusNotFound {
 		t.Fatalf("未知角色 PUT 应 404，实际 %d", rec.Code)
 	}

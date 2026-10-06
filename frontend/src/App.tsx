@@ -15,39 +15,39 @@ import LogicalViews from './pages/LogicalViews';
 import Pipelines from './pages/Pipelines';
 import Sandbox from './pages/Sandbox';
 import Placeholder from './pages/Placeholder';
-import Overview from './pages/m9/Overview';
+import Overview from './pages/admin/Overview';
 import OrgAdmin from './pages/OrgAdmin';
-import Permissions from './pages/m9/Permissions';
-import Menus from './pages/m9/Menus';
-import Monitor from './pages/m9/Monitor';
-import Logs from './pages/m9/Logs';
-import Settings from './pages/m9/Settings';
+import Permissions from './pages/admin/Permissions';
+import Menus from './pages/admin/Menus';
+import Monitor from './pages/admin/Monitor';
+import Logs from './pages/admin/Logs';
+import Settings from './pages/admin/Settings';
 
 export default function App() {
   return (
     <Routes>
       <Route element={<AppShell />}>
         <Route index element={<Home />} />
-        <Route path="m1/datasources" element={<Datasources />} />
-        <Route path="m1/views" element={<LogicalViews />} />
-        <Route path="m1/pipelines" element={<Pipelines />} />
-        <Route path="m2/knowledge" element={<KnowledgeBase />} />
-        <Route path="m2/synonyms" element={<Synonyms />} />
-        <Route path="m3/ontologies" element={<Ontologies />} />
-        <Route path="m3/registry" element={<Registry />} />
-        <Route path="m4/instance-360" element={<Instance360 />} />
-        <Route path="m4/runtime" element={<RuntimeRules />} />
-        <Route path="m8/reviews" element={<Reviews />} />
-        <Route path="m7/capability" element={<CapabilityOutlet />} />
-        <Route path="m5/query" element={<SemanticQuery />} />
-        <Route path="m6/sandbox" element={<Sandbox />} />
-        <Route path="m9/overview" element={<Overview />} />
-        <Route path="m9/org" element={<OrgAdmin />} />
-        <Route path="m9/permissions" element={<Permissions />} />
-        <Route path="m9/menus" element={<Menus />} />
-        <Route path="m9/monitor" element={<Monitor />} />
-        <Route path="m9/logs" element={<Logs />} />
-        <Route path="m9/settings" element={<Settings />} />
+        <Route path="assets/datasources" element={<Datasources />} />
+        <Route path="assets/views" element={<LogicalViews />} />
+        <Route path="assets/pipelines" element={<Pipelines />} />
+        <Route path="knowledge/entries" element={<KnowledgeBase />} />
+        <Route path="knowledge/synonyms" element={<Synonyms />} />
+        <Route path="modeling/ontologies" element={<Ontologies />} />
+        <Route path="modeling/registry" element={<Registry />} />
+        <Route path="runtime/instances" element={<Instance360 />} />
+        <Route path="runtime/rules" element={<RuntimeRules />} />
+        <Route path="governance/reviews" element={<Reviews />} />
+        <Route path="apps/capabilities" element={<CapabilityOutlet />} />
+        <Route path="reasoning/query" element={<SemanticQuery />} />
+        <Route path="sandbox/compare" element={<Sandbox />} />
+        <Route path="admin/overview" element={<Overview />} />
+        <Route path="admin/org" element={<OrgAdmin />} />
+        <Route path="admin/permissions" element={<Permissions />} />
+        <Route path="admin/menus" element={<Menus />} />
+        <Route path="admin/monitor" element={<Monitor />} />
+        <Route path="admin/logs" element={<Logs />} />
+        <Route path="admin/settings" element={<Settings />} />
         <Route path="*" element={<Placeholder />} />
       </Route>
     </Routes>

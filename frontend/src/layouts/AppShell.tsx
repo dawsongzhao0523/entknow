@@ -27,25 +27,25 @@ const ICONS: Record<string, React.ReactNode> = {
 /** 菜单 API 不可用时的回退导航（与 seed 菜单树一致） */
 const FALLBACK: { key: string; label: string; icon?: React.ReactNode; children?: [string, string][] }[] = [
   { key: 'home', label: '首页', icon: <HomeOutlined /> },
-  { key: 'm1', label: '数据资产', icon: <DatabaseOutlined />, children: [
-    ['m1/datasources', '数据源中心'], ['m1/views', '逻辑视图'], ['m1/pipelines', '数据加工'],
+  { key: 'assets', label: '数据资产', icon: <DatabaseOutlined />, children: [
+    ['assets/datasources', '数据源中心'], ['assets/views', '逻辑视图'], ['assets/pipelines', '数据加工'],
   ]},
-  { key: 'm2', label: '知识运营', icon: <BookOutlined />, children: [
-    ['m2/knowledge', '知识库'], ['m2/synonyms', '同义词治理'],
+  { key: 'knowledge', label: '知识运营', icon: <BookOutlined />, children: [
+    ['knowledge/entries', '知识库'], ['knowledge/synonyms', '同义词治理'],
   ]},
-  { key: 'm3', label: '本体建模', icon: <DeploymentUnitOutlined />, children: [
-    ['m3/ontologies', '本体管理'], ['m3/registry', '注册中心'],
+  { key: 'modeling', label: '本体建模', icon: <DeploymentUnitOutlined />, children: [
+    ['modeling/ontologies', '本体管理'], ['modeling/registry', '注册中心'],
   ]},
-  { key: 'm4', label: '本体运行时', icon: <ApiOutlined />, children: [
-    ['m4/instance-360', '实例 360°'], ['m4/runtime', '规则与行动'],
+  { key: 'runtime', label: '本体运行时', icon: <ApiOutlined />, children: [
+    ['runtime/instances', '实例 360°'], ['runtime/rules', '规则与行动'],
   ]},
-  { key: 'm5', label: '推理演绎', icon: <BulbOutlined />, children: [['m5/query', '语义查询']] },
-  { key: 'm6', label: '推演沙盘', icon: <ExperimentOutlined />, children: [['m6/sandbox', '沙盘 · 多分支对比']] },
-  { key: 'm7', label: '智能应用', icon: <RocketOutlined />, children: [['m7/capability', '能力出口']] },
-  { key: 'm8', label: '治理演化', icon: <SafetyCertificateOutlined />, children: [['m8/reviews', '评审与发布']] },
-  { key: 'm9', label: '系统管理', icon: <SettingOutlined />, children: [
-    ['m9/overview', '系统运营'], ['m9/org', '组织与权限'], ['m9/permissions', '权限管理'],
-    ['m9/menus', '菜单管理'], ['m9/monitor', '服务监控'], ['m9/logs', '日志查询'], ['m9/settings', '个性化设置'],
+  { key: 'reasoning', label: '推理演绎', icon: <BulbOutlined />, children: [['reasoning/query', '语义查询']] },
+  { key: 'sandbox', label: '推演沙盘', icon: <ExperimentOutlined />, children: [['sandbox/compare', '沙盘 · 多分支对比']] },
+  { key: 'apps', label: '智能应用', icon: <RocketOutlined />, children: [['apps/capabilities', '能力出口']] },
+  { key: 'governance', label: '治理演化', icon: <SafetyCertificateOutlined />, children: [['governance/reviews', '评审与发布']] },
+  { key: 'admin', label: '系统管理', icon: <SettingOutlined />, children: [
+    ['admin/overview', '系统运营'], ['admin/org', '组织与权限'], ['admin/permissions', '权限管理'],
+    ['admin/menus', '菜单管理'], ['admin/monitor', '服务监控'], ['admin/logs', '日志查询'], ['admin/settings', '个性化设置'],
   ]},
 ];
 

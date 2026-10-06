@@ -589,7 +589,7 @@ func (s *Store) DecideReview(ctx context.Context, d Decision) (Review, error) {
 	}
 	if _, err := tx.Exec(ctx, `
 		INSERT INTO notifications (id, cat, title, time, to_path, unread)
-		VALUES ($1, '治理任务', $2, '刚刚', '/m8/reviews', true)
+		VALUES ($1, '治理任务', $2, '刚刚', '/governance/reviews', true)
 		ON CONFLICT (id) DO NOTHING`,
 		"n-rv-"+d.ReviewID+"-"+d.Action, "评审结果："+r.Title+" → "+next+"（"+d.By+"）"); err != nil {
 		return r, err

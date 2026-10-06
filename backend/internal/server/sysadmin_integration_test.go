@@ -16,37 +16,37 @@ import (
 func TestMenusTreeAndPerms(t *testing.T) {
 	h := demoServer(t)
 
-	// 全量树：9 个一级模块，m1 带 3 个子菜单
+	// 全量树：9 个一级模块，assets 带 3 个子菜单
 	list := []map[string]any{}
 	loadList(t, h, "/api/v1/menus", &list)
 	if len(list) != 9 {
 		t.Fatalf("一级模块数 = %d, want 9", len(list))
 	}
-	var m1 map[string]any
+	var assetsMenu map[string]any
 	for _, m := range list {
-		if m["id"] == "m1" {
-			m1 = m
+		if m["id"] == "assets" {
+			assetsMenu = m
 		}
 	}
-	if m1 == nil || len(m1["children"].([]any)) != 3 {
-		t.Fatalf("m1 子菜单数不对: %v", m1)
+	if assetsMenu == nil || len(assetsMenu["children"].([]any)) != 3 {
+		t.Fatalf("assets 子菜单数不对: %v", assetsMenu)
 	}
 
-	// 按角色权限过滤：wangwu（评审员，perms=m2,m3,m8）
+	// 按角色权限过滤：wangwu（评审员，perms=knowledge,modeling,governance）
 	list = nil
 	loadList(t, h, "/api/v1/menus?user=wangwu", &list)
 	if len(list) != 3 {
-		t.Fatalf("wangwu 可见模块数 = %d, want 3（m2/m3/m8）", len(list))
+		t.Fatalf("wangwu 可见模块数 = %d, want 3（knowledge/modeling/governance）", len(list))
 	}
 	for _, m := range list {
 		id := m["id"].(string)
-		if id != "m2" && id != "m3" && id != "m8" {
+		if id != "knowledge" && id != "modeling" && id != "governance" {
 			t.Fatalf("wangwu 不应看到模块 %s", id)
 		}
 	}
 
 	// 幂等创建叶子菜单
-	menu := map[string]any{"id": "m9/custom", "parentId": "m9", "name": "自定义页", "route": "m9/custom", "sort": 99, "visible": true}
+	menu := map[string]any{"id": "admin/custom", "parentId": "admin", "name": "自定义页", "route": "admin/custom", "sort": 99, "visible": true}
 	rec := callJSON(t, h, http.MethodPost, "/api/v1/menus", menu)
 	if rec.Code != http.StatusCreated {
 		t.Fatalf("创建菜单 status = %d, body = %s", rec.Code, rec.Body.String())
@@ -58,16 +58,16 @@ func TestMenusTreeAndPerms(t *testing.T) {
 
 	// 编辑为隐藏：树中不再返回
 	menu["visible"] = false
-	rec = callJSON(t, h, http.MethodPut, "/api/v1/menus/m9/custom", menu)
+	rec = callJSON(t, h, http.MethodPut, "/api/v1/menus/admin/custom", menu)
 	if rec.Code != http.StatusOK || decodeMap(t, rec)["visible"] != false {
 		t.Fatalf("更新菜单失败: %d %s", rec.Code, rec.Body.String())
 	}
 	list = nil
 	loadList(t, h, "/api/v1/menus", &list)
 	for _, m := range list {
-		if m["id"] == "m9" {
+		if m["id"] == "admin" {
 			for _, c := range m["children"].([]any) {
-				if c.(map[string]any)["id"] == "m9/custom" {
+				if c.(map[string]any)["id"] == "admin/custom" {
 					t.Fatal("隐藏菜单不应出现在树中")
 				}
 			}
@@ -75,15 +75,15 @@ func TestMenusTreeAndPerms(t *testing.T) {
 	}
 
 	// 删除：有子菜单 409；叶子 204；未知 404
-	rec = callJSON(t, h, http.MethodDelete, "/api/v1/menus/m9", nil)
+	rec = callJSON(t, h, http.MethodDelete, "/api/v1/menus/admin", nil)
 	if rec.Code != http.StatusConflict {
 		t.Fatalf("删除有子菜单的一级菜单应 409，实际 %d", rec.Code)
 	}
-	rec = callJSON(t, h, http.MethodDelete, "/api/v1/menus/m9/custom", nil)
+	rec = callJSON(t, h, http.MethodDelete, "/api/v1/menus/admin/custom", nil)
 	if rec.Code != http.StatusNoContent {
 		t.Fatalf("删除叶子菜单应 204，实际 %d", rec.Code)
 	}
-	rec = callJSON(t, h, http.MethodDelete, "/api/v1/menus/m9/custom", nil)
+	rec = callJSON(t, h, http.MethodDelete, "/api/v1/menus/admin/custom", nil)
 	if rec.Code != http.StatusNotFound {
 		t.Fatalf("重复删除应 404，实际 %d", rec.Code)
 	}
@@ -183,7 +183,7 @@ func TestAuditMiddlewareAndQuery(t *testing.T) {
 
 	// 一次成功写（INFO，操作人取 body）+ 一次冲突写（WARN）
 	rec := callJSON(t, h, http.MethodPost, "/api/v1/roles",
-		map[string]any{"id": "role-aud", "name": "审计角色", "perms": []string{"m1"}})
+		map[string]any{"id": "role-aud", "name": "审计角色", "perms": []string{"assets"}})
 	if rec.Code != http.StatusCreated {
 		t.Fatalf("创建角色失败: %d", rec.Code)
 	}
@@ -193,8 +193,8 @@ func TestAuditMiddlewareAndQuery(t *testing.T) {
 		t.Fatalf("账号冲突应 409，实际 %d", rec.Code)
 	}
 
-	// 中间件落库断言：module=m9 下应能找到本次两条写审计（201→INFO、409→WARN）
-	page := decodeMap(t, callJSON(t, h, http.MethodGet, "/api/v1/audit-logs?module=m9&limit=50", nil))
+	// 中间件落库断言：module=admin 下应能找到本次两条写审计（201→INFO、409→WARN）
+	page := decodeMap(t, callJSON(t, h, http.MethodGet, "/api/v1/audit-logs?module=admin&limit=50", nil))
 	items := page["items"].([]any)
 	var gotInfo, gotWarn bool
 	for _, it := range items {

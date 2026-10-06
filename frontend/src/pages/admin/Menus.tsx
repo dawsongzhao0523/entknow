@@ -140,7 +140,7 @@ export default function Menus() {
             <Form.Item name="key" label={parent ? '路由 Key（英文）' : '模块 Key（英文）'}
               rules={[{ required: true }, { pattern: /^[a-z][a-z0-9-]*$/, message: '仅小写字母/数字/连字符' }]}
               tooltip={parent ? `子菜单 id/路由 = ${parent.id}/<key>` : '一级模块 id，角色权限（perms）引用此键'}>
-              <Input className="mono" placeholder={parent ? '如 quality' : '如 m10 或 report'} />
+              <Input className="mono" placeholder={parent ? '如 quality' : '如 report 或 data'} />
             </Form.Item>
           )}
           <Form.Item name="name" label="菜单名称" rules={[{ required: true }]}>
@@ -149,7 +149,7 @@ export default function Menus() {
           {editing && (
             <Form.Item name="route" label="路由"
               tooltip="前端路由路径（不含开头 /）；一级菜单通常留空">
-              <Input className="mono" placeholder="如 m1/quality" disabled={editing.parentId === ''} />
+              <Input className="mono" placeholder="如 assets/quality" disabled={editing.parentId === ''} />
             </Form.Item>
           )}
           {(!parent && !editing?.parentId) && (

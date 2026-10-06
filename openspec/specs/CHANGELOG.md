@@ -18,3 +18,4 @@
 - 2026-10-06 · add-ontology-designer · ontology-designer（M3 元素创建/编辑/生命周期流转 + 关系引用计数联动 + 注册中心设计器交互，已实现并 E2E 验证）
 - 2026-10-06 · add-sandbox · sandbox（M6 沙盘分支/模拟 last-wins/回滚生产隔离 + 前端沙盘页，已实现并 E2E 验证）
 - 2026-10-06 · complete-sysadmin · sysadmin（M9 系统管理全功能生产化：运营总览聚合/菜单树管理与导航驱动/权限矩阵·行级规则·敏感级继承/依赖服务真实巡检/写操作审计中间件+检索导出/个性化设置全局生效 + 演示用户切换，已实现并浏览器 E2E 验证）
+- 2026-10-06 · meaningful-routes · sysadmin（全站路由语义化：m1-m9 → assets/knowledge/modeling/runtime/reasoning/sandbox/apps/governance/admin，菜单 id/权限键/审计模块三处标识同步，已实现并浏览器验证）

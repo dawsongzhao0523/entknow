@@ -273,7 +273,7 @@ func (s *Store) ExecuteAction(ctx context.Context, r ActionRequest) (Action, boo
 	}
 	if _, err := tx.Exec(ctx, `
 		INSERT INTO notifications (id, cat, title, time, to_path, unread)
-		VALUES ($1, '待办处理', $2, '刚刚', '/m4/instance-360', true)
+		VALUES ($1, '待办处理', $2, '刚刚', '/runtime/instances', true)
 		ON CONFLICT (id) DO NOTHING`,
 		"n-act-"+r.ID, "行动已执行："+a.Detail+"（"+r.User+"）· 实例 "+r.InstanceID); err != nil {
 		return Action{}, false, err

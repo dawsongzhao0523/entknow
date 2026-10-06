@@ -16,18 +16,19 @@ import (
 )
 
 // modulePathPrefix 路径首段 → 模块（/api/v1/<资源> 的资源名匹配前缀）。
+// 模块键 = 前端路由前缀 = 角色权限键（assets/knowledge/modeling/runtime/reasoning/sandbox/apps/governance/admin）。
 var moduleRoutes = []struct{ prefix, module string }{
-	{"datasources", "m1"}, {"views", "m1"}, {"pipeline-tasks", "m1"}, {"pipeline-runs", "m1"}, {"table-profiles", "m1"},
-	{"kb", "m2"}, {"synonyms", "m2"},
-	{"objects", "m3"}, {"edges", "m3"}, {"functions", "m3"}, {"elements", "m3"},
-	{"instances", "m4"}, {"rule-firings", "m4"}, {"actions", "m4"},
-	{"queries", "m5"}, {"search", "m5"},
-	{"sandbox-branches", "m6"},
-	{"capabilities", "m7"},
-	{"reviews", "m8"},
+	{"datasources", "assets"}, {"views", "assets"}, {"pipeline-tasks", "assets"}, {"pipeline-runs", "assets"}, {"table-profiles", "assets"},
+	{"kb", "knowledge"}, {"synonyms", "knowledge"},
+	{"objects", "modeling"}, {"edges", "modeling"}, {"functions", "modeling"}, {"elements", "modeling"},
+	{"instances", "runtime"}, {"rule-firings", "runtime"}, {"actions", "runtime"},
+	{"queries", "reasoning"}, {"search", "reasoning"},
+	{"sandbox-branches", "sandbox"},
+	{"capabilities", "apps"},
+	{"reviews", "governance"},
 }
 
-// moduleOf 由 /api/v1 路径推导模块（m1-m9），未登记资源归 m9（系统管理域）。
+// moduleOf 由 /api/v1 路径推导模块（语义化模块键），未登记资源归 admin（系统管理域）。
 func moduleOf(path string) string {
 	rest := path
 	if len(rest) > 8 && rest[:8] == "/api/v1/" {
@@ -38,7 +39,7 @@ func moduleOf(path string) string {
 			return r.module
 		}
 	}
-	return "m9"
+	return "admin"
 }
 
 // pickOperator 从请求体提取操作人（user/by/from 首个非空），失败返回「系统」。

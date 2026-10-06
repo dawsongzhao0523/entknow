@@ -242,7 +242,7 @@ CREATE TABLE IF NOT EXISTS roles (
   id        text PRIMARY KEY,
   name      text NOT NULL,                  -- users.roles 引用此名
   descr     text NOT NULL DEFAULT '',
-  perms     text[] NOT NULL DEFAULT '{}',   -- 菜单键（m1-m9）
+  perms     text[] NOT NULL DEFAULT '{}',   -- 模块键（assets..admin，= 路由前缀）
   built_in  boolean NOT NULL DEFAULT false
 );
 
@@ -354,7 +354,7 @@ CREATE TABLE IF NOT EXISTS dep_checks (
 CREATE TABLE IF NOT EXISTS audit_logs (
   id       serial PRIMARY KEY,
   at       text NOT NULL,
-  module   text NOT NULL,                 -- m1..m9
+  module   text NOT NULL,                 -- 模块键（assets..admin）
   level    text NOT NULL,
   operator text NOT NULL DEFAULT '系统',
   content  text NOT NULL,

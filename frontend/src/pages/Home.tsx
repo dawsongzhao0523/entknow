@@ -49,10 +49,10 @@ export default function Home() {
       </div>
       <Row gutter={12} style={{ marginBottom: 16 }}>
         {[
-          { t: '本体', v: ontos.length, s: `草稿 ${draft} / 已发布 ${ontos.length - draft}`, to: '/m3/ontologies' },
-          { t: '待评审', v: pendingReviews, s: `共 ${reviews.length} 条评审记录`, to: '/m8/reviews' },
+          { t: '本体', v: ontos.length, s: `草稿 ${draft} / 已发布 ${ontos.length - draft}`, to: '/modeling/ontologies' },
+          { t: '待评审', v: pendingReviews, s: `共 ${reviews.length} 条评审记录`, to: '/governance/reviews' },
           { t: '未读通知', v: unread, s: `共 ${shown.length} 条（按个人设置过滤）`, to: '/' },
-          { t: '画布对象', v: 7, s: '注册中心 11 个对象', to: '/m3/registry' },
+          { t: '画布对象', v: 7, s: '注册中心 11 个对象', to: '/modeling/registry' },
         ].map(c => (
           <Col span={6} key={c.t}>
             <Card size="small" hoverable onClick={() => nav(c.to)}>
@@ -63,7 +63,7 @@ export default function Home() {
       </Row>
       <Row gutter={12}>
         <Col span={14}>
-          <Card size="small" title="评审队列" extra={<a onClick={() => nav('/m8/reviews')}>去裁决 →</a>}>
+          <Card size="small" title="评审队列" extra={<a onClick={() => nav('/governance/reviews')}>去裁决 →</a>}>
             <Table size="small" rowKey="id" pagination={false} dataSource={reviews}
               columns={[
                 { title: '评审项', dataIndex: 'title' },

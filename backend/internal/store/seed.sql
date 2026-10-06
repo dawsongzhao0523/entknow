@@ -14,12 +14,12 @@ INSERT INTO users (id, account, name, dept, post, roles, status, last_login) VAL
 ('u4', 'zhaoliu',  '赵六', '信息技术中心',     '系统集成工程师', ARRAY['系统集成'],           '正常', '2026-10-02 17:05');
 
 INSERT INTO roles (id, name, descr, perms, built_in) VALUES
-('admin',     '本体管理员', '本体全生命周期管理与发布', ARRAY['m1','m2','m3','m4','m5','m6','m7','m8','m9'], true),
-('data-dev',  '数据开发',   '数据资产接入与加工',       ARRAY['m1','m2','m3'], false),
-('reviewer',  '评审员',     '知识与本体评审',           ARRAY['m2','m3','m8'], false),
-('integrator','系统集成',   '外部系统与数据源集成',     ARRAY['m1','m7'], false),
-('agent-dev', '智能体开发', 'Agent 能力消费与行动开发', ARRAY['m4','m5','m7'], false),
-('readonly',  '只读访客',   '只读浏览',                 ARRAY['m1','m2','m3','m4','m5'], false);
+('admin',     '本体管理员', '本体全生命周期管理与发布', ARRAY['assets','knowledge','modeling','runtime','reasoning','sandbox','apps','governance','admin'], true),
+('data-dev',  '数据开发',   '数据资产接入与加工',       ARRAY['assets','knowledge','modeling'], false),
+('reviewer',  '评审员',     '知识与本体评审',           ARRAY['knowledge','modeling','governance'], false),
+('integrator','系统集成',   '外部系统与数据源集成',     ARRAY['assets','apps'], false),
+('agent-dev', '智能体开发', 'Agent 能力消费与行动开发', ARRAY['runtime','reasoning','apps'], false),
+('readonly',  '只读访客',   '只读浏览',                 ARRAY['assets','knowledge','modeling','runtime','reasoning'], false);
 
 INSERT INTO ontologies (id, name, scene, version, status, owner, members, object_count, edge_count, created) VALUES
 ('scm',       '供应链本体',   '订单交付风险场景',       'v0.4', 'DRAFT',     '张三', 6,  7, 4, '2026-08-12'),
@@ -99,12 +99,12 @@ INSERT INTO reviews (id, title, type, from_user, status, sla, decided_by, decide
 ('RV-2026-0930-002', '规则补丁：R7 阈值 0.7→0.8',                 '自进化补丁', '系统', '已通过', '-', '王五', '2026-10-01 18:20', '阈值调整口径已与业务确认');
 
 INSERT INTO notifications (id, cat, title, time, to_path, unread) VALUES
-('n1', '待办处理', '本体发布评审待处理：供应链本体 v0.4（+交付风险分函数）', '10 分钟前', '/m8/release?tab=review', true),
-('n2', '待办处理', '术语归并「供应商 ≈ 供货商」待你裁决',                 '1 小时前',  '/m2/governance?tab=synonym', true),
-('n3', '治理任务', 'K3 知识临期：3 条知识将在 7 天内到期',               '今天 08:30','/m2/governance', true),
-('n4', '治理任务', '映射断链：lv_order_delivery 上游 schema 变更，需影响确认', '昨天 18:02', '/m1/processing?tab=pipeline', false),
-('n5', '协同分享', '王五 分享了画布「订单交付风险 v0.4」给你',           '昨天 15:40', '/m3/designer', false),
-('n6', '协同分享', '赵六 邀请你加入「设备运维本体」评审组',             '2 天前',     '/m3/ontology/detail?onto=equipment&sec=members', false);
+('n1', '待办处理', '本体发布评审待处理：供应链本体 v0.4（+交付风险分函数）', '10 分钟前', '/governance/reviews', true),
+('n2', '待办处理', '术语归并「供应商 ≈ 供货商」待你裁决',                 '1 小时前',  '/knowledge/synonyms', true),
+('n3', '治理任务', 'K3 知识临期：3 条知识将在 7 天内到期',               '今天 08:30','/knowledge/entries', true),
+('n4', '治理任务', '映射断链：lv_order_delivery 上游 schema 变更，需影响确认', '昨天 18:02', '/assets/pipelines', false),
+('n5', '协同分享', '王五 分享了画布「订单交付风险 v0.4」给你',           '昨天 15:40', '/modeling/registry', false),
+('n6', '协同分享', '赵六 邀请你加入「设备运维本体」评审组',             '2 天前',     '/modeling/ontologies', false);
 
 INSERT INTO capabilities (id, name, description, proto, calls, owner, base_calls) VALUES
 ('c1', 'get_object',           '获取对象实例最小上下文切片',         'MCP/REST/CLI', '', '平台组', 8412),
@@ -206,7 +206,7 @@ INSERT INTO kb_entries (id, domain_id, title, status, source, onto, data_ref, fl
  1, '王五', '2026-09-15 10:00');
 
 INSERT INTO synonyms (id, terms, standard, status, by, at) VALUES
-('m1', ARRAY['物料','料号','Material'], '物料', '已归并', '张三', '2026-09-28'),
+('s0', ARRAY['物料','料号','Material'], '物料', '已归并', '张三', '2026-09-28'),
 ('s1', ARRAY['供应商','供货商','Vendor'], '', '待归并', '', ''),
 ('s2', ARRAY['客户','顾客','Customer'], '', '待归并', '', ''),
 ('s3', ARRAY['准时率','及时率','OnTimeRate'], '', '待归并', '', '');
@@ -260,35 +260,35 @@ INSERT INTO table_profiles (name, comment, rows, fields, pk, fks, siblings, prof
 
 -- 菜单树：与生产前端真实路由一一对应；roles.perms 引用一级模块 id
 INSERT INTO menus (id, parent_id, name, route, icon, sort, visible) VALUES
-('m1', '', '数据资产', '', 'DatabaseOutlined', 1, true),
-('m1/datasources', 'm1', '数据源中心', 'm1/datasources', '', 1, true),
-('m1/views',       'm1', '逻辑视图',   'm1/views',       '', 2, true),
-('m1/pipelines',   'm1', '数据加工',   'm1/pipelines',   '', 3, true),
-('m2', '', '知识运营', '', 'BookOutlined', 2, true),
-('m2/knowledge', 'm2', '知识库',       'm2/knowledge', '', 1, true),
-('m2/synonyms',  'm2', '同义词治理',   'm2/synonyms',  '', 2, true),
-('m3', '', '本体建模', '', 'DeploymentUnitOutlined', 3, true),
-('m3/ontologies', 'm3', '本体管理', 'm3/ontologies', '', 1, true),
-('m3/registry',   'm3', '注册中心', 'm3/registry',   '', 2, true),
-('m4', '', '本体运行时', '', 'ApiOutlined', 4, true),
-('m4/instance-360', 'm4', '实例 360°',   'm4/instance-360', '', 1, true),
-('m4/runtime',       'm4', '规则与行动', 'm4/runtime',       '', 2, true),
-('m5', '', '推理演绎', '', 'BulbOutlined', 5, true),
-('m5/query', 'm5', '语义查询', 'm5/query', '', 1, true),
-('m6', '', '推演沙盘', '', 'ExperimentOutlined', 6, true),
-('m6/sandbox', 'm6', '沙盘 · 多分支对比', 'm6/sandbox', '', 1, true),
-('m7', '', '智能应用', '', 'RocketOutlined', 7, true),
-('m7/capability', 'm7', '能力出口', 'm7/capability', '', 1, true),
-('m8', '', '治理演化', '', 'SafetyCertificateOutlined', 8, true),
-('m8/reviews', 'm8', '评审与发布', 'm8/reviews', '', 1, true),
-('m9', '', '系统管理', '', 'SettingOutlined', 9, true),
-('m9/overview',    'm9', '系统运营',   'm9/overview',    '', 1, true),
-('m9/org',         'm9', '组织与权限', 'm9/org',         '', 2, true),
-('m9/permissions', 'm9', '权限管理',   'm9/permissions', '', 3, true),
-('m9/menus',       'm9', '菜单管理',   'm9/menus',       '', 4, true),
-('m9/monitor',     'm9', '服务监控',   'm9/monitor',     '', 5, true),
-('m9/logs',        'm9', '日志查询',   'm9/logs',        '', 6, true),
-('m9/settings',    'm9', '个性化设置', 'm9/settings',    '', 7, true);
+('assets', '', '数据资产', '', 'DatabaseOutlined', 1, true),
+('assets/datasources', 'assets', '数据源中心', 'assets/datasources', '', 1, true),
+('assets/views',       'assets', '逻辑视图',   'assets/views',       '', 2, true),
+('assets/pipelines',   'assets', '数据加工',   'assets/pipelines',   '', 3, true),
+('knowledge', '', '知识运营', '', 'BookOutlined', 2, true),
+('knowledge/entries',  'knowledge', '知识库',     'knowledge/entries',  '', 1, true),
+('knowledge/synonyms', 'knowledge', '同义词治理', 'knowledge/synonyms', '', 2, true),
+('modeling', '', '本体建模', '', 'DeploymentUnitOutlined', 3, true),
+('modeling/ontologies', 'modeling', '本体管理', 'modeling/ontologies', '', 1, true),
+('modeling/registry',   'modeling', '注册中心', 'modeling/registry',   '', 2, true),
+('runtime', '', '本体运行时', '', 'ApiOutlined', 4, true),
+('runtime/instances', 'runtime', '实例 360°',   'runtime/instances', '', 1, true),
+('runtime/rules',     'runtime', '规则与行动', 'runtime/rules',     '', 2, true),
+('reasoning', '', '推理演绎', '', 'BulbOutlined', 5, true),
+('reasoning/query', 'reasoning', '语义查询', 'reasoning/query', '', 1, true),
+('sandbox', '', '推演沙盘', '', 'ExperimentOutlined', 6, true),
+('sandbox/compare', 'sandbox', '沙盘 · 多分支对比', 'sandbox/compare', '', 1, true),
+('apps', '', '智能应用', '', 'RocketOutlined', 7, true),
+('apps/capabilities', 'apps', '能力出口', 'apps/capabilities', '', 1, true),
+('governance', '', '治理演化', '', 'SafetyCertificateOutlined', 8, true),
+('governance/reviews', 'governance', '评审与发布', 'governance/reviews', '', 1, true),
+('admin', '', '系统管理', '', 'SettingOutlined', 9, true),
+('admin/overview',    'admin', '系统运营',   'admin/overview',    '', 1, true),
+('admin/org',         'admin', '组织与权限', 'admin/org',         '', 2, true),
+('admin/permissions', 'admin', '权限管理',   'admin/permissions', '', 3, true),
+('admin/menus',       'admin', '菜单管理',   'admin/menus',       '', 4, true),
+('admin/monitor',     'admin', '服务监控',   'admin/monitor',     '', 5, true),
+('admin/logs',        'admin', '日志查询',   'admin/logs',        '', 6, true),
+('admin/settings',    'admin', '个性化设置', 'admin/settings',    '', 7, true);
 
 INSERT INTO data_rules (id, target, rule, role, effect, updated_by, updated_at) VALUES
 ('rls-1', '对象[采购订单]',   'plant_id IN (''RCBJ-YK'', ''RCBJ-BSE'')', '数据开发',   '仅可见 2 个工厂行', '张三', '2026-09-28 14:20'),
@@ -312,16 +312,16 @@ INSERT INTO dep_checks (service_id, ok, latency_ms, at) VALUES
 ('dep-minio', true, 19, '2026-09-30 10:00'), ('dep-minio', true, 16, '2026-10-01 10:00'), ('dep-minio', true, 22, '2026-10-02 10:00'), ('dep-minio', true, 18, '2026-10-03 09:58');
 
 INSERT INTO audit_logs (at, module, level, operator, content, trace_id) VALUES
-('2026-10-03 09:58:12', 'm1', 'INFO',  '系统', 'CDC 断连恢复：mes_prod 重连成功，补拉 binlog 位点 882311 → 884207', 'tr-9f2a01'),
-('2026-10-03 09:45:37', 'm1', 'INFO',  '张三', '视图发布推送：CREATE VIEW lv_order_delivery v3 成功（12 字段）', 'tr-8c1e55'),
-('2026-10-03 09:31:04', 'm4', 'INFO',  '系统', 'Action 冻结订单 执行回执：PO20260930001 → 已冻结，确认令牌 ack-7721，可回滚', 'tr-77aa19'),
-('2026-10-02 18:44:02', 'm4', 'INFO',  '系统', '传播引擎规则 R1 触发：SUPPLY.delay 月均值 +23% → 采购订单.交付风险分 71→76 重算', 'tr-5d09c3'),
-('2026-10-02 17:12:48', 'm2', 'WARN',  '王五', '术语归并冲突：「供应商 ≈ 供货商」与既有锚点存在 2 处引用，转评审 RV-2026-1002-001', 'tr-41bf08'),
-('2026-10-02 15:03:11', 'm5', 'INFO',  '王五', '语义查询：「华兴电子近三月准时率」→ DSL 编译成功，命中 lv_supplier_ontime，耗时 842ms', 'tr-33d7e2'),
-('2026-10-02 11:26:55', 'm8', 'WARN',  '系统', '发布门禁告警：沙盘验证 warn（交付风险分 v0.2 未回归），评审 RV-2026-1002-003 挂起', 'tr-2a91f6'),
-('2026-10-02 08:12:30', 'm1', 'ERROR', '系统', 'scm_prod CRON 抽取超时（>30min）：purchase_order 增量批次 #4812 失败，已自动重试成功', 'tr-10ce77'),
-('2026-10-01 22:40:19', 'm9', 'INFO',  '赵六', '角色权限变更：智能体开发 角色新增 M4 Action 执行网关（编辑），已生效', 'tr-0e5b42'),
-('2026-10-01 16:02:03', 'm7', 'INFO',  '系统', '能力出口调用：supplier_risk_agent 经 MCP 调用 run_action（dry-run），返回沙箱结果', 'tr-08d319');
+('2026-10-03 09:58:12', 'assets', 'INFO',  '系统', 'CDC 断连恢复：mes_prod 重连成功，补拉 binlog 位点 882311 → 884207', 'tr-9f2a01'),
+('2026-10-03 09:45:37', 'assets', 'INFO',  '张三', '视图发布推送：CREATE VIEW lv_order_delivery v3 成功（12 字段）', 'tr-8c1e55'),
+('2026-10-03 09:31:04', 'runtime', 'INFO',  '系统', 'Action 冻结订单 执行回执：PO20260930001 → 已冻结，确认令牌 ack-7721，可回滚', 'tr-77aa19'),
+('2026-10-02 18:44:02', 'runtime', 'INFO',  '系统', '传播引擎规则 R1 触发：SUPPLY.delay 月均值 +23% → 采购订单.交付风险分 71→76 重算', 'tr-5d09c3'),
+('2026-10-02 17:12:48', 'knowledge', 'WARN',  '王五', '术语归并冲突：「供应商 ≈ 供货商」与既有锚点存在 2 处引用，转评审 RV-2026-1002-001', 'tr-41bf08'),
+('2026-10-02 15:03:11', 'reasoning', 'INFO',  '王五', '语义查询：「华兴电子近三月准时率」→ DSL 编译成功，命中 lv_supplier_ontime，耗时 842ms', 'tr-33d7e2'),
+('2026-10-02 11:26:55', 'governance', 'WARN',  '系统', '发布门禁告警：沙盘验证 warn（交付风险分 v0.2 未回归），评审 RV-2026-1002-003 挂起', 'tr-2a91f6'),
+('2026-10-02 08:12:30', 'assets', 'ERROR', '系统', 'scm_prod CRON 抽取超时（>30min）：purchase_order 增量批次 #4812 失败，已自动重试成功', 'tr-10ce77'),
+('2026-10-01 22:40:19', 'admin', 'INFO',  '赵六', '角色权限变更：智能体开发 角色新增 M4 Action 执行网关（编辑），已生效', 'tr-0e5b42'),
+('2026-10-01 16:02:03', 'apps', 'INFO',  '系统', '能力出口调用：supplier_risk_agent 经 MCP 调用 run_action（dry-run），返回沙箱结果', 'tr-08d319');
 
 INSERT INTO user_settings (account, settings) VALUES
 ('zhangsan', '{"theme":"light","density":"default","monoFont":true,"landingPage":"","defaultOnto":"scm","notifyCats":["待办处理","治理任务","协同分享"]}');

@@ -9,7 +9,7 @@ import { api, type AuditLog } from '../../api';
 const { Title, Text } = Typography;
 
 const LEVEL_COLOR: Record<string, string> = { INFO: 'blue', WARN: 'orange', ERROR: 'red' };
-const MODULES = ['m1', 'm2', 'm3', 'm4', 'm5', 'm6', 'm7', 'm8', 'm9'];
+const MODULES = ['assets', 'knowledge', 'modeling', 'runtime', 'reasoning', 'sandbox', 'apps', 'governance', 'admin'];
 const PAGE_SIZE = 20;
 
 /** 快捷时间范围 → since 参数（日期或日期时间字符串） */
