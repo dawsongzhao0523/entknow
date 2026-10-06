@@ -154,4 +154,107 @@ func MountAPI(mux *http.ServeMux, st *store.Store) {
 			writeJSON(w, out)
 		}
 	})
+
+	// ─── M2 知识运营 ───
+
+	mux.HandleFunc("GET /api/v1/kb/domains", handle(func(r *http.Request) ([]store.KbDomain, error) {
+		return st.ListKbDomains(r.Context())
+	}))
+	mux.HandleFunc("GET /api/v1/kb/entries", handle(func(r *http.Request) ([]store.KbEntry, error) {
+		q := r.URL.Query()
+		return st.ListKbEntries(r.Context(), q.Get("domain"), q.Get("kw"))
+	}))
+	mux.HandleFunc("GET /api/v1/kb/entries/{id}", handle(func(r *http.Request) (store.KbEntry, error) {
+		return st.GetKbEntry(r.Context(), r.PathValue("id"))
+	}))
+
+	mux.HandleFunc("POST /api/v1/kb/entries", func(w http.ResponseWriter, r *http.Request) {
+		var e store.KbEntry
+		if err := json.NewDecoder(r.Body).Decode(&e); err != nil {
+			writeErr(w, http.StatusBadRequest, "请求体不是合法 JSON")
+			return
+		}
+		if e.ID == "" || e.Title == "" || e.DomainID == "" {
+			writeErr(w, http.StatusBadRequest, "id / title / domainId 均为必填")
+			return
+		}
+		if e.Status != "" && e.Status != "待评审" {
+			writeErr(w, http.StatusBadRequest, "新建条目状态只能为「待评审」或不填")
+			return
+		}
+		out, created, err := st.CreateKbEntry(r.Context(), e)
+		if err != nil {
+			writeErr(w, http.StatusInternalServerError, err.Error())
+			return
+		}
+		if !created {
+			w.Header().Set("X-Idempotent-Replay", "true")
+		}
+		w.WriteHeader(http.StatusCreated)
+		writeJSON(w, out)
+	})
+
+	mux.HandleFunc("PUT /api/v1/kb/entries/{id}", func(w http.ResponseWriter, r *http.Request) {
+		var e store.KbEntry
+		if err := json.NewDecoder(r.Body).Decode(&e); err != nil {
+			writeErr(w, http.StatusBadRequest, "请求体不是合法 JSON")
+			return
+		}
+		e.ID = r.PathValue("id")
+		if e.Title == "" || e.DomainID == "" {
+			writeErr(w, http.StatusBadRequest, "title / domainId 均为必填")
+			return
+		}
+		if e.Status != "待评审" && e.Status != "已评审" { // 全量替换：status 必填；已失效只能经 DELETE
+			writeErr(w, http.StatusBadRequest, "status 必填，只允许 待评审 / 已评审")
+			return
+		}
+		if e.ExpectedVersion <= 0 {
+			writeErr(w, http.StatusBadRequest, "expectedVersion 必填（乐观并发）")
+			return
+		}
+		out, err := st.UpdateKbEntry(r.Context(), e, e.ExpectedVersion)
+		writeStoreResult(w, out, err)
+	})
+
+	mux.HandleFunc("DELETE /api/v1/kb/entries/{id}", func(w http.ResponseWriter, r *http.Request) {
+		out, err := st.DeleteKbEntry(r.Context(), r.PathValue("id"))
+		writeStoreResult(w, out, err)
+	})
+
+	mux.HandleFunc("GET /api/v1/synonyms", handle(func(r *http.Request) ([]store.Synonym, error) {
+		return st.ListSynonyms(r.Context(), r.URL.Query().Get("status"))
+	}))
+	mux.HandleFunc("POST /api/v1/synonyms/{id}/merge", func(w http.ResponseWriter, r *http.Request) {
+		var in struct {
+			Standard string `json:"standard"`
+			By       string `json:"by"`
+		}
+		if err := json.NewDecoder(r.Body).Decode(&in); err != nil {
+			writeErr(w, http.StatusBadRequest, "请求体不是合法 JSON")
+			return
+		}
+		if in.Standard == "" || in.By == "" {
+			writeErr(w, http.StatusBadRequest, "standard / by 均为必填")
+			return
+		}
+		out, err := st.MergeSynonym(r.Context(), r.PathValue("id"), in.Standard, in.By)
+		writeStoreResult(w, out, err)
+	})
+}
+
+// writeStoreResult 统一写端点错误映射：404 / 409 / 400 / 500。
+func writeStoreResult(w http.ResponseWriter, out any, err error) {
+	switch {
+	case err == nil:
+		writeJSON(w, out)
+	case errors.Is(err, store.ErrNotFound):
+		writeErr(w, http.StatusNotFound, "资源不存在")
+	case errors.Is(err, store.ErrConflict):
+		writeErr(w, http.StatusConflict, err.Error())
+	case errors.Is(err, store.ErrInvalid):
+		writeErr(w, http.StatusBadRequest, err.Error())
+	default:
+		writeErr(w, http.StatusInternalServerError, err.Error())
+	}
 }

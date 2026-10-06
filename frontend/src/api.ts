@@ -39,6 +39,19 @@ export interface Notification { id: string; cat: string; title: string; time: st
 
 export interface Version { v: string; date: string; desc: string; status: string }
 
+export interface KbTerm { term: string; en: string; def: string; source: string }
+
+export interface KbEntry {
+  id: string; domainId: string; title: string; status: string; source: string;
+  onto?: string; dataRef?: string; flow?: string; roles: string[]; mode?: string;
+  terms: KbTerm[]; sops: string[]; version?: number; updatedBy?: string; updatedAt?: string;
+  expectedVersion?: number;
+}
+
+export interface KbDomain { id: string; name: string; parentId: string; entryCount: number }
+
+export interface Synonym { id: string; terms: string[]; standard: string; status: string; by?: string; at?: string }
+
 async function get<T>(path: string): Promise<T> {
   const res = await fetch(path);
   if (!res.ok) throw new Error(`${path} → HTTP ${res.status}`);
@@ -72,4 +85,14 @@ export const api = {
     send<Review>(`/api/v1/reviews/${id}/decision`, 'PUT', { action, by, comment, expectedStatus }),
   notifications: () => get<Notification[]>('/api/v1/notifications'),
   versions: (onto = 'scm') => get<Version[]>(`/api/v1/versions?onto=${onto}`),
+  kbDomains: () => get<KbDomain[]>('/api/v1/kb/domains'),
+  kbEntries: (domain = '', kw = '') =>
+    get<KbEntry[]>(`/api/v1/kb/entries?domain=${domain}&kw=${kw}`),
+  kbEntry: (id: string) => get<KbEntry>(`/api/v1/kb/entries/${id}`),
+  createKbEntry: (e: KbEntry) => send<KbEntry>('/api/v1/kb/entries', 'POST', e),
+  updateKbEntry: (id: string, e: KbEntry) => send<KbEntry>(`/api/v1/kb/entries/${id}`, 'PUT', e),
+  deleteKbEntry: (id: string) => send<KbEntry>(`/api/v1/kb/entries/${id}`, 'DELETE'),
+  synonyms: (status = '') => get<Synonym[]>(`/api/v1/synonyms?status=${status}`),
+  mergeSynonym: (id: string, standard: string, by: string) =>
+    send<Synonym>(`/api/v1/synonyms/${id}/merge`, 'POST', { standard, by }),
 };

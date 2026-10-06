@@ -13,7 +13,9 @@ const { Sider, Header, Content } = Layout;
 const NAV: { key: string; label: string; icon?: React.ReactNode; children?: [string, string][] }[] = [
   { key: 'home', label: '首页', icon: <HomeOutlined /> },
   { key: 'm1', label: '数据资产', icon: <DatabaseOutlined />, children: [['m1/datasources', '数据源中心']] },
-  { key: 'm2', label: '知识运营', icon: <BookOutlined /> },
+  { key: 'm2', label: '知识运营', icon: <BookOutlined />, children: [
+    ['m2/knowledge', '知识库'], ['m2/synonyms', '同义词治理'],
+  ]},
   { key: 'm3', label: '本体建模', icon: <DeploymentUnitOutlined />, children: [
     ['m3/ontologies', '本体管理'], ['m3/registry', '注册中心'],
   ]},

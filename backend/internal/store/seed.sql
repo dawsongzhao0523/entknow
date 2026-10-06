@@ -2,7 +2,8 @@
 BEGIN;
 
 TRUNCATE users, ontologies, memberships, objects, edges, functions, views,
-         datasources, rules, reviews, notifications, capabilities, versions, table_profiles;
+         datasources, rules, reviews, notifications, capabilities, versions, table_profiles,
+         kb_domains, kb_entries, synonyms;
 
 INSERT INTO users (id, account, name, dept, post, roles, status, last_login) VALUES
 ('u1', 'zhangsan', '张三', '平台部 / 数据AI部', '数据架构师', ARRAY['本体管理员','数据开发'], '正常', '2026-10-03 09:12'),
@@ -106,6 +107,78 @@ INSERT INTO versions (onto_id, v, date, description, status) VALUES
 ('scm', 'v0.2', '08-29', '+准入评估对象 +QUALIFIES 关系',       'PUBLISHED'),
 ('scm', 'v0.3', '09-15', '+传播规则×4',                        'PUBLISHED（生产中）'),
 ('scm', 'v0.4', '10-01', '+交付风险分函数（评审中）',           'DRAFT');
+
+INSERT INTO kb_domains (id, name, parent_id) VALUES
+('scm',      '供应链域', ''),
+('purchase', '采购域',   'scm'),
+('plan',     '计划域',   'scm'),
+('quality',  '质量域',   '');
+
+INSERT INTO kb_entries (id, domain_id, title, status, source, onto, data_ref, flow, roles, mode, terms, sops, version, updated_by, updated_at) VALUES
+('po', 'purchase', '采购订单', '已评审', '定时任务', 'PO', 'scm_prod.purchase_order', 'PROC-000062 采购订单下达',
+ ARRAY['采购员（创建）','采购主管（审批）','财务（超5万复核）'],
+ '## 业务模式 · 采购订单
+
+企业向**供应商**发出的正式采购要约，经审批后生效。
+
+- 创建：采购员按采购计划创建，关联物料与工厂
+- 审批：采购主管审批，金额 > 5 万需财务复核
+- 履约：供应商确认 → 发货 → 收货，全程回写状态机',
+ '[{"term":"采购订单","en":"Purchase Order","def":"企业向供应商发出的正式采购要约，经审批后生效","source":"KB 词条"},{"term":"承诺交期","en":"promise_dt","def":"供应商承诺的最晚交付时间","source":"表字段"},{"term":"齐套率","en":"kit_rate","def":"齐套物料行数 / 总物料行数（AI 候选 · 证据 3 条）","source":"AI 候选"}]',
+ ARRAY['金额 > 5 万 → 财务复核','紧急订单可走绿色通道（总监特批）','供应商未准入 → 禁止下达采购订单','订单状态机：草稿 → 已下达 → 已发货 → 已收货 → 已关闭'],
+ 3, '王五', '2026-09-30 16:12'),
+('qualify', 'purchase', '供应商准入', '已评审', 'OneData', 'QualAssessment', 'mdm.supplier_qualification', 'PROC-000015 供应商准入评估',
+ ARRAY['SQE（评估）','采购主管（审批）','质量经理（会签）'],
+ '## 业务模式 · 供应商准入
+
+新供应商引入前的资质与能力评估流程。
+
+- 发起：采购员提交准入申请，附资质文件
+- 评估：SQE 现场审核 + 样品验证
+- 生效：评分 ≥ 80 准入，进入合格供应商名录',
+ '[{"term":"准入评分","en":"qual_score","def":"资质 30% + 产能 30% + 质量 40%（OneData 指标口径）","source":"OneData"},{"term":"合格供应商","en":"approved_supplier","def":"准入评分 ≥80 且在有效期内的供应商","source":"OneData"}]',
+ ARRAY['准入评分 < 80 → 禁止下达订单','资质文件有效期 < 30 天 → 预警并冻结下单','年度复审：评分下降 >10 分触发重评'],
+ 2, '王五', '2026-09-28 11:40'),
+('price-rule', 'purchase', '价格审批规则', '待评审', 'CSV 导入', '', 'scm_prod.po_price_line', 'PROC-000070 价格审批',
+ ARRAY['采购员（发起）','成本工程师（核价）','采购总监（终审）'],
+ '## 业务模式 · 价格审批
+
+采购价格的核价与分层审批。
+
+- 单价偏离基准价 >5% 触发核价
+- 金额分层：≤5万主管审批，>5万总监终审',
+ '[{"term":"基准价","en":"baseline_price","def":"最近一次中标价或框架协议价","source":"KB 词条"}]',
+ ARRAY['偏离基准价 >5% → 成本工程师核价','单笔 > 5 万 → 总监终审'],
+ 1, '张三', '2026-10-02 09:05'),
+('demand-plan', 'plan', '需求计划', '已评审', '定时任务', '', 'aps_prod.demand_plan', 'PROC-000003 需求计划编制',
+ ARRAY['计划员（编制）','计划主管（评审）'],
+ '## 业务模式 · 需求计划
+
+滚动 13 周需求预测与计划编制。
+
+- 来源：销售预测 + 客户订单 + 安全库存补齐
+- 冻结期：未来 2 周需求冻结，变更需审批',
+ '[{"term":"滚动周期","en":"rolling_weeks","def":"13 周滚动窗口，每周一刷新","source":"表字段"},{"term":"需求冻结期","en":"freeze_zone","def":"未来 2 周，冻结期内变更需计划主管审批","source":"定时任务"}]',
+ ARRAY['冻结期内变更需计划主管审批','预测准确率月度复盘（MAPE < 25%）'],
+ 1, '李四', '2026-09-20 14:30'),
+('batch-trace', 'quality', '批次追溯', '已评审', 'OneData', '', 'mes_prod.batch_trace', 'PROC-000021 批次判定',
+ ARRAY['质检员（采样）','质量经理（判定）'],
+ '## 业务模式 · 批次追溯
+
+来料-制程-出货三段批次链追溯。
+
+- 来料批次绑定供应商与采购订单
+- 制程批次记录工序与设备
+- 出货批次正向/反向追溯 ≤ 2 分钟',
+ '[{"term":"批次链","en":"batch_chain","def":"来料→制程→出货的批次血缘","source":"OneData"}]',
+ ARRAY['质量异常 → 5 分钟内定位受批次影响的客户订单','批次冻结 → 联动采购订单暂停收货'],
+ 1, '王五', '2026-09-15 10:00');
+
+INSERT INTO synonyms (id, terms, standard, status, by, at) VALUES
+('m1', ARRAY['物料','料号','Material'], '物料', '已归并', '张三', '2026-09-28'),
+('s1', ARRAY['供应商','供货商','Vendor'], '', '待归并', '', ''),
+('s2', ARRAY['客户','顾客','Customer'], '', '待归并', '', ''),
+('s3', ARRAY['准时率','及时率','OnTimeRate'], '', '待归并', '', '');
 
 INSERT INTO table_profiles (name, comment, rows, fields, pk, fks, siblings, profile_fields) VALUES
 ('purchase_order', '采购订单', '2,140,331', 18, 'po_id',

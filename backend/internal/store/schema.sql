@@ -162,6 +162,41 @@ CREATE TABLE IF NOT EXISTS table_profiles (
   profile_fields jsonb NOT NULL DEFAULT '[]'
 );
 
+-- ─── M2 知识运营 ───
+
+CREATE TABLE IF NOT EXISTS kb_domains (
+  id        text PRIMARY KEY,
+  name      text NOT NULL,
+  parent_id text NOT NULL DEFAULT ''          -- 顶级为空，两级树
+);
+
+CREATE TABLE IF NOT EXISTS kb_entries (
+  id         text PRIMARY KEY,
+  domain_id  text NOT NULL,
+  title      text NOT NULL,
+  status     text NOT NULL DEFAULT '待评审',   -- 待评审 | 已评审 | 已失效（软删除）
+  source     text NOT NULL DEFAULT '手工',     -- 定时任务 | OneData | CSV 导入 | 手工
+  onto       text NOT NULL DEFAULT '',         -- 关联本体对象 en
+  data_ref   text NOT NULL DEFAULT '',         -- 数据来源表
+  flow       text NOT NULL DEFAULT '',         -- PROC 流程号
+  roles      text[] NOT NULL DEFAULT '{}',
+  mode       text NOT NULL DEFAULT '',         -- 业务模式（markdown）
+  terms      jsonb NOT NULL DEFAULT '[]',      -- [{term,en,def,source}]
+  sops       text[] NOT NULL DEFAULT '{}',
+  version    integer NOT NULL DEFAULT 1,       -- 乐观并发
+  updated_by text NOT NULL DEFAULT '',
+  updated_at text NOT NULL DEFAULT ''
+);
+
+CREATE TABLE IF NOT EXISTS synonyms (
+  id       text PRIMARY KEY,
+  terms    text[] NOT NULL,
+  standard text NOT NULL DEFAULT '',
+  status   text NOT NULL DEFAULT '待归并',      -- 待归并 | 已归并
+  by       text NOT NULL DEFAULT '',
+  at       text NOT NULL DEFAULT ''
+);
+
 -- 幂等演进（已有库补列；新库因 CREATE 已含而 no-op）
 ALTER TABLE reviews ADD COLUMN IF NOT EXISTS decided_by text NOT NULL DEFAULT '';
 ALTER TABLE reviews ADD COLUMN IF NOT EXISTS decided_at text NOT NULL DEFAULT '';
