@@ -60,6 +60,7 @@ export default function AppShell() {
   const [ontos, setOntos] = useState<Ontology[]>([]);
   const [onto, setOnto] = useState('');
   const [err, setErr] = useState('');
+  const [collapsed, setCollapsed] = useState(false);
 
   // 导航 = 菜单管理维护的菜单树（按当前用户角色权限过滤）；权限/菜单变更（permVersion）即时重拉
   useEffect(() => {
@@ -97,10 +98,14 @@ export default function AppShell() {
 
   return (
     <Layout style={{ minHeight: '100vh' }}>
-      <Sider width={216}>
-        <div style={{ color: '#1a1a2e', padding: '14px 16px', fontWeight: 700, fontSize: 15 }}>
-          entKnow
-          <div style={{ fontSize: 11, fontWeight: 400, color: '#6b7688', marginTop: 2 }}>企业级本体操作系统</div>
+      <Sider width={216} collapsedWidth={72} collapsible collapsed={collapsed} onCollapse={setCollapsed}>
+        <div style={{
+          display: 'flex', alignItems: 'center',
+          justifyContent: collapsed ? 'center' : 'flex-start',
+          gap: 8, padding: collapsed ? '12px 0' : '12px 16px', height: 52,
+        }}>
+          <img src="/logo.svg" alt="entKnow" style={{ width: 28, height: 28, flexShrink: 0 }} />
+          {!collapsed && <span style={{ color: '#1a1a2e', fontWeight: 700, fontSize: 16 }}>entKnow</span>}
         </div>
         <Menu
           mode="inline" selectedKeys={[selected]} defaultOpenKeys={[openKey]}
