@@ -80,6 +80,20 @@ export interface CapabilityCall {
   latencyMs: number; calledAt: string;
 }
 
+export interface SearchResultItem { label: string; sub?: string }
+
+export interface SearchResults {
+  objects: SearchResultItem[] | null; knowledge: SearchResultItem[] | null;
+  instances: SearchResultItem[] | null; synonyms: SearchResultItem[] | null;
+}
+
+export interface QueryRecord {
+  id: string; question: string; dsl: string; hits: number;
+  latencyMs: number; by: string; at: string;
+}
+
+export interface ExecutedQuery extends QueryRecord { results: SearchResults }
+
 export interface User {
   id: string; account: string; name: string; dept: string; post: string;
   roles: string[]; status: string; lastLogin: string;
@@ -118,6 +132,10 @@ export const api = {
   invokeCapability: (id: string, p: { id: string; caller: string; status?: string; latencyMs?: number }) =>
     send<Capability>(`/api/v1/capabilities/${id}/invoke`, 'POST', p),
   capabilityCalls: (id: string) => get<CapabilityCall[]>(`/api/v1/capabilities/${id}/calls`),
+  search: (q: string) => get<SearchResults>(`/api/v1/search?q=${encodeURIComponent(q)}`),
+  executeQuery: (p: { id: string; question: string; by: string }) =>
+    send<ExecutedQuery>('/api/v1/queries', 'POST', p),
+  queries: (by = '') => get<QueryRecord[]>(`/api/v1/queries?by=${by}`),
   reviews: () => get<Review[]>('/api/v1/reviews'),
   createReview: (r: Pick<Review, 'id' | 'title' | 'type' | 'from'> & { sla?: string }) =>
     send<Review>('/api/v1/reviews', 'POST', r),

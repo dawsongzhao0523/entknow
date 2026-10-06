@@ -35,19 +35,31 @@ func writeErr(w http.ResponseWriter, code int, msg string) {
 	_ = json.NewEncoder(w).Encode(map[string]string{"error": msg})
 }
 
-// handle 通用列表端点包装：统一错误为 500。
+// handle 通用读端点包装：store 错误统一映射（404/409/403/400/500）。
 func handle[T any](list func(r *http.Request) (T, error)) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		v, err := list(r)
 		if err != nil {
-			if errors.Is(err, store.ErrNotFound) {
-				writeErr(w, http.StatusNotFound, "not found")
-				return
-			}
-			writeErr(w, http.StatusInternalServerError, err.Error())
+			mapStoreErr(w, err)
 			return
 		}
 		writeJSON(w, v)
+	}
+}
+
+// mapStoreErr store 层错误 → HTTP 状态码。
+func mapStoreErr(w http.ResponseWriter, err error) {
+	switch {
+	case errors.Is(err, store.ErrNotFound):
+		writeErr(w, http.StatusNotFound, "资源不存在")
+	case errors.Is(err, store.ErrConflict):
+		writeErr(w, http.StatusConflict, err.Error())
+	case errors.Is(err, store.ErrForbidden):
+		writeErr(w, http.StatusForbidden, err.Error())
+	case errors.Is(err, store.ErrInvalid):
+		writeErr(w, http.StatusBadRequest, err.Error())
+	default:
+		writeErr(w, http.StatusInternalServerError, err.Error())
 	}
 }
 
@@ -497,22 +509,48 @@ func MountAPI(mux *http.ServeMux, st *store.Store) {
 		}
 		return st.ListCapabilityCalls(r.Context(), r.PathValue("id"), limit)
 	}))
+
+	// ─── M5 语义查询 ───
+
+	mux.HandleFunc("GET /api/v1/search", handle(func(r *http.Request) (store.SearchResults, error) {
+		q := r.URL.Query().Get("q")
+		if q == "" {
+			return store.SearchResults{}, store.ErrInvalid
+		}
+		return st.Search(r.Context(), q)
+	}))
+	mux.HandleFunc("POST /api/v1/queries", func(w http.ResponseWriter, r *http.Request) {
+		var in store.QueryRecord
+		if err := json.NewDecoder(r.Body).Decode(&in); err != nil {
+			writeErr(w, http.StatusBadRequest, "请求体不是合法 JSON")
+			return
+		}
+		if in.ID == "" || in.Question == "" || in.By == "" {
+			writeErr(w, http.StatusBadRequest, "id / question / by 均为必填")
+			return
+		}
+		out, err := st.ExecuteQuery(r.Context(), in)
+		if err != nil {
+			writeStoreResult(w, out, err)
+			return
+		}
+		w.WriteHeader(http.StatusCreated)
+		writeJSON(w, out)
+	})
+	mux.HandleFunc("GET /api/v1/queries", handle(func(r *http.Request) ([]store.QueryRecord, error) {
+		limit := 0
+		if v := r.URL.Query().Get("limit"); v != "" {
+			fmt.Sscanf(v, "%d", &limit)
+		}
+		return st.ListQueries(r.Context(), r.URL.Query().Get("by"), limit)
+	}))
 }
 
-// writeStoreResult 统一写端点错误映射：404 / 409 / 403 / 400 / 500。
+// writeStoreResult 写端点结果：成功写 JSON，失败走统一错误映射。
 func writeStoreResult(w http.ResponseWriter, out any, err error) {
-	switch {
-	case err == nil:
-		writeJSON(w, out)
-	case errors.Is(err, store.ErrNotFound):
-		writeErr(w, http.StatusNotFound, "资源不存在")
-	case errors.Is(err, store.ErrConflict):
-		writeErr(w, http.StatusConflict, err.Error())
-	case errors.Is(err, store.ErrForbidden):
-		writeErr(w, http.StatusForbidden, err.Error())
-	case errors.Is(err, store.ErrInvalid):
-		writeErr(w, http.StatusBadRequest, err.Error())
-	default:
-		writeErr(w, http.StatusInternalServerError, err.Error())
+	if err != nil {
+		mapStoreErr(w, err)
+		return
 	}
+	writeJSON(w, out)
 }

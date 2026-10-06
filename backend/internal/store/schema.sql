@@ -257,6 +257,18 @@ CREATE TABLE IF NOT EXISTS capability_calls (
   called_at     text NOT NULL DEFAULT ''
 );
 
+-- ─── M5 语义查询 ───
+
+CREATE TABLE IF NOT EXISTS query_history (
+  id         text PRIMARY KEY,
+  question   text NOT NULL,
+  dsl        text NOT NULL DEFAULT '',
+  hits       integer NOT NULL DEFAULT 0,
+  latency_ms integer NOT NULL DEFAULT 0,
+  by_user    text NOT NULL DEFAULT '',
+  at         text NOT NULL DEFAULT ''
+);
+
 -- 幂等演进（已有库补列；新库因 CREATE 已含而 no-op）
 ALTER TABLE reviews ADD COLUMN IF NOT EXISTS decided_by text NOT NULL DEFAULT '';
 ALTER TABLE reviews ADD COLUMN IF NOT EXISTS decided_at text NOT NULL DEFAULT '';

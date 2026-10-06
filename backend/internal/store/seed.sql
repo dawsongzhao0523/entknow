@@ -4,7 +4,7 @@ BEGIN;
 TRUNCATE users, ontologies, memberships, objects, edges, functions, views,
          datasources, rules, reviews, notifications, capabilities, versions, table_profiles,
          kb_domains, kb_entries, synonyms, instances, instance_events, rule_firings, actions, roles,
-         capability_calls;
+         capability_calls, query_history;
 
 INSERT INTO users (id, account, name, dept, post, roles, status, last_login) VALUES
 ('u1', 'zhangsan', '张三', '平台部 / 数据AI部', '数据架构师', ARRAY['本体管理员','数据开发'], '正常', '2026-10-03 09:12'),
@@ -110,6 +110,12 @@ INSERT INTO capabilities (id, name, description, proto, calls, owner, base_calls
 ('c2', 'semantic_query',       '自然语言 → DSL → 执行',              'MCP/REST/CLI', '', '平台组', 12401),
 ('c3', 'run_action',           '执行 Action（dry-run + 确认令牌）',  'MCP/REST/CLI', '', '平台组', 231),
 ('c4', 'supplier_risk_agent',  '供应商风险智能体（消费方）',         'MCP',          '', 'AI 组', 1204);
+
+INSERT INTO query_history (id, question, dsl, hits, latency_ms, by_user, at) VALUES
+('q-seed-1', '华兴电子近三月准时率',
+ '检索「华兴电子近三月准时率」→ MATCH 对象×0, 知识×0, 实例×1, 同义词×0 RETURN 语义切片；重点域: 实例', 1, 842, '李四', '2026-10-03 09:12'),
+('q-seed-2', '采购订单的交付风险怎么看',
+ '检索「采购订单的交付风险怎么看」→ MATCH 对象×1, 知识×1, 实例×2, 同义词×0 RETURN 语义切片；重点域: 实例', 4, 1260, '王五', '2026-10-02 16:40');
 
 INSERT INTO versions (onto_id, v, date, description, status) VALUES
 ('scm', 'v0.1', '08-12', '最小可行本体（4对象+3关系+2Action）', 'PUBLISHED'),
