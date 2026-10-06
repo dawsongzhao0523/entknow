@@ -1,0 +1,55 @@
+backend/internal/server/modules_api.go
+  d2feb3b21e472516 316-343
+frontend/src/pages/Datasources.tsx
+  d2feb3b21e472516 158-180
+frontend/src/api.ts
+  d2feb3b21e472516 16,270-271
+docs/requirement/20261007建模模块对齐原型.md
+  d2feb3b21e472516 1-24
+backend/internal/store/ontology.go
+  d2feb3b21e472516 1-128
+frontend/src/App.tsx
+  d2feb3b21e472516 22,49
+frontend/src/pages/modeling/Designer.tsx
+  d2feb3b21e472516 1-241
+backend/internal/store/store.go
+  d2feb3b21e472516 105,269,293
+backend/internal/store/designer.go
+  d2feb3b21e472516 75
+frontend/src/layouts/AppShell.tsx
+  d2feb3b21e472516 38
+frontend/src/pages/Ontologies.tsx
+  d2feb3b21e472516 3-7,14-18,20,23-24,27-30,32-34,36,38-50,54-145
+backend/internal/server/modules_integration_test.go
+  d2feb3b21e472516 277-327
+backend/internal/store/seed.sql
+  d2feb3b21e472516 279-281
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.8.1",
+  "base_commit_sha": "cc8e7d9837865bc3c6cf2e8bf0f0b62fedf05dda",
+  "prompts": {
+    "d2feb3b21e472516": {
+      "agent_id": {
+        "tool": "zcode",
+        "id": "sess_640dac34-2670-4904-ae98-aa4e9073f17c",
+        "model": "GLM-5.3"
+      },
+      "human_author": "dawsongzhao0523 <133857587+dawsongzhao0523@users.noreply.github.com>",
+      "messages": [],
+      "total_additions": 668,
+      "total_deletions": 62,
+      "accepted_lines": 7216,
+      "overriden_lines": 0,
+      "messages_url": "https://gitai.gz.cvte.cn/cas/ca9e2b902868044734cae50c5e8e7ad082383a9728afdcfd6f5110d9e516b844",
+      "token_usage": {
+        "input_tokens": 155866951,
+        "output_tokens": 327844,
+        "cache_read_tokens": 154153088,
+        "cache_creation_tokens": 0,
+        "total_cost": 0.0
+      }
+    }
+  }
+}
