@@ -16,7 +16,8 @@ export default function OntologyDetail() {
   const { message } = App.useApp();
   const { user } = useSession();
   const [params] = useSearchParams();
-  const onto = params.get('onto') ?? 'scm';
+  const { onto: globalOnto } = useSession();
+  const onto = params.get('onto') ?? globalOnto ?? 'scm';
   const [ontos, setOntos] = useState<Ontology[]>([]);
   const [members, setMembers] = useState<Member[]>([]);
   const [users, setUsers] = useState<User[]>([]);

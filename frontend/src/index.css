@@ -12,3 +12,11 @@ body {
 body.no-mono .mono {
   font-family: inherit;
 }
+
+/* 本体管理：当前工作本体行高亮（半透明主题色，明暗模式均可用） */
+.row-current-onto > td {
+  background: rgba(5, 150, 105, 0.12) !important;
+}
+.row-current-onto > td:first-child {
+  box-shadow: inset 3px 0 0 #059669;
+}

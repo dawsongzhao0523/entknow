@@ -15,12 +15,16 @@ interface SessionCtx {
   /** 权限/菜单变更信号：bump 后导航（menus）重新拉取，即时生效 */
   permVersion: number;
   bumpPerms: () => void;
+  /** 当前工作本体（派生自个性化设置 defaultOnto，按用户持久化；空 = 未选择） */
+  onto: string;
+  chooseOnto: (id: string) => void;
 }
 
 const Ctx = createContext<SessionCtx>({
   user: 'zhangsan', setUser: () => {}, users: [],
   prefs: {}, savePrefs: async () => {}, prefsLoaded: false,
   permVersion: 0, bumpPerms: () => {},
+  onto: '', chooseOnto: () => {},
 });
 
 export function useSession() { return useContext(Ctx); }
@@ -63,14 +67,20 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     setPrefs(merged);
   }, [user]);
 
+  // 选择工作本体：写入个性化设置（defaultOnto），按用户持久化
+  const chooseOnto = useCallback((id: string) => {
+    void savePrefs({ ...prefs, defaultOnto: id });
+  }, [prefs, savePrefs]);
+
   // 副作用 1：等宽字体开关（body class）
   useEffect(() => {
     document.body.classList.toggle('no-mono', prefs.monoFont === false);
   }, [prefs.monoFont]);
 
+  const onto = prefs.defaultOnto ?? '';
   const value = useMemo(() => (
-    { user, setUser, users, prefs, savePrefs, prefsLoaded, permVersion, bumpPerms }
-  ), [user, setUser, users, prefs, savePrefs, prefsLoaded, permVersion, bumpPerms]);
+    { user, setUser, users, prefs, savePrefs, prefsLoaded, permVersion, bumpPerms, onto, chooseOnto }
+  ), [user, setUser, users, prefs, savePrefs, prefsLoaded, permVersion, bumpPerms, onto, chooseOnto]);
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }

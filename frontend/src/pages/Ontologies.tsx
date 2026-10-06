@@ -1,7 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, Table, Tag, Typography } from 'antd';
 import { api, type Ontology, type Version } from '../api';
+import { useSession } from '../session';
 
 const { Title, Text } = Typography;
 
@@ -10,14 +11,23 @@ const roleColor: Record<string, string> = { 所有者: 'gold', 建模者: 'blue'
 
 export default function Ontologies() {
   const nav = useNavigate();
+  const { onto, chooseOnto } = useSession();
   const [ontos, setOntos] = useState<Ontology[]>([]);
   const [versions, setVersions] = useState<Version[]>([]);
   const [err, setErr] = useState('');
 
   useEffect(() => {
     api.ontologies().then(setOntos).catch(e => setErr(String(e.message ?? e)));
-    api.versions('scm').then(setVersions).catch(() => setVersions([]));
   }, []);
+
+  // 版本历史跟随当前工作本体（未选择时不展示）
+  const loadVersions = useCallback((id: string) => {
+    api.versions(id).then(setVersions).catch(() => setVersions([]));
+  }, []);
+  useEffect(() => {
+    if (onto) loadVersions(onto);
+  }, [onto, loadVersions]);
+  const curOnto = ontos.find(o => o.id === onto);
 
   return (
     <div>
@@ -26,8 +36,15 @@ export default function Ontologies() {
       {err && <Card style={{ marginTop: 12 }}>API 异常：{err}</Card>}
       <Card size="small" style={{ marginTop: 12 }}>
         <Table<Ontology> size="small" rowKey="id" pagination={false} dataSource={ontos}
+          rowClassName={r => r.id === onto ? 'row-current-onto' : ''}
+          onRow={r => ({ onClick: () => chooseOnto(r.id), style: { cursor: 'pointer' } })}
           columns={[
-            { title: '本体', dataIndex: 'name', render: (v: string, r) => <a onClick={() => nav(`/modeling/ontology/detail?onto=${r.id}`)}><b>{v}</b></a> },
+            { title: '本体', dataIndex: 'name', render: (v: string, r) => (
+              <span>
+                <a onClick={e => { e.stopPropagation(); nav(`/modeling/ontology/detail?onto=${r.id}`); }}><b>{v}</b></a>
+                {r.id === onto && <Tag color="green" style={{ marginInlineStart: 8 }}>当前</Tag>}
+              </span>
+            ) },
             { title: '场景', dataIndex: 'scene' },
             { title: '版本', dataIndex: 'version', width: 70 },
             { title: '状态', dataIndex: 'status', width: 90,
@@ -40,8 +57,9 @@ export default function Ontologies() {
             { title: '创建', dataIndex: 'created', width: 100 },
           ]} />
       </Card>
-      <Card size="small" title="供应链本体 · 版本历史（GET /api/v1/versions）" style={{ marginTop: 12 }}>
-        <Table<Version> size="small" rowKey="v" pagination={false} dataSource={versions}
+      <Card size="small" title={curOnto ? `${curOnto.name} · 版本历史` : '版本历史'} style={{ marginTop: 12 }}>
+        {!onto && <Text type="secondary">尚未选择工作本体——点击上方任一本体行即可设为当前，版本历史随之切换。</Text>}
+        <Table<Version> size="small" rowKey="id" pagination={false} dataSource={onto ? versions : []}
           columns={[
             { title: '版本', dataIndex: 'v', width: 70, render: (v: string) => <b>{v}</b> },
             { title: '日期', dataIndex: 'date', width: 90 },

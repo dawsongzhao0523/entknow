@@ -54,11 +54,10 @@ export default function AppShell() {
   const loc = useLocation();
   const selected = loc.pathname.replace(/^\//, '') || 'home';
   const openKey = selected.includes('/') ? selected.split('/')[0] : '';
-  const { user, setUser, users, prefs, permVersion } = useSession();
+  const { user, setUser, users, onto, chooseOnto, permVersion } = useSession();
 
   const [menus, setMenus] = useState<MenuNode[] | null>(null);
   const [ontos, setOntos] = useState<Ontology[]>([]);
-  const [onto, setOnto] = useState('');
   const [err, setErr] = useState('');
   const [collapsed, setCollapsed] = useState(false);
 
@@ -71,12 +70,8 @@ export default function AppShell() {
     api.ontologies(user).then(setOntos).catch(e => setErr(String(e.message ?? e)));
   }, [user]);
 
-  // 默认本体由个性化设置决定（设置加载后生效一次）
-  useEffect(() => {
-    if (prefs.defaultOnto) setOnto(prefs.defaultOnto);
-  }, [prefs.defaultOnto]);
-
-  const cur = ontos.find(o => o.id === (onto || 'scm'));
+  // 当前本体 = 会话全局上下文（未选择时为空，不显示任何已选值）
+  const cur = onto ? ontos.find(o => o.id === onto) : undefined;
   const curUser = users.find(u => u.account === user);
 
   const navItems = useMemo(() => {
@@ -115,10 +110,10 @@ export default function AppShell() {
       </Sider>
       <Layout>
         <Header style={{ padding: '0 20px', display: 'flex', alignItems: 'center', borderBottom: '1px solid #e2e4e9' }}>
-          <span style={{ color: '#6b7688', marginRight: 8 }}>当前本体</span>
+          <span style={{ color: '#6b7688', marginRight: 8 }}>工作本体</span>
           <Select
-            value={onto || 'scm'} onChange={setOnto} style={{ width: 300 }} variant="filled"
-            loading={ontos.length === 0}
+            value={onto || undefined} onChange={chooseOnto} style={{ width: 300 }} variant="filled"
+            loading={ontos.length === 0} allowClear placeholder="点击选择工作本体"
             options={ontos.map(o => ({ value: o.id, label: `${o.name} · ${o.scene}（${o.version}）` }))}
           />
           {cur && <>
