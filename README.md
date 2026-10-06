@@ -20,10 +20,10 @@ entKnow是一个对标 [Palantir Foundry Ontology](https://www.palantir.com/docs
 | 目录 | 说明 | 状态 |
 |---|---|---|
 | [prototype/](prototype/) | 高保真原型（React + antd + 共享 mock，给产品经理验证产品形态） | ≈60% 产品形态 |
-| [backend/](backend/) | Go 生产后端（平台平面，主要开发区） | 骨架已立 |
-| [frontend/](frontend/) | 生产前端（将从 prototype 演进） | 占位 |
+| [backend/](backend/) | Go 生产后端（平台平面，主要开发区）：PostgreSQL + `/api/v1` 核心 API + 内嵌 demo 数据 | 核心读 API 已上线 |
+| [frontend/](frontend/) | 生产前端（同栈，直连真实 API） | 骨架 + 核心页面已上线 |
 | [docs/](docs/) | 文档：草稿需求（requirement/）、架构思维导图（architecture/）、Utopia 集成基线 | 持续维护 |
-| [openspec/](openspec/) | SDD 需求管理：现行能力规格（specs/）+ 变更提案（changes/） | 流程已立 |
+| [openspec/](openspec/) | SDD 需求管理：现行能力规格（specs/）+ 变更提案（changes/） | 流程运转中 |
 
 ## 开发流程（SDD + TDD，强制）
 
@@ -42,11 +42,13 @@ entKnow是一个对标 [Palantir Foundry Ontology](https://www.palantir.com/docs
 
 ```bash
 make infra    # 启动开发依赖：postgres :25432 · redis :26379 · minio :29000（控制台 :29001）
-make app      # 启动全栈容器：backend :28080 + prototype :25188
+make app      # 启动全栈容器：backend :28080 + frontend :25190 + prototype :25188（空库自动装载 demo）
+make demo     # 强制重置 demo 数据（供应链订单交付风险完整场景）
+make itest    # 后端集成测试（对 demo 库断言）
 make down     # 停止；make clean 清空数据卷
 ```
 
-日常开发：`make infra` 起依赖后本地热更——后端 `cd backend && go run ./cmd/entknow`（→ http://localhost:28080/healthz），原型 `cd prototype && npm run dev`（→ http://localhost:5188）。
+日常开发：`make infra` 起依赖后本地热更——后端 `cd backend && go run ./cmd/entknow`（→ http://localhost:28080/healthz，空库自动装载 demo），生产前端 `cd frontend && npm run dev`（→ http://localhost:5190，`/api` 代理到 28080），原型 `cd prototype && npm run dev`（→ http://localhost:5188）。
 
 连接默认值（host 端口统一 2+标准端口 段，避免与本机其他栈冲突）：PostgreSQL `entknow/entknow@localhost:25432/entknow` · Redis `localhost:26379` 无凭据 · MinIO `entknow/entknow123@localhost:29000`（bucket `entknow`）。
 

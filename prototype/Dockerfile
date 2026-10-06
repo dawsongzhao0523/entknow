@@ -2,7 +2,8 @@
 FROM node:22-alpine AS build
 WORKDIR /app
 COPY package.json package-lock.json ./
-RUN npm ci
+# npm ci 的 lockfile 在 macOS 生成时缺 linux 原生 binding（npm/cli#4828），容器内需重新解析
+RUN rm -f package-lock.json && npm install --no-audit --no-fund
 COPY . .
 RUN npm run build
 

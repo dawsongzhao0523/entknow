@@ -68,13 +68,24 @@ services:
   backend:
     build: ./backend
     profiles: [app]
+    command: ["-addr", ":8080"]   # 容器内监听 8080（本地 go run 默认 28080）
     ports:
       - "${BACKEND_PORT:-28080}:8080"
+    environment:
+      ENTKNOW_PG_DSN: postgres://entknow:entknow@postgres:5432/entknow?sslmode=disable
     depends_on:
       postgres:
         condition: service_healthy
       redis:
         condition: service_healthy
+
+  frontend:
+    build: ./frontend
+    profiles: [app]
+    ports:
+      - "${FRONTEND_PORT:-25190}:80"
+    depends_on:
+      - backend
 
   prototype:
     build: ./prototype
