@@ -1,0 +1,63 @@
+frontend/src/api.ts
+  12d7ced32ffbd6e0 83-96,135-138
+frontend/src/layouts/AppShell.tsx
+  12d7ced32ffbd6e0 25
+frontend/src/App.tsx
+  12d7ced32ffbd6e0 14,31
+openspec/changes/archive/add-semantic-query/specs/semantic-query/spec.md
+  12d7ced32ffbd6e0 1-12
+backend/internal/store/seed.sql
+  12d7ced32ffbd6e0 7,114-119
+openspec/specs/CHANGELOG.md
+  12d7ced32ffbd6e0 16
+backend/internal/store/query.go
+  12d7ced32ffbd6e0 1-206
+backend/internal/server/api.go
+  12d7ced32ffbd6e0 38,43,50-65,512-546,549,551-553,555
+openspec/changes/archive/add-semantic-query/proposal.md
+  12d7ced32ffbd6e0 1-31
+docs/requirement/20261006语义查询与检索.md
+  12d7ced32ffbd6e0 1-16
+openspec/specs/semantic-query/spec.md
+  12d7ced32ffbd6e0 1-12
+frontend/src/pages/SemanticQuery.tsx
+  12d7ced32ffbd6e0 1-114
+frontend/README.md
+  12d7ced32ffbd6e0 17
+openspec/changes/archive/add-semantic-query/design.md
+  12d7ced32ffbd6e0 1-28
+backend/internal/server/query_integration_test.go
+  12d7ced32ffbd6e0 1-84
+openspec/changes/archive/add-semantic-query/tasks.md
+  12d7ced32ffbd6e0 1-24
+backend/internal/store/schema.sql
+  12d7ced32ffbd6e0 260-271
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.8.1",
+  "base_commit_sha": "05c4e68492d79acbe71436c6b0b1919353e0795c",
+  "prompts": {
+    "12d7ced32ffbd6e0": {
+      "agent_id": {
+        "tool": "zcode",
+        "id": "sess_3db04727-f961-41e3-ab68-c4c6fbb73f6c",
+        "model": "GLM-5.3"
+      },
+      "human_author": "dawsongzhao0523 <133857587+dawsongzhao0523@users.noreply.github.com>",
+      "messages": [],
+      "total_additions": 733,
+      "total_deletions": 128,
+      "accepted_lines": 627,
+      "overriden_lines": 0,
+      "messages_url": "https://gitai.gz.cvte.cn/cas/584aa53f322ded8ce5a59c695c74769bda75e2d0804def98f9361f08b7495df0",
+      "token_usage": {
+        "input_tokens": 64794551,
+        "output_tokens": 250917,
+        "cache_read_tokens": 64024256,
+        "cache_creation_tokens": 0,
+        "total_cost": 0.0
+      }
+    }
+  }
+}
