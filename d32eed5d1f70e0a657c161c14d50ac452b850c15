@@ -1,0 +1,103 @@
+backend/Dockerfile
+  12d7ced32ffbd6e0 1-2,6,9
+frontend/vite.config.ts
+  12d7ced32ffbd6e0 1-11
+docker-compose.yml
+  12d7ced32ffbd6e0 71,74-75,82-88
+frontend/Dockerfile
+  12d7ced32ffbd6e0 1-13
+frontend/src/main.tsx
+  12d7ced32ffbd6e0 1-18
+frontend/src/layouts/AppShell.tsx
+  12d7ced32ffbd6e0 1-84
+frontend/.dockerignore
+  12d7ced32ffbd6e0 1-2
+prototype/Dockerfile
+  12d7ced32ffbd6e0 5-6
+frontend/package.json
+  12d7ced32ffbd6e0 1-25
+frontend/src/api.ts
+  12d7ced32ffbd6e0 1-56
+backend/internal/store/store.go
+  12d7ced32ffbd6e0 1-512
+backend/internal/store/seed.sql
+  12d7ced32ffbd6e0 1-125
+backend/cmd/entknow/main.go
+  12d7ced32ffbd6e0 1,5,9-10,13,16-17,20,23-48,50-65
+Makefile
+  12d7ced32ffbd6e0 4,13,16-20
+frontend/src/index.css
+  12d7ced32ffbd6e0 1-5
+frontend/src/pages/Datasources.tsx
+  12d7ced32ffbd6e0 1-37
+frontend/src/App.tsx
+  12d7ced32ffbd6e0 1-21
+openspec/specs/backend-core-api/spec.md
+  12d7ced32ffbd6e0 1-35
+docs/requirement/20261006后端核心API与demo数据.md
+  12d7ced32ffbd6e0 1-15
+backend/go.mod
+  12d7ced32ffbd6e0 4-13
+backend/Makefile
+  12d7ced32ffbd6e0 1,3,9,12-13
+frontend/index.html
+  12d7ced32ffbd6e0 1-12
+backend/internal/store/schema.sql
+  12d7ced32ffbd6e0 1-160
+frontend/src/theme.ts
+  12d7ced32ffbd6e0 1-33
+openspec/specs/CHANGELOG.md
+  12d7ced32ffbd6e0 10
+frontend/tsconfig.json
+  12d7ced32ffbd6e0 1-7
+frontend/README.md
+  12d7ced32ffbd6e0 1,3,5-38
+frontend/src/pages/Placeholder.tsx
+  12d7ced32ffbd6e0 1-17
+frontend/tsconfig.app.json
+  12d7ced32ffbd6e0 1-26
+frontend/src/pages/Registry.tsx
+  12d7ced32ffbd6e0 1-85
+frontend/tsconfig.node.json
+  12d7ced32ffbd6e0 1-21
+frontend/src/pages/Home.tsx
+  12d7ced32ffbd6e0 1-80
+backend/internal/server/api.go
+  12d7ced32ffbd6e0 1-105
+backend/internal/server/api_integration_test.go
+  12d7ced32ffbd6e0 1-134
+frontend/src/pages/Ontologies.tsx
+  12d7ced32ffbd6e0 1-52
+frontend/nginx.conf
+  12d7ced32ffbd6e0 1-19
+README.md
+  12d7ced32ffbd6e0 23-24,26,45-47,51
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.8.1",
+  "base_commit_sha": "d32eed5d1f70e0a657c161c14d50ac452b850c15",
+  "prompts": {
+    "12d7ced32ffbd6e0": {
+      "agent_id": {
+        "tool": "zcode",
+        "id": "sess_3db04727-f961-41e3-ab68-c4c6fbb73f6c",
+        "model": "GLM-5.3"
+      },
+      "human_author": "dawsongzhao0523 <133857587+dawsongzhao0523@users.noreply.github.com>",
+      "messages": [],
+      "total_additions": 2138,
+      "total_deletions": 186,
+      "accepted_lines": 1845,
+      "overriden_lines": 0,
+      "messages_url": "https://gitai.gz.cvte.cn/cas/b5025179a7a477b0da9348016e67275970e19eb4437dd2ca450477bc43c6543f",
+      "token_usage": {
+        "input_tokens": 24040991,
+        "output_tokens": 129908,
+        "cache_read_tokens": 23686336,
+        "cache_creation_tokens": 0,
+        "total_cost": 0.0
+      }
+    }
+  }
+}
