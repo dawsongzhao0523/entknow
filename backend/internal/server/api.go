@@ -102,4 +102,56 @@ func MountAPI(mux *http.ServeMux, st *store.Store) {
 	mux.HandleFunc("GET /api/v1/table-profiles/{name}", handle(func(r *http.Request) (store.TableProfile, error) {
 		return st.GetTableProfile(r.Context(), r.PathValue("name"))
 	}))
+
+	// ─── 评审流转（写路径） ───
+
+	mux.HandleFunc("POST /api/v1/reviews", func(w http.ResponseWriter, r *http.Request) {
+		var in store.Review
+		if err := json.NewDecoder(r.Body).Decode(&in); err != nil {
+			writeErr(w, http.StatusBadRequest, "请求体不是合法 JSON")
+			return
+		}
+		if in.ID == "" || in.Title == "" || in.Type == "" || in.From == "" {
+			writeErr(w, http.StatusBadRequest, "id / title / type / from 均为必填")
+			return
+		}
+		out, created, err := st.CreateReview(r.Context(), in)
+		if err != nil {
+			writeErr(w, http.StatusInternalServerError, err.Error())
+			return
+		}
+		if !created {
+			w.Header().Set("X-Idempotent-Replay", "true")
+		}
+		w.WriteHeader(http.StatusCreated)
+		writeJSON(w, out)
+	})
+
+	mux.HandleFunc("PUT /api/v1/reviews/{id}/decision", func(w http.ResponseWriter, r *http.Request) {
+		var d store.Decision
+		if err := json.NewDecoder(r.Body).Decode(&d); err != nil {
+			writeErr(w, http.StatusBadRequest, "请求体不是合法 JSON")
+			return
+		}
+		d.ReviewID = r.PathValue("id")
+		if d.Action == "" || d.By == "" {
+			writeErr(w, http.StatusBadRequest, "action / by 均为必填")
+			return
+		}
+		if d.Action == "reject" && d.Comment == "" {
+			writeErr(w, http.StatusBadRequest, "驳回必须填写原因（comment）")
+			return
+		}
+		out, err := st.DecideReview(r.Context(), d)
+		switch {
+		case errors.Is(err, store.ErrNotFound):
+			writeErr(w, http.StatusNotFound, "评审不存在")
+		case errors.Is(err, store.ErrConflict):
+			writeErr(w, http.StatusConflict, err.Error())
+		case err != nil:
+			writeErr(w, http.StatusInternalServerError, err.Error())
+		default:
+			writeJSON(w, out)
+		}
+	})
 }

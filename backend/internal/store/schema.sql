@@ -113,12 +113,15 @@ CREATE TABLE IF NOT EXISTS rules (
 );
 
 CREATE TABLE IF NOT EXISTS reviews (
-  id        text PRIMARY KEY,
-  title     text NOT NULL,
-  type      text NOT NULL,
-  from_user text NOT NULL,
-  status    text NOT NULL,
-  sla       text NOT NULL DEFAULT '-'
+  id         text PRIMARY KEY,
+  title      text NOT NULL,
+  type       text NOT NULL,
+  from_user  text NOT NULL,
+  status     text NOT NULL,                -- 待评审 | 评审中 | 已通过 | 已驳回 | 已撤回
+  sla        text NOT NULL DEFAULT '-',
+  decided_by text NOT NULL DEFAULT '',
+  decided_at text NOT NULL DEFAULT '',
+  comment    text NOT NULL DEFAULT ''      -- 裁决说明（驳回必填原因）
 );
 
 CREATE TABLE IF NOT EXISTS notifications (
@@ -158,3 +161,8 @@ CREATE TABLE IF NOT EXISTS table_profiles (
   siblings       jsonb NOT NULL DEFAULT '[]',
   profile_fields jsonb NOT NULL DEFAULT '[]'
 );
+
+-- 幂等演进（已有库补列；新库因 CREATE 已含而 no-op）
+ALTER TABLE reviews ADD COLUMN IF NOT EXISTS decided_by text NOT NULL DEFAULT '';
+ALTER TABLE reviews ADD COLUMN IF NOT EXISTS decided_at text NOT NULL DEFAULT '';
+ALTER TABLE reviews ADD COLUMN IF NOT EXISTS comment    text NOT NULL DEFAULT '';

@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"time"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -169,12 +170,15 @@ type Rule struct {
 }
 
 type Review struct {
-	ID     string `json:"id"`
-	Title  string `json:"title"`
-	Type   string `json:"type"`
-	From   string `json:"from"`
-	Status string `json:"status"`
-	SLA    string `json:"sla"`
+	ID        string `json:"id"`
+	Title     string `json:"title"`
+	Type      string `json:"type"`
+	From      string `json:"from"`
+	Status    string `json:"status"`
+	SLA       string `json:"sla"`
+	DecidedBy string `json:"decidedBy,omitempty"`
+	DecidedAt string `json:"decidedAt,omitempty"`
+	Comment   string `json:"comment,omitempty"`
 }
 
 type Notification struct {
@@ -399,7 +403,9 @@ func (s *Store) ListRules(ctx context.Context) ([]Rule, error) {
 }
 
 func (s *Store) ListReviews(ctx context.Context) ([]Review, error) {
-	rows, err := s.pool.Query(ctx, `SELECT id, title, type, from_user, status, sla FROM reviews ORDER BY id`)
+	rows, err := s.pool.Query(ctx, `
+		SELECT id, title, type, from_user, status, sla, decided_by, decided_at, comment
+		FROM reviews ORDER BY id`)
 	if err != nil {
 		return nil, err
 	}
@@ -407,7 +413,8 @@ func (s *Store) ListReviews(ctx context.Context) ([]Review, error) {
 	var out []Review
 	for rows.Next() {
 		var r Review
-		if err := rows.Scan(&r.ID, &r.Title, &r.Type, &r.From, &r.Status, &r.SLA); err != nil {
+		if err := rows.Scan(&r.ID, &r.Title, &r.Type, &r.From, &r.Status, &r.SLA,
+			&r.DecidedBy, &r.DecidedAt, &r.Comment); err != nil {
 			return nil, err
 		}
 		out = append(out, r)
@@ -509,4 +516,101 @@ func (s *Store) GetTableProfile(ctx context.Context, name string) (TableProfile,
 		}
 	}
 	return p, nil
+}
+
+// ─── 评审流转（写路径） ───
+
+// ErrConflict 状态冲突（非法迁移 / 乐观并发失败），API 层转 409。
+var ErrConflict = errors.New("conflict")
+
+const reviewCols = "id, title, type, from_user, status, sla, decided_by, decided_at, comment"
+
+func scanReview(row pgx.Row) (Review, error) {
+	var r Review
+	err := row.Scan(&r.ID, &r.Title, &r.Type, &r.From, &r.Status, &r.SLA,
+		&r.DecidedBy, &r.DecidedAt, &r.Comment)
+	return r, err
+}
+
+// CreateReview 幂等创建：相同 id 重复提交返回既有记录（created=false）。
+// 调用方须已校验 id 非空。
+func (s *Store) CreateReview(ctx context.Context, r Review) (Review, bool, error) {
+	tag, err := s.pool.Exec(ctx, `
+		INSERT INTO reviews (id, title, type, from_user, status, sla)
+		VALUES ($1, $2, $3, $4, '待评审', COALESCE(NULLIF($5, ''), '-'))
+		ON CONFLICT (id) DO NOTHING`, r.ID, r.Title, r.Type, r.From, r.SLA)
+	if err != nil {
+		return r, false, err
+	}
+	if tag.RowsAffected() == 0 { // 幂等重放：回读既有记录
+		existing, err := scanReview(s.pool.QueryRow(ctx,
+			`SELECT `+reviewCols+` FROM reviews WHERE id = $1`, r.ID))
+		if err != nil {
+			return existing, false, err
+		}
+		return existing, false, nil
+	}
+	r.Status = "待评审"
+	if r.SLA == "" {
+		r.SLA = "-"
+	}
+	return r, true, nil
+}
+
+// Decision 裁决请求：action = approve | reject | withdraw。
+type Decision struct {
+	ReviewID       string
+	Action         string
+	By             string
+	Comment        string
+	ExpectedStatus string // 乐观并发：非空时须与当前状态一致
+}
+
+// DecideReview 单事务完成裁决：行锁 → 校验（重放直接返回现状）→ 更新 → 确定性 ID 通知。
+func (s *Store) DecideReview(ctx context.Context, d Decision) (Review, error) {
+	tx, err := s.pool.Begin(ctx)
+	if err != nil {
+		return Review{}, err
+	}
+	defer tx.Rollback(ctx) // 提交成功后为 no-op
+
+	r, err := scanReview(tx.QueryRow(ctx,
+		`SELECT `+reviewCols+` FROM reviews WHERE id = $1 FOR UPDATE`, d.ReviewID))
+	if errors.Is(err, pgx.ErrNoRows) {
+		return r, ErrNotFound
+	}
+	if err != nil {
+		return r, err
+	}
+
+	if d.ExpectedStatus != "" && r.Status != d.ExpectedStatus {
+		return r, fmt.Errorf("%w: 期望状态 %q，实际 %q", ErrConflict, d.ExpectedStatus, r.Status)
+	}
+	if IsReplay(d.Action, r.Status) { // 同向终态重放：幂等返回现状
+		return r, nil
+	}
+	next, err := NextStatus(d.Action, r.Status)
+	if err != nil {
+		return r, fmt.Errorf("%w: %v", ErrConflict, err)
+	}
+
+	decidedAt := time.Now().Format("2006-01-02 15:04")
+	if _, err := tx.Exec(ctx, `
+		UPDATE reviews SET status = $2, decided_by = $3, decided_at = $4, comment = $5
+		WHERE id = $1`, d.ReviewID, next, d.By, decidedAt, d.Comment); err != nil {
+		return r, err
+	}
+	if _, err := tx.Exec(ctx, `
+		INSERT INTO notifications (id, cat, title, time, to_path, unread)
+		VALUES ($1, '治理任务', $2, '刚刚', '/m8/reviews', true)
+		ON CONFLICT (id) DO NOTHING`,
+		"n-rv-"+d.ReviewID+"-"+d.Action, "评审结果："+r.Title+" → "+next+"（"+d.By+"）"); err != nil {
+		return r, err
+	}
+	if err := tx.Commit(ctx); err != nil {
+		return r, err
+	}
+
+	r.Status, r.DecidedBy, r.DecidedAt, r.Comment = next, d.By, decidedAt, d.Comment
+	return r, nil
 }

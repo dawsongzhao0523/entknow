@@ -30,7 +30,10 @@ export interface Datasource {
   mode: string; tables?: number; sensitive: string; owner: string; lastSync: string;
 }
 
-export interface Review { id: string; title: string; type: string; from: string; status: string; sla: string }
+export interface Review {
+  id: string; title: string; type: string; from: string; status: string; sla: string;
+  decidedBy?: string; decidedAt?: string; comment?: string;
+}
 
 export interface Notification { id: string; cat: string; title: string; time: string; to: string; unread: boolean }
 
@@ -42,6 +45,18 @@ async function get<T>(path: string): Promise<T> {
   return res.json() as Promise<T>;
 }
 
+/** 写请求（4xx 时抛出后端 error 文案，供页面直接展示） */
+async function send<T>(path: string, method: string, body?: unknown): Promise<T> {
+  const res = await fetch(path, {
+    method,
+    headers: { 'Content-Type': 'application/json' },
+    body: body === undefined ? undefined : JSON.stringify(body),
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error((data as { error?: string }).error ?? `HTTP ${res.status}`);
+  return data as T;
+}
+
 export const api = {
   ontologies: (user = 'zhangsan') => get<Ontology[]>(`/api/v1/ontologies?user=${user}`),
   objects: (scope?: 'canvas' | 'registry') =>
@@ -51,6 +66,10 @@ export const api = {
   datasources: () => get<Datasource[]>('/api/v1/datasources'),
   views: () => get<unknown[]>('/api/v1/views'),
   reviews: () => get<Review[]>('/api/v1/reviews'),
+  createReview: (r: Pick<Review, 'id' | 'title' | 'type' | 'from'> & { sla?: string }) =>
+    send<Review>('/api/v1/reviews', 'POST', r),
+  decideReview: (id: string, action: 'approve' | 'reject' | 'withdraw', by: string, comment?: string, expectedStatus?: string) =>
+    send<Review>(`/api/v1/reviews/${id}/decision`, 'PUT', { action, by, comment, expectedStatus }),
   notifications: () => get<Notification[]>('/api/v1/notifications'),
   versions: (onto = 'scm') => get<Version[]>(`/api/v1/versions?onto=${onto}`),
 };
