@@ -1,0 +1,65 @@
+schema: spec-driven
+
+context: |
+  ## Project: entKnow (OntoOS)
+
+  企业级本体操作系统：把企业隐式知识收敛为显式、可运行、可治理的本体，
+  对标 Palantir Foundry Ontology。三个交付物：
+  - **prototype**: 高保真原型（React 19 + antd 6 + 共享 mock，产品形态验证用，≈60% 完成度）
+  - **backend**: Go 生产后端（平台平面：治理 / 评审 / 绑定 / 运行时 / 能力出口）
+  - **frontend**: 生产前端（规划中，从 prototype 演进）
+
+  ## Tech Stack
+
+  ### backend（主要开发区）
+  - Go 1.26+，标准库优先：net/http / testing / log/slog
+  - 第三方依赖默认禁止，引入须在提案中说明理由（见根 AGENTS.md ponytail 约束）
+  - 外部引擎：Utopia（Rust，语料提取 + 双时态事实账本）仅经 REST/MCP/RDF 三边界服务级对接（docs/utopia-integration.md）
+
+  ### prototype / frontend
+  - Node 20.19+，React 19 + TypeScript + Vite 8 + Ant Design 6 + Oxlint
+
+  ## Project Structure
+  - `prototype/` — 高保真原型（mock 数据，给产品经理）
+  - `backend/` — Go 后端（cmd/entknow + internal/...）
+  - `frontend/` — 生产前端（占位）
+  - `docs/requirement/` — 草稿需求（proposal 的输入，YYYYMMDD需求描述.md）
+  - `openspec/specs/` — 现行能力规格（归档后生效）
+  - `openspec/changes/` — 变更提案四件套
+
+  ## Conventions
+
+  ### Naming
+  - Go: 包名小写、驼峰导出、常量 CamelCase；业务注释中文
+  - TS/React: 沿用 prototype 现有风格
+
+  ### Git Commits
+  Conventional Commits + 中文描述，scope 用目录名（backend/prototype/docs/...）
+
+  ### Key Constraints
+  - ponytail 编码约束（最简可行 / YAGNI / 标准库优先 / 无二实现不建接口），见根 AGENTS.md
+  - 所有写操作幂等；批处理单条失败不阻塞
+  - Utopia 对接只经 utopia-adapter，上层不感知其 API 形状
+  - 代码与规格双向同步：实现与 openspec/specs 不一致视为未完成
+
+rules:
+  proposal:
+    - 提案用中文撰写
+    - 明确影响的交付物（backend / prototype / frontend）与模块（M1-M9 对应域）
+    - 涉及数据写入的必须说明幂等策略
+    - 适用时引用 docs/requirement/ 下的需求文档作为输入
+    - 涉及 Utopia 对接的必须符合 docs/utopia-integration.md 的边界约定
+    - "**强制**：提案未经用户确认前不得编写任何生产代码"
+  tasks:
+    - 任务用中文描述，注明要修改的文件
+    - 每个任务涉及文件不超过 10 个
+    - 每个文件不超过 500 行；超出则拆分模块
+    - 每个任务必须包含单元测试（Go: xxx_test.go）
+    - 涉及数据库 schema 的注明 migration 需求，且 migration 幂等
+    - 一个任务只做一件事（one logical change per task）
+  workflow:
+    - "**禁止跳过提案写代码**：任何功能开发必须先创建 openspec 提案"
+    - "**提案必须完整**：proposal、design、specs、tasks 四件套齐全才能开始开发"
+    - "**代码与提案一致**：实现必须与 specs 中的 Requirements 一致"
+    - "**完成才能归档**：所有 tasks 完成并通过测试后，才能 archive 变更"
+    - "**归档后才能提交代码**：未 archive 的变更不得 git commit"
