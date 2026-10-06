@@ -1,0 +1,49 @@
+backend/internal/server/admin_integration_test.go
+  12d7ced32ffbd6e0 1-118
+frontend/src/pages/OrgAdmin.tsx
+  12d7ced32ffbd6e0 1-188
+backend/internal/store/seed.sql
+  12d7ced32ffbd6e0 6,14-21
+backend/internal/server/api.go
+  12d7ced32ffbd6e0 330-421
+backend/internal/store/admin.go
+  12d7ced32ffbd6e0 1-170
+backend/internal/store/schema.sql
+  12d7ced32ffbd6e0 239-248
+frontend/src/layouts/AppShell.tsx
+  12d7ced32ffbd6e0 29
+frontend/src/api.ts
+  12d7ced32ffbd6e0 71-77,133-139
+frontend/src/App.tsx
+  12d7ced32ffbd6e0 12,28
+docs/requirement/20261006组织与权限管理.md
+  12d7ced32ffbd6e0 1-15
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.8.1",
+  "base_commit_sha": "5ff994f3051250caa8a2472bd09fbfd0fc3fcdeb",
+  "prompts": {
+    "12d7ced32ffbd6e0": {
+      "agent_id": {
+        "tool": "zcode",
+        "id": "sess_3db04727-f961-41e3-ab68-c4c6fbb73f6c",
+        "model": "GLM-5.3"
+      },
+      "human_author": "dawsongzhao0523 <133857587+dawsongzhao0523@users.noreply.github.com>",
+      "messages": [],
+      "total_additions": 730,
+      "total_deletions": 15,
+      "accepted_lines": 619,
+      "overriden_lines": 0,
+      "messages_url": "https://gitai.gz.cvte.cn/cas/28e5d178723fee8800296b9ba027e3965860628b7f252de3342885a843de970c",
+      "token_usage": {
+        "input_tokens": 52288669,
+        "output_tokens": 221401,
+        "cache_read_tokens": 51557376,
+        "cache_creation_tokens": 0,
+        "total_cost": 0.0
+      }
+    }
+  }
+}
