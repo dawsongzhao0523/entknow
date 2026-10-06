@@ -1,0 +1,51 @@
+frontend/src/pages/CapabilityOutlet.tsx
+  12d7ced32ffbd6e0 1-154
+backend/internal/store/seed.sql
+  12d7ced32ffbd6e0 6-7,108-112
+backend/internal/server/api.go
+  12d7ced32ffbd6e0 7,423-499
+backend/internal/store/capability.go
+  12d7ced32ffbd6e0 1-172
+backend/internal/server/capability_integration_test.go
+  12d7ced32ffbd6e0 1-112
+docs/requirement/20261006能力出口与调用统计.md
+  12d7ced32ffbd6e0 1-16
+frontend/src/api.ts
+  12d7ced32ffbd6e0 73-82,114-120
+backend/internal/store/store.go
+  12d7ced32ffbd6e0 205-212
+frontend/src/App.tsx
+  12d7ced32ffbd6e0 13,29
+frontend/src/layouts/AppShell.tsx
+  12d7ced32ffbd6e0 27
+backend/internal/store/schema.sql
+  12d7ced32ffbd6e0 249-259,264
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.8.1",
+  "base_commit_sha": "6d4fe253a788f928d6228393ff5ba897057d9202",
+  "prompts": {
+    "12d7ced32ffbd6e0": {
+      "agent_id": {
+        "tool": "zcode",
+        "id": "sess_3db04727-f961-41e3-ab68-c4c6fbb73f6c",
+        "model": "GLM-5.3"
+      },
+      "human_author": "dawsongzhao0523 <133857587+dawsongzhao0523@users.noreply.github.com>",
+      "messages": [],
+      "total_additions": 685,
+      "total_deletions": 41,
+      "accepted_lines": 579,
+      "overriden_lines": 0,
+      "messages_url": "https://gitai.gz.cvte.cn/cas/920a89b48e90368482312a141c8a6ff13e6581628450b432f522445a20be8a31",
+      "token_usage": {
+        "input_tokens": 58744895,
+        "output_tokens": 237326,
+        "cache_read_tokens": 57993408,
+        "cache_creation_tokens": 0,
+        "total_cost": 0.0
+      }
+    }
+  }
+}
