@@ -4,7 +4,7 @@ BEGIN;
 TRUNCATE users, ontologies, memberships, objects, edges, functions, views,
          datasources, rules, reviews, notifications, capabilities, versions, table_profiles,
          kb_domains, kb_entries, synonyms, instances, instance_events, rule_firings, actions, roles,
-         capability_calls, query_history;
+         capability_calls, query_history, pipeline_tasks, pipeline_runs;
 
 INSERT INTO users (id, account, name, dept, post, roles, status, last_login) VALUES
 ('u1', 'zhangsan', '张三', '平台部 / 数据AI部', '数据架构师', ARRAY['本体管理员','数据开发'], '正常', '2026-10-03 09:12'),
@@ -116,6 +116,16 @@ INSERT INTO query_history (id, question, dsl, hits, latency_ms, by_user, at) VAL
  '检索「华兴电子近三月准时率」→ MATCH 对象×0, 知识×0, 实例×1, 同义词×0 RETURN 语义切片；重点域: 实例', 1, 842, '李四', '2026-10-03 09:12'),
 ('q-seed-2', '采购订单的交付风险怎么看',
  '检索「采购订单的交付风险怎么看」→ MATCH 对象×1, 知识×1, 实例×2, 同义词×0 RETURN 语义切片；重点域: 实例', 4, 1260, '王五', '2026-10-02 16:40');
+
+INSERT INTO pipeline_tasks (id, name, type, source, target, schedule, status, last_run) VALUES
+('p1', '元数据探查 · scm_prod',   '探查',       'scm_prod（MySQL）',     '数据资产画像',    'CRON 0 2 * * *',  '运行中', '2026-10-03 02:00'),
+('p2', '订单清洗 · purchase_order','清洗',      'purchase_order(scm_prod)', 'lv_order_delivery', 'CRON 0 3 * * *', '运行中', '2026-10-03 03:00'),
+('p3', '知识推送 · M2 → Utopia',  'UTOPIA_PUSH', 'M2 知识库条目',        'Utopia API source', 'EVENT',          '运行中', '2026-10-03 09:45'),
+('p4', '库存采集 · wms_clickhouse','采集',      'wms_clickhouse',        'ods_inventory',    'CRON 0 4 * * *',  '已停用', '2026-09-20 04:00');
+
+INSERT INTO pipeline_runs (id, task_id, status, detail, at) VALUES
+('run-seed-1', 'p1', '成功', '探查 142 表 · 新增字段备注 13 条', '2026-10-03 02:00'),
+('run-seed-2', 'p2', '成功', '清洗 21.4 万行 · 脏数据 0.02%', '2026-10-03 03:00');
 
 INSERT INTO versions (onto_id, v, date, description, status) VALUES
 ('scm', 'v0.1', '08-12', '最小可行本体（4对象+3关系+2Action）', 'PUBLISHED'),

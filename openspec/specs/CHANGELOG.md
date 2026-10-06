@@ -14,3 +14,4 @@
 - 2026-10-06 · add-ops-admin · ops-admin（M9 用户/角色 CRUD：账号唯一 409、角色引用完整 400、内置/被引用角色保护 + 组织与权限页面，已实现并 E2E 验证）
 - 2026-10-06 · add-capability-outlet · capability-outlet（M7 能力目录 CRUD + 调用统计真实化 base+log + invoke 幂等 + 级联下线 + 前端页面，已实现并 E2E 验证）
 - 2026-10-06 · add-semantic-query · semantic-query（M5 统一检索四类实体 + 查询执行 DSL/延迟/幂等历史 + 前端语义查询页，已实现并 E2E 验证）
+- 2026-10-06 · add-datasource-ops · datasource-ops（M1 数据源注册/编辑、逻辑视图管理、加工流水线任务+运行，已实现并 E2E 验证）

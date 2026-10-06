@@ -12,7 +12,9 @@ const { Sider, Header, Content } = Layout;
 /** 已实现页面挂真实路由；未实现模块统一 Placeholder（按「UI 原型先行」流程推进） */
 const NAV: { key: string; label: string; icon?: React.ReactNode; children?: [string, string][] }[] = [
   { key: 'home', label: '首页', icon: <HomeOutlined /> },
-  { key: 'm1', label: '数据资产', icon: <DatabaseOutlined />, children: [['m1/datasources', '数据源中心']] },
+  { key: 'm1', label: '数据资产', icon: <DatabaseOutlined />, children: [
+    ['m1/datasources', '数据源中心'], ['m1/views', '逻辑视图'], ['m1/pipelines', '数据加工'],
+  ]},
   { key: 'm2', label: '知识运营', icon: <BookOutlined />, children: [
     ['m2/knowledge', '知识库'], ['m2/synonyms', '同义词治理'],
   ]},

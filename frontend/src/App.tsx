@@ -12,6 +12,8 @@ import RuntimeRules from './pages/RuntimeRules';
 import OrgAdmin from './pages/OrgAdmin';
 import CapabilityOutlet from './pages/CapabilityOutlet';
 import SemanticQuery from './pages/SemanticQuery';
+import LogicalViews from './pages/LogicalViews';
+import Pipelines from './pages/Pipelines';
 import Placeholder from './pages/Placeholder';
 
 export default function App() {
@@ -20,6 +22,8 @@ export default function App() {
       <Route element={<AppShell />}>
         <Route index element={<Home />} />
         <Route path="m1/datasources" element={<Datasources />} />
+        <Route path="m1/views" element={<LogicalViews />} />
+        <Route path="m1/pipelines" element={<Pipelines />} />
         <Route path="m2/knowledge" element={<KnowledgeBase />} />
         <Route path="m2/synonyms" element={<Synonyms />} />
         <Route path="m3/ontologies" element={<Ontologies />} />

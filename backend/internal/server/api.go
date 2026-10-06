@@ -544,6 +544,143 @@ func MountAPI(mux *http.ServeMux, st *store.Store) {
 		}
 		return st.ListQueries(r.Context(), r.URL.Query().Get("by"), limit)
 	}))
+
+	// ─── M1 数据资产运营 ───
+
+	mux.HandleFunc("POST /api/v1/datasources", func(w http.ResponseWriter, r *http.Request) {
+		var d store.Datasource
+		if err := json.NewDecoder(r.Body).Decode(&d); err != nil {
+			writeErr(w, http.StatusBadRequest, "请求体不是合法 JSON")
+			return
+		}
+		if d.ID == "" || d.Name == "" || d.Type == "" || d.Owner == "" {
+			writeErr(w, http.StatusBadRequest, "id / name / type / owner 均为必填")
+			return
+		}
+		out, created, err := st.CreateDatasource(r.Context(), d)
+		if err != nil {
+			writeStoreResult(w, out, err)
+			return
+		}
+		if !created {
+			w.Header().Set("X-Idempotent-Replay", "true")
+		}
+		w.WriteHeader(http.StatusCreated)
+		writeJSON(w, out)
+	})
+	mux.HandleFunc("PUT /api/v1/datasources/{id}", func(w http.ResponseWriter, r *http.Request) {
+		var d store.Datasource
+		if err := json.NewDecoder(r.Body).Decode(&d); err != nil {
+			writeErr(w, http.StatusBadRequest, "请求体不是合法 JSON")
+			return
+		}
+		d.ID = r.PathValue("id")
+		if d.Name == "" || d.Owner == "" {
+			writeErr(w, http.StatusBadRequest, "name / owner 必填")
+			return
+		}
+		out, err := st.UpdateDatasource(r.Context(), d)
+		writeStoreResult(w, out, err)
+	})
+
+	mux.HandleFunc("POST /api/v1/views", func(w http.ResponseWriter, r *http.Request) {
+		var v store.View
+		if err := json.NewDecoder(r.Body).Decode(&v); err != nil {
+			writeErr(w, http.StatusBadRequest, "请求体不是合法 JSON")
+			return
+		}
+		if v.ID == "" || v.Name == "" || v.Owner == "" {
+			writeErr(w, http.StatusBadRequest, "id / name / owner 均为必填")
+			return
+		}
+		if v.Status == "" {
+			v.Status = "DRAFT"
+		}
+		if v.Version == "" {
+			v.Version = "v1"
+		}
+		out, created, err := st.CreateView(r.Context(), v)
+		if err != nil {
+			writeStoreResult(w, out, err)
+			return
+		}
+		if !created {
+			w.Header().Set("X-Idempotent-Replay", "true")
+		}
+		w.WriteHeader(http.StatusCreated)
+		writeJSON(w, out)
+	})
+	mux.HandleFunc("PUT /api/v1/views/{id}", func(w http.ResponseWriter, r *http.Request) {
+		var v store.View
+		if err := json.NewDecoder(r.Body).Decode(&v); err != nil {
+			writeErr(w, http.StatusBadRequest, "请求体不是合法 JSON")
+			return
+		}
+		v.ID = r.PathValue("id")
+		if v.Name == "" || v.Owner == "" || v.Status == "" {
+			writeErr(w, http.StatusBadRequest, "name / owner / status 必填")
+			return
+		}
+		out, err := st.UpdateView(r.Context(), v)
+		writeStoreResult(w, out, err)
+	})
+
+	mux.HandleFunc("GET /api/v1/pipeline-tasks", handle(func(r *http.Request) ([]store.PipelineTask, error) {
+		return st.ListPipelineTasks(r.Context())
+	}))
+	mux.HandleFunc("POST /api/v1/pipeline-tasks", func(w http.ResponseWriter, r *http.Request) {
+		var p store.PipelineTask
+		if err := json.NewDecoder(r.Body).Decode(&p); err != nil {
+			writeErr(w, http.StatusBadRequest, "请求体不是合法 JSON")
+			return
+		}
+		if p.ID == "" || p.Name == "" || p.Type == "" {
+			writeErr(w, http.StatusBadRequest, "id / name / type 均为必填")
+			return
+		}
+		out, created, err := st.CreatePipelineTask(r.Context(), p)
+		if err != nil {
+			writeStoreResult(w, out, err)
+			return
+		}
+		if !created {
+			w.Header().Set("X-Idempotent-Replay", "true")
+		}
+		w.WriteHeader(http.StatusCreated)
+		writeJSON(w, out)
+	})
+	mux.HandleFunc("PUT /api/v1/pipeline-tasks/{id}/status", func(w http.ResponseWriter, r *http.Request) {
+		var in struct {
+			Status string `json:"status"`
+		}
+		if err := json.NewDecoder(r.Body).Decode(&in); err != nil || in.Status == "" {
+			writeErr(w, http.StatusBadRequest, "status 必填")
+			return
+		}
+		out, err := st.UpdatePipelineTaskStatus(r.Context(), r.PathValue("id"), in.Status)
+		writeStoreResult(w, out, err)
+	})
+	mux.HandleFunc("POST /api/v1/pipeline-tasks/{id}/run", func(w http.ResponseWriter, r *http.Request) {
+		var in struct {
+			ID     string `json:"id"`
+			Detail string `json:"detail"`
+		}
+		if err := json.NewDecoder(r.Body).Decode(&in); err != nil || in.ID == "" {
+			writeErr(w, http.StatusBadRequest, "id（运行ID）必填")
+			return
+		}
+		task, run, err := st.RunPipelineTask(r.Context(), store.PipelineRun{
+			ID: in.ID, TaskID: r.PathValue("id"), Detail: in.Detail,
+		})
+		if err != nil {
+			writeStoreResult(w, nil, err)
+			return
+		}
+		writeJSON(w, map[string]any{"task": task, "run": run})
+	})
+	mux.HandleFunc("GET /api/v1/pipeline-runs", handle(func(r *http.Request) ([]store.PipelineRun, error) {
+		return st.ListPipelineRuns(r.Context(), r.URL.Query().Get("task"))
+	}))
 }
 
 // writeStoreResult 写端点结果：成功写 JSON，失败走统一错误映射。

@@ -30,6 +30,19 @@ export interface Datasource {
   mode: string; tables?: number; sensitive: string; owner: string; lastSync: string;
 }
 
+export interface LogicalView {
+  id: string; name: string; kind: string; version: string; status: string;
+  domain: string; sensitive: string; upstream: string[]; boundBy: string[];
+  owner: string; refresh?: string;
+}
+
+export interface PipelineTask {
+  id: string; name: string; type: string; source?: string; target?: string;
+  schedule?: string; status: string; lastRun?: string;
+}
+
+export interface PipelineRun { id: string; taskId: string; status: string; detail: string; at: string }
+
 export interface Review {
   id: string; title: string; type: string; from: string; status: string; sla: string;
   decidedBy?: string; decidedAt?: string; comment?: string;
@@ -124,6 +137,18 @@ export const api = {
   edges: () => get<Edge[]>('/api/v1/edges'),
   functions: () => get<Func[]>('/api/v1/functions'),
   datasources: () => get<Datasource[]>('/api/v1/datasources'),
+  createDatasource: (d: Datasource) => send<Datasource>('/api/v1/datasources', 'POST', d),
+  updateDatasource: (id: string, d: Datasource) => send<Datasource>(`/api/v1/datasources/${id}`, 'PUT', d),
+  viewsList: () => get<LogicalView[]>('/api/v1/views'),
+  createView: (v: LogicalView) => send<LogicalView>('/api/v1/views', 'POST', v),
+  updateView: (id: string, v: LogicalView) => send<LogicalView>(`/api/v1/views/${id}`, 'PUT', v),
+  pipelineTasks: () => get<PipelineTask[]>('/api/v1/pipeline-tasks'),
+  createPipelineTask: (p: PipelineTask) => send<PipelineTask>('/api/v1/pipeline-tasks', 'POST', p),
+  setPipelineTaskStatus: (id: string, status: string) =>
+    send<PipelineTask>(`/api/v1/pipeline-tasks/${id}/status`, 'PUT', { status }),
+  runPipelineTask: (id: string, runID: string, detail?: string) =>
+    send<{ task: PipelineTask; run: PipelineRun }>(`/api/v1/pipeline-tasks/${id}/run`, 'POST', { id: runID, detail }),
+  pipelineRuns: (task = '') => get<PipelineRun[]>(`/api/v1/pipeline-runs?task=${task}`),
   views: () => get<unknown[]>('/api/v1/views'),
   capabilities: () => get<Capability[]>('/api/v1/capabilities'),
   createCapability: (c: Capability) => send<Capability>('/api/v1/capabilities', 'POST', c),

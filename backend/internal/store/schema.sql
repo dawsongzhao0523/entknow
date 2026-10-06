@@ -269,6 +269,27 @@ CREATE TABLE IF NOT EXISTS query_history (
   at         text NOT NULL DEFAULT ''
 );
 
+-- ─── M1 数据加工流水线 ───
+
+CREATE TABLE IF NOT EXISTS pipeline_tasks (
+  id       text PRIMARY KEY,
+  name     text NOT NULL,
+  type     text NOT NULL,                    -- 采集 | 清洗 | 探查 | 转换 | UTOPIA_PUSH
+  source   text NOT NULL DEFAULT '',
+  target   text NOT NULL DEFAULT '',
+  schedule text NOT NULL DEFAULT '',
+  status   text NOT NULL DEFAULT '运行中',    -- 运行中 | 失败 | 已停用
+  last_run text NOT NULL DEFAULT ''
+);
+
+CREATE TABLE IF NOT EXISTS pipeline_runs (
+  id      text PRIMARY KEY,
+  task_id text NOT NULL,
+  status  text NOT NULL DEFAULT '成功',       -- 成功 | 失败
+  detail  text NOT NULL DEFAULT '',
+  at      text NOT NULL DEFAULT ''
+);
+
 -- 幂等演进（已有库补列；新库因 CREATE 已含而 no-op）
 ALTER TABLE reviews ADD COLUMN IF NOT EXISTS decided_by text NOT NULL DEFAULT '';
 ALTER TABLE reviews ADD COLUMN IF NOT EXISTS decided_at text NOT NULL DEFAULT '';
