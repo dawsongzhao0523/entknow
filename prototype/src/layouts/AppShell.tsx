@@ -59,7 +59,7 @@ export default function AppShell() {
     <Layout style={{ minHeight: '100vh' }}>
       <Sider width={216}>
         <div style={{ color: '#1a1a2e', padding: '14px 16px', fontWeight: 700, fontSize: 15 }}>
-          entKnow <span style={{ color: '#059669' }}>OntoOS</span>
+          entKnow
           <div style={{ fontSize: 11, fontWeight: 400, color: '#6b7688', marginTop: 2 }}>企业级本体操作系统 · 原型</div>
         </div>
         <Menu

@@ -1,4 +1,4 @@
-# entKnow · OntoOS
+# entKnow
 
 > 企业级本体操作系统 —— 本体定义世界，规则约束世界，大模型理解世界。
 >
@@ -11,7 +11,7 @@
 
 ## 这是什么
 
-entKnow（OntoOS）是一个对标 [Palantir Foundry Ontology](https://www.palantir.com/docs/foundry/ontology/overview/) 的开源实现探索：把散落在库表结构、指标口径、SOP 文档中的企业"隐式本体"，收敛为**显式、可运行、可治理**的本体，并在其上提供语义查询、推理、沙盘推演与行动能力，作为 AI Agent 的 **Context 边界与行动边界**。
+entKnow是一个对标 [Palantir Foundry Ontology](https://www.palantir.com/docs/foundry/ontology/overview/) 的开源实现探索：把散落在库表结构、指标口径、SOP 文档中的企业"隐式本体"，收敛为**显式、可运行、可治理**的本体，并在其上提供语义查询、推理、沙盘推演与行动能力，作为 AI Agent 的 **Context 边界与行动边界**。
 
 整体分两个平面：**平台平面**（本仓库，Go 后端 + 前端）承担本体治理、评审发布、数据绑定、运行时与能力出口；**引擎平面**复用外部服务（语料提取与双时态事实账本 = Utopia，Rust，服务级对接，见 [docs/utopia-integration.md](docs/utopia-integration.md)）。
 
@@ -34,23 +34,27 @@ entKnow（OntoOS）是一个对标 [Palantir Foundry Ontology](https://www.palan
 → 用户确认 → 按 tasks 开发(TDD 红→绿) → 测试全绿 → 归档规格 → git commit
 ```
 
-编码约束采用 [ponytail](https://github.com/DietrichGebert/ponytail) 模式：最简可行、YAGNI、标准库优先、无第二实现不建接口。
+编码约束采用 [ponytail](https://github.com/DietrichGebert/ponytail) 模式：最简可行、YAGNI、标准库优先、无第二实现不建接口。**带 UI 的能力必须先在原型中实现并确认，才能进入真实前后端开发（UI 原型先行门槛）。**
 
 ## 快速开始
 
-**后端**（Go 1.26+）：
+**Docker 一键环境**（推荐，依赖 PostgreSQL 16 / Redis 7 / MinIO）：
 
 ```bash
-cd backend
-go run ./cmd/entknow        # → http://localhost:8080/healthz
-make test                   # 全量测试
+make infra    # 启动开发依赖：postgres :25432 · redis :26379 · minio :29000（控制台 :29001）
+make app      # 启动全栈容器：backend :28080 + prototype :25188
+make down     # 停止；make clean 清空数据卷
 ```
 
-**原型**（Node ≥ 20.19）：
+日常开发：`make infra` 起依赖后本地热更——后端 `cd backend && go run ./cmd/entknow`（→ http://localhost:28080/healthz），原型 `cd prototype && npm run dev`（→ http://localhost:5188）。
+
+连接默认值（host 端口统一 2+标准端口 段，避免与本机其他栈冲突）：PostgreSQL `entknow/entknow@localhost:25432/entknow` · Redis `localhost:26379` 无凭据 · MinIO `entknow/entknow123@localhost:29000`（bucket `entknow`）。
+
+**裸机运行**（无 Docker）：
 
 ```bash
-cd prototype
-npm install && npm run dev  # → http://localhost:5188
+cd backend && go run ./cmd/entknow   # Go 1.26+
+cd prototype && npm i && npm run dev # Node ≥ 20.19
 ```
 
 原型内置三种演示角色（张三·数据架构师 / 李四·供应链总监 / 王五·业务专家，顶栏可切换），九大模块 M1 数据资产 → M9 系统管理，示例场景为供应链「订单交付风险」。

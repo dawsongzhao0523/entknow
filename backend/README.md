@@ -1,6 +1,6 @@
 # entKnow Backend（Go）
 
-entKnow OntoOS 的平台平面后端：本体治理、评审发布、数据绑定、运行时与能力出口。**本目录是仓库的主要开发区。**
+entKnow 的平台平面后端：本体治理、评审发布、数据绑定、运行时与能力出口。**本目录是仓库的主要开发区。**
 
 ## 原则（强约束，详见根 [AGENTS.md](../AGENTS.md)）
 
@@ -11,8 +11,8 @@ entKnow OntoOS 的平台平面后端：本体治理、评审发布、数据绑�
 ## 快速开始
 
 ```bash
-go run ./cmd/entknow          # 启动，默认 :8080
-curl localhost:8080/healthz   # {"status":"ok"}
+go run ./cmd/entknow          # 启动，默认 :28080
+curl localhost:28080/healthz   # {"status":"ok"}
 
 make test                     # 全量测试
 make vet                      # 静态检查

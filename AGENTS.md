@@ -4,7 +4,7 @@
 
 ## 项目定位
 
-entKnow（OntoOS）是企业级本体操作系统：把企业隐式知识收敛为显式、可运行、可治理的本体，对标 Palantir Foundry Ontology。整体分两个平面：
+entKnow是企业级本体操作系统：把企业隐式知识收敛为显式、可运行、可治理的本体，对标 Palantir Foundry Ontology。整体分两个平面：
 
 - **平台平面**（本仓库 `backend/`，Go）：本体治理、评审发布、数据绑定、运行时、能力出口；
 - **引擎平面**（外部服务，不自研）：语料提取与双时态事实账本复用 Utopia（Rust），**只走 REST / MCP / RDF export 三个官方边界，禁止依赖其内部 crate 或私有协议**，见 `docs/utopia-integration.md`。
@@ -52,6 +52,8 @@ entKnow（OntoOS）是企业级本体操作系统：把企业隐式知识收敛�
 流程红线（违反任何一条即返工）：
 
 - **禁止跳过提案写代码**：没有已确认的提案，不得创建/修改任何生产代码
+- **禁止跳过提案写代码**：没有已确认的提案，不得创建/修改任何生产代码
+- **UI 原型先行**：任何带 UI 界面的能力，必须先在 `prototype/` 中实现并通过产品确认，才能进入 `backend/` / `frontend/` 的真实开发；提案涉及 UI 的必须注明原型落地情况
 - **提案必须完整**：proposal、design、specs、tasks 四个文件齐备才能进入开发
 - **代码与规格一致**：实现必须与 specs 中的 Requirements 一致；规格变了代码要跟，代码变了规格要跟
 - **完成才能归档**：所有 tasks 勾完且测试全绿才能 archive
@@ -111,7 +113,30 @@ chore(repo): 无行为变更，调整构建脚本
 - **失败不阻塞批次**：批处理中单条失败记录日志继续，整体可重跑。
 - **隐私红线**：任何真实人名、公司内网地址、内部邮箱不得进入代码与 mock 数据；示例用张三/李四与 `192.0.2.x` 文档地址段。
 
-## 六、给代理的检查清单（每次会话开始）
+## 七、开发环境（Docker 统一）
+
+本地依赖（PostgreSQL / Redis / MinIO）与前后端容器**统一用根目录 `docker-compose.yml` 管理**，禁止在本机散装安装：
+
+```bash
+make infra    # 一键启动开发依赖（postgres/redis/minio + 默认 bucket）
+make app      # 一键启动全栈（依赖 + backend + prototype 容器）
+make down     # 停止全部
+make clean    # 停止并删除数据卷（慎用，清空本地数据）
+```
+
+日常开发：`make infra` 起依赖，后端用 `cd backend && go run ./cmd/entknow`、原型用 `cd prototype && npm run dev` 本地热更调试；容器化的 backend/prototype（`make app`）用于整体联调与验收演示。
+
+连接默认值（host 端口统一用 2+标准端口 段，避免与本机其他栈冲突；可用环境变量覆盖，见 `docker-compose.yml`）：
+
+| 组件 | 地址 | 凭据 |
+|---|---|---|
+| PostgreSQL | `localhost:25432`，库 `entknow` | `entknow / entknow` |
+| Redis | `localhost:26379` | 无 |
+| MinIO | `localhost:29000`（控制台 `:29001`） | `entknow / entknow123`，默认 bucket `entknow` |
+| backend（容器） | `localhost:28080` | — |
+| prototype（容器） | `localhost:25188` | — |
+
+## 八、给代理的检查清单（每次会话开始）
 
 1. 读本文件 + `openspec/specs/` 了解现行能力规格。
 2. 有新需求？→ 走 SDD 流程，从 `docs/requirement/` 草稿开始。

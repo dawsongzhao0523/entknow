@@ -10,7 +10,7 @@ import (
 )
 
 func main() {
-	addr := flag.String("addr", ":8080", "监听地址")
+	addr := flag.String("addr", ":28080", "监听地址")
 	flag.Parse()
 
 	log.Printf("entknow backend listening on %s", *addr)

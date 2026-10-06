@@ -1,7 +1,7 @@
 schema: spec-driven
 
 context: |
-  ## Project: entKnow (OntoOS)
+  ## Project: entKnow
 
   企业级本体操作系统：把企业隐式知识收敛为显式、可运行、可治理的本体，
   对标 Palantir Foundry Ontology。三个交付物：
@@ -46,6 +46,7 @@ rules:
   proposal:
     - 提案用中文撰写
     - 明确影响的交付物（backend / prototype / frontend）与模块（M1-M9 对应域）
+    - "**UI 原型先行**：带 UI 界面的能力必须先在 prototype/ 实现并经产品确认，才能开发对应的 backend/frontend；提案须注明原型落地情况"
     - 涉及数据写入的必须说明幂等策略
     - 适用时引用 docs/requirement/ 下的需求文档作为输入
     - 涉及 Utopia 对接的必须符合 docs/utopia-integration.md 的边界约定
@@ -59,6 +60,7 @@ rules:
     - 一个任务只做一件事（one logical change per task）
   workflow:
     - "**禁止跳过提案写代码**：任何功能开发必须先创建 openspec 提案"
+    - "**UI 原型先行**：带 UI 的能力先在 prototype/ 实现并确认，才可开发真实前后端"
     - "**提案必须完整**：proposal、design、specs、tasks 四件套齐全才能开始开发"
     - "**代码与提案一致**：实现必须与 specs 中的 Requirements 一致"
     - "**完成才能归档**：所有 tasks 完成并通过测试后，才能 archive 变更"

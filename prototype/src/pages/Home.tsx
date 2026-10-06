@@ -218,7 +218,7 @@ export default function Home() {
       <div style={{ background: 'linear-gradient(90deg,#ecfdf5,#f8fbfa)', borderRadius: 10, padding: '24px 28px', marginBottom: 16 }}>
         <Title level={3} style={{ margin: 0 }}>早上好，{me.name}</Title>
         <Paragraph type="secondary" style={{ marginTop: 8, maxWidth: 900 }}>
-          欢迎使用 entKnow OntoOS。以本体驱动构建企业知识网络，统一组织企业的数据、逻辑、行动与风险，
+          欢迎使用 entKnow。以本体驱动构建企业知识网络，统一组织企业的数据、逻辑、行动与风险，
           让智能体的创造性与企业业务的确定性相结合，支撑准确、安全、可靠的分析、执行与决策。
         </Paragraph>
       </div>
