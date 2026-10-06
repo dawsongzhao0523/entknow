@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { Alert, Button, Card, Descriptions, Drawer, Form, Input, Select, Space, Table, Tabs, Tag, Tree, Typography, message } from 'antd';
+import { Alert, Button, Card, Descriptions, Drawer, Form, Input, Modal, Select, Space, Table, Tabs, Tag, Tree, Typography, message } from 'antd';
 import { PlayCircleOutlined, PlusOutlined } from '@ant-design/icons';
 import { EDGES, FUNCS, OBJECTS, REGISTRY_OBJECTS, REGISTRY_TREE, filterRegistry, fmtStatus, type OntoEdge, type OntoFunc, type RegistryObject } from '../../mock/data';
 
@@ -120,7 +120,7 @@ function FuncTestModal({ fn, onClose }: { fn: OntoFunc | null; onClose: () => vo
       {fn && <>
         <Table size="small" rowKey="name" pagination={false} style={{ margin: '12px 0' }}
           title={() => <Text type="secondary" style={{ fontSize: 12 }}>样例入参（可编辑）</Text>}
-          dataSource={fn.signature.match(/\(([^)]*)\)/)?.[1].split(',').filter(Boolean).map((a, i) => ({ name: a.trim().split(':')[0], type: a.trim().split(':')[1] ?? 'decimal', v: ['0.86', 'true', "'S-0012'"][i % 3] })) ?? []}
+          dataSource={(fn.signature ?? '').match(/\(([^)]*)\)/)?.[1].split(',').filter(Boolean).map((a, i) => ({ name: a.trim().split(':')[0], type: a.trim().split(':')[1] ?? 'decimal', v: ['0.86', 'true', "'S-0012'"][i % 3] })) ?? []}
           columns={[
             { title: '参数', dataIndex: 'name', render: v => <Text code>{v}</Text> },
             { title: '类型', dataIndex: 'type', width: 90 },

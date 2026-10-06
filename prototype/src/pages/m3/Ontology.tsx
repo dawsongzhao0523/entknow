@@ -395,7 +395,7 @@ export function OntologyDetail() {
             { title: '成员', dataIndex: 'u' },
             { title: '角色', dataIndex: 'r', width: 110, render: (v: OntoRole) => <Tag color={ROLE_COLOR[v]}>{v}</Tag> },
             { title: '加入时间', dataIndex: 't', width: 120 },
-            { title: '操作', key: 'op', width: 120, render: (_: unknown, row: { u: string }) => (
+            { title: '操作', key: 'op', width: 120, render: (_: unknown, row: { u: string; r: OntoRole; t: string }) => (
               <Popover content={o.myRole !== '所有者' ? '仅「所有者」可调整成员角色' : undefined}>
                 <Button size="small" type="link" disabled={o.myRole !== '所有者'} onClick={() => setRoleMember(row.u)}>调整角色</Button>
               </Popover>
