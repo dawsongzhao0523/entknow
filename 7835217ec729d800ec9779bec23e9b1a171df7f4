@@ -1,0 +1,45 @@
+backend/internal/store/designer_test.go
+  12d7ced32ffbd6e0 1-46
+frontend/src/api.ts
+  12d7ced32ffbd6e0 137
+backend/internal/store/store.go
+  12d7ced32ffbd6e0 293-296
+docs/requirement/20261006本体设计器写路径与沙盘.md
+  12d7ced32ffbd6e0 1-12
+backend/internal/server/api.go
+  12d7ced32ffbd6e0 684-803
+frontend/src/pages/Registry.tsx
+  12d7ced32ffbd6e0 1-7,12-13,16-22,25-28,31-107,111-113,116-169,172-186
+backend/internal/server/designer_integration_test.go
+  12d7ced32ffbd6e0 1-141
+backend/internal/store/designer.go
+  12d7ced32ffbd6e0 1-291
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.8.1",
+  "base_commit_sha": "7835217ec729d800ec9779bec23e9b1a171df7f4",
+  "prompts": {
+    "12d7ced32ffbd6e0": {
+      "agent_id": {
+        "tool": "zcode",
+        "id": "sess_3db04727-f961-41e3-ab68-c4c6fbb73f6c",
+        "model": "GLM-5.3"
+      },
+      "human_author": "dawsongzhao0523 <133857587+dawsongzhao0523@users.noreply.github.com>",
+      "messages": [],
+      "total_additions": 893,
+      "total_deletions": 77,
+      "accepted_lines": 784,
+      "overriden_lines": 0,
+      "messages_url": "https://gitai.gz.cvte.cn/cas/a9b9f7a58aba06143ddf026885f2b9ee05a86740b198adb18b85ff682e54cf2a",
+      "token_usage": {
+        "input_tokens": 77957019,
+        "output_tokens": 288891,
+        "cache_read_tokens": 77140928,
+        "cache_creation_tokens": 0,
+        "total_cost": 0.0
+      }
+    }
+  }
+}
