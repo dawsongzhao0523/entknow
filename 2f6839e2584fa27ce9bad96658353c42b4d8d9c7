@@ -1,0 +1,51 @@
+backend/internal/store/runtime.go
+  12d7ced32ffbd6e0 1-297
+frontend/src/layouts/AppShell.tsx
+  12d7ced32ffbd6e0 22-24
+docs/requirement/20261006本体运行时实例与行动.md
+  12d7ced32ffbd6e0 1-18
+frontend/src/api.ts
+  12d7ced32ffbd6e0 55-70,114-125
+frontend/src/App.tsx
+  12d7ced32ffbd6e0 10-11,24-25
+backend/internal/server/api.go
+  12d7ced32ffbd6e0 244-329,332,341-342
+frontend/src/pages/RuntimeRules.tsx
+  12d7ced32ffbd6e0 1-103
+backend/internal/store/seed.sql
+  12d7ced32ffbd6e0 6,183-212
+frontend/src/pages/Instance360.tsx
+  12d7ced32ffbd6e0 1-129
+backend/internal/store/schema.sql
+  12d7ced32ffbd6e0 200-238
+backend/internal/server/runtime_integration_test.go
+  12d7ced32ffbd6e0 1-172
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.8.1",
+  "base_commit_sha": "2f6839e2584fa27ce9bad96658353c42b4d8d9c7",
+  "prompts": {
+    "12d7ced32ffbd6e0": {
+      "agent_id": {
+        "tool": "zcode",
+        "id": "sess_3db04727-f961-41e3-ab68-c4c6fbb73f6c",
+        "model": "GLM-5.3"
+      },
+      "human_author": "dawsongzhao0523 <133857587+dawsongzhao0523@users.noreply.github.com>",
+      "messages": [],
+      "total_additions": 1066,
+      "total_deletions": 41,
+      "accepted_lines": 913,
+      "overriden_lines": 0,
+      "messages_url": "https://gitai.gz.cvte.cn/cas/277b1e218840fc1880629c945b85b18a575a9561687148b611f446b66d7fca3a",
+      "token_usage": {
+        "input_tokens": 46885604,
+        "output_tokens": 203703,
+        "cache_read_tokens": 46176384,
+        "cache_creation_tokens": 0,
+        "total_cost": 0.0
+      }
+    }
+  }
+}
