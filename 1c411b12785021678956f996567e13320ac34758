@@ -1,0 +1,57 @@
+prototype/Dockerfile
+  12d7ced32ffbd6e0 1-11
+prototype/index.html
+  12d7ced32ffbd6e0 7
+backend/cmd/entknow/main.go
+  12d7ced32ffbd6e0 13
+openspec/config.yaml
+  12d7ced32ffbd6e0 4,49,63
+docker-compose.yml
+  12d7ced32ffbd6e0 1-88
+Makefile
+  12d7ced32ffbd6e0 1-26
+prototype/src/layouts/AppShell.tsx
+  12d7ced32ffbd6e0 62
+README.md
+  12d7ced32ffbd6e0 1,14,37,41,44-46,49-53,56-57
+backend/README.md
+  12d7ced32ffbd6e0 3,14-15
+prototype/src/pages/Home.tsx
+  12d7ced32ffbd6e0 221
+backend/.dockerignore
+  12d7ced32ffbd6e0 1-3
+prototype/.dockerignore
+  12d7ced32ffbd6e0 1-2
+backend/Dockerfile
+  12d7ced32ffbd6e0 1-12
+AGENTS.md
+  12d7ced32ffbd6e0 7,55-56,116-139
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.8.1",
+  "base_commit_sha": "1c411b12785021678956f996567e13320ac34758",
+  "prompts": {
+    "12d7ced32ffbd6e0": {
+      "agent_id": {
+        "tool": "zcode",
+        "id": "sess_3db04727-f961-41e3-ab68-c4c6fbb73f6c",
+        "model": "GLM-5.3"
+      },
+      "human_author": "dawsongzhao0523 <133857587+dawsongzhao0523@users.noreply.github.com>",
+      "messages": [],
+      "total_additions": 214,
+      "total_deletions": 41,
+      "accepted_lines": 193,
+      "overriden_lines": 0,
+      "messages_url": "https://gitai.gz.cvte.cn/cas/eedc4e1b10cca66d755856bfd72461c21ba2422a56279012c6d6f1a54df77641",
+      "token_usage": {
+        "input_tokens": 9223071,
+        "output_tokens": 71608,
+        "cache_read_tokens": 8947072,
+        "cache_creation_tokens": 0,
+        "total_cost": 0.0
+      }
+    }
+  }
+}
