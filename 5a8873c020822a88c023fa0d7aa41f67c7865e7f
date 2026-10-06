@@ -1,0 +1,53 @@
+frontend/src/api.ts
+  d2feb3b21e472516 57-60,310-314
+frontend/src/layouts/AppShell.tsx
+  d2feb3b21e472516 2,6,9,54,60,72-76,140-179
+backend/internal/store/store.go
+  d2feb3b21e472516 565,567-568,570
+docs/requirement/20261007角色首页与通知中心.md
+  d2feb3b21e472516 1-19
+frontend/src/pages/Home.tsx
+  d2feb3b21e472516 1-2,4-7,10,15-31,35,39-44,47-49,51-60,71-78,81-97,102-105,107,111,119-220
+backend/internal/store/seed.sql
+  d2feb3b21e472516 10,104-110
+backend/internal/server/api_integration_test.go
+  d2feb3b21e472516 71-73
+backend/internal/store/schema.sql
+  d2feb3b21e472516 443-450,481
+backend/internal/store/notify.go
+  d2feb3b21e472516 1-103
+backend/internal/server/notify_integration_test.go
+  d2feb3b21e472516 1-103
+backend/internal/server/api.go
+  d2feb3b21e472516 106-110
+backend/internal/server/sysadmin_api.go
+  d2feb3b21e472516 203-229
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.8.1",
+  "base_commit_sha": "5a8873c020822a88c023fa0d7aa41f67c7865e7f",
+  "prompts": {
+    "d2feb3b21e472516": {
+      "agent_id": {
+        "tool": "zcode",
+        "id": "sess_640dac34-2670-4904-ae98-aa4e9073f17c",
+        "model": "GLM-5.3"
+      },
+      "human_author": "dawsongzhao0523 <133857587+dawsongzhao0523@users.noreply.github.com>",
+      "messages": [],
+      "total_additions": 580,
+      "total_deletions": 99,
+      "accepted_lines": 7098,
+      "overriden_lines": 0,
+      "messages_url": "https://gitai.gz.cvte.cn/cas/4319f6c2b2aeb5c1b666ac43d8697410b256483a504aa7147dd9e953e005df58",
+      "token_usage": {
+        "input_tokens": 138706426,
+        "output_tokens": 305591,
+        "cache_read_tokens": 137400960,
+        "cache_creation_tokens": 0,
+        "total_cost": 0.0
+      }
+    }
+  }
+}
