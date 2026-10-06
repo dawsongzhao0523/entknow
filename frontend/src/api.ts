@@ -43,6 +43,12 @@ export interface PipelineTask {
 
 export interface PipelineRun { id: string; taskId: string; status: string; detail: string; at: string }
 
+export interface SandboxBranch {
+  id: string; name: string; hypothesis: string; baseInstance?: string;
+  riskBefore: number; riskAfter?: number | null; cost?: string; note?: string;
+  status: string; by?: string; at?: string;
+}
+
 export interface Review {
   id: string; title: string; type: string; from: string; status: string; sla: string;
   decidedBy?: string; decidedAt?: string; comment?: string;
@@ -150,6 +156,12 @@ export const api = {
   runPipelineTask: (id: string, runID: string, detail?: string) =>
     send<{ task: PipelineTask; run: PipelineRun }>(`/api/v1/pipeline-tasks/${id}/run`, 'POST', { id: runID, detail }),
   pipelineRuns: (task = '') => get<PipelineRun[]>(`/api/v1/pipeline-runs?task=${task}`),
+  sandboxBranches: () => get<SandboxBranch[]>('/api/v1/sandbox-branches'),
+  createSandboxBranch: (b: SandboxBranch) => send<SandboxBranch>('/api/v1/sandbox-branches', 'POST', b),
+  simulateBranch: (id: string, p: { riskAfter: number; cost?: string; note?: string; by: string }) =>
+    send<SandboxBranch>(`/api/v1/sandbox-branches/${id}/simulate`, 'POST', p),
+  rollbackBranch: (id: string, by: string) =>
+    send<SandboxBranch>(`/api/v1/sandbox-branches/${id}/rollback`, 'POST', { by }),
   views: () => get<unknown[]>('/api/v1/views'),
   capabilities: () => get<Capability[]>('/api/v1/capabilities'),
   createCapability: (c: Capability) => send<Capability>('/api/v1/capabilities', 'POST', c),

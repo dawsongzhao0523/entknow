@@ -290,6 +290,22 @@ CREATE TABLE IF NOT EXISTS pipeline_runs (
   at      text NOT NULL DEFAULT ''
 );
 
+-- ─── M6 推演沙盘 ───
+
+CREATE TABLE IF NOT EXISTS sandbox_branches (
+  id           text PRIMARY KEY,
+  name         text NOT NULL,
+  hypothesis   text NOT NULL DEFAULT '',   -- 假设
+  base_instance text NOT NULL DEFAULT '',  -- 基准实例
+  risk_before  integer NOT NULL DEFAULT 0,
+  risk_after   integer,                    -- 推演后（NULL 未推演）
+  cost         text NOT NULL DEFAULT '',
+  note         text NOT NULL DEFAULT '',
+  status       text NOT NULL DEFAULT '推演中', -- 推演中 | 已对比 | 已回滚
+  by_user      text NOT NULL DEFAULT '',
+  at           text NOT NULL DEFAULT ''
+);
+
 -- 幂等演进（已有库补列；新库因 CREATE 已含而 no-op）
 ALTER TABLE reviews ADD COLUMN IF NOT EXISTS decided_by text NOT NULL DEFAULT '';
 ALTER TABLE reviews ADD COLUMN IF NOT EXISTS decided_at text NOT NULL DEFAULT '';

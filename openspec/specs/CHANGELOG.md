@@ -16,3 +16,4 @@
 - 2026-10-06 · add-semantic-query · semantic-query（M5 统一检索四类实体 + 查询执行 DSL/延迟/幂等历史 + 前端语义查询页，已实现并 E2E 验证）
 - 2026-10-06 · add-datasource-ops · datasource-ops（M1 数据源注册/编辑、逻辑视图管理、加工流水线任务+运行，已实现并 E2E 验证）
 - 2026-10-06 · add-ontology-designer · ontology-designer（M3 元素创建/编辑/生命周期流转 + 关系引用计数联动 + 注册中心设计器交互，已实现并 E2E 验证）
+- 2026-10-06 · add-sandbox · sandbox（M6 沙盘分支/模拟 last-wins/回滚生产隔离 + 前端沙盘页，已实现并 E2E 验证）

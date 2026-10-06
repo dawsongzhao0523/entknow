@@ -14,6 +14,7 @@ import CapabilityOutlet from './pages/CapabilityOutlet';
 import SemanticQuery from './pages/SemanticQuery';
 import LogicalViews from './pages/LogicalViews';
 import Pipelines from './pages/Pipelines';
+import Sandbox from './pages/Sandbox';
 import Placeholder from './pages/Placeholder';
 
 export default function App() {
@@ -33,6 +34,7 @@ export default function App() {
         <Route path="m8/reviews" element={<Reviews />} />
         <Route path="m7/capability" element={<CapabilityOutlet />} />
         <Route path="m5/query" element={<SemanticQuery />} />
+        <Route path="m6/sandbox" element={<Sandbox />} />
         <Route path="m9/org" element={<OrgAdmin />} />
         <Route path="*" element={<Placeholder />} />
       </Route>

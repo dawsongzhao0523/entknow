@@ -4,7 +4,7 @@ BEGIN;
 TRUNCATE users, ontologies, memberships, objects, edges, functions, views,
          datasources, rules, reviews, notifications, capabilities, versions, table_profiles,
          kb_domains, kb_entries, synonyms, instances, instance_events, rule_firings, actions, roles,
-         capability_calls, query_history, pipeline_tasks, pipeline_runs;
+         capability_calls, query_history, pipeline_tasks, pipeline_runs, sandbox_branches;
 
 INSERT INTO users (id, account, name, dept, post, roles, status, last_login) VALUES
 ('u1', 'zhangsan', '张三', '平台部 / 数据AI部', '数据架构师', ARRAY['本体管理员','数据开发'], '正常', '2026-10-03 09:12'),
@@ -126,6 +126,11 @@ INSERT INTO pipeline_tasks (id, name, type, source, target, schedule, status, la
 INSERT INTO pipeline_runs (id, task_id, status, detail, at) VALUES
 ('run-seed-1', 'p1', '成功', '探查 142 表 · 新增字段备注 13 条', '2026-10-03 02:00'),
 ('run-seed-2', 'p2', '成功', '清洗 21.4 万行 · 脏数据 0.02%', '2026-10-03 03:00');
+
+INSERT INTO sandbox_branches (id, name, hypothesis, base_instance, risk_before, risk_after, cost, note, status, by_user, at) VALUES
+('b1', '分支 A · 基准', '不干预', 'PO20261002091', 92, 92, '—', '当前生产口径', '已对比', '张三', '2026-10-04 09:00'),
+('b2', '分支 B · 切换备选供应商', 'S-0012 → S-0031（delay -4 天）', 'PO20261002091', 92, 52, '+2.1%', '推荐', '已对比', '张三', '2026-10-04 09:10'),
+('b3', '分支 C · 提前下单 7 天', 'order_dt -7d', 'PO20261002091', 92, 61, '库存占用 +¥1.2M', '', '推演中', '李四', '2026-10-04 09:20');
 
 INSERT INTO versions (onto_id, v, date, description, status) VALUES
 ('scm', 'v0.1', '08-12', '最小可行本体（4对象+3关系+2Action）', 'PUBLISHED'),

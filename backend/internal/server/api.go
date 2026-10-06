@@ -801,6 +801,62 @@ func MountAPI(mux *http.ServeMux, st *store.Store) {
 		out, err := st.TransitionElement(r.Context(), r.PathValue("type"), r.PathValue("id"), in.Action, in.By)
 		writeStoreResult(w, out, err)
 	})
+
+	// ─── M6 推演沙盘 ───
+
+	mux.HandleFunc("GET /api/v1/sandbox-branches", handle(func(r *http.Request) ([]store.SandboxBranch, error) {
+		return st.ListSandboxBranches(r.Context())
+	}))
+	mux.HandleFunc("POST /api/v1/sandbox-branches", func(w http.ResponseWriter, r *http.Request) {
+		var b store.SandboxBranch
+		if err := json.NewDecoder(r.Body).Decode(&b); err != nil {
+			writeErr(w, http.StatusBadRequest, "请求体不是合法 JSON")
+			return
+		}
+		if b.ID == "" || b.Name == "" || b.Hypothesis == "" {
+			writeErr(w, http.StatusBadRequest, "id / name / hypothesis 均为必填")
+			return
+		}
+		out, created, err := st.CreateSandboxBranch(r.Context(), b)
+		if err != nil {
+			writeStoreResult(w, out, err)
+			return
+		}
+		if !created {
+			w.Header().Set("X-Idempotent-Replay", "true")
+		}
+		w.WriteHeader(http.StatusCreated)
+		writeJSON(w, out)
+	})
+	mux.HandleFunc("POST /api/v1/sandbox-branches/{id}/simulate", func(w http.ResponseWriter, r *http.Request) {
+		var in struct {
+			RiskAfter int    `json:"riskAfter"`
+			Cost      string `json:"cost"`
+			Note      string `json:"note"`
+			By        string `json:"by"`
+		}
+		if err := json.NewDecoder(r.Body).Decode(&in); err != nil {
+			writeErr(w, http.StatusBadRequest, "请求体不是合法 JSON")
+			return
+		}
+		if in.By == "" {
+			writeErr(w, http.StatusBadRequest, "by 必填")
+			return
+		}
+		out, err := st.SimulateBranch(r.Context(), r.PathValue("id"), in.RiskAfter, in.Cost, in.Note, in.By)
+		writeStoreResult(w, out, err)
+	})
+	mux.HandleFunc("POST /api/v1/sandbox-branches/{id}/rollback", func(w http.ResponseWriter, r *http.Request) {
+		var in struct {
+			By string `json:"by"`
+		}
+		if err := json.NewDecoder(r.Body).Decode(&in); err != nil || in.By == "" {
+			writeErr(w, http.StatusBadRequest, "by 必填")
+			return
+		}
+		out, err := st.RollbackBranch(r.Context(), r.PathValue("id"), in.By)
+		writeStoreResult(w, out, err)
+	})
 }
 
 // writeStoreResult 写端点结果：成功写 JSON，失败走统一错误映射。
