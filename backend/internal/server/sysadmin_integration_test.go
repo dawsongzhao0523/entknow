@@ -28,8 +28,8 @@ func TestMenusTreeAndPerms(t *testing.T) {
 			assetsMenu = m
 		}
 	}
-	if assetsMenu == nil || len(assetsMenu["children"].([]any)) != 3 {
-		t.Fatalf("assets 子菜单数不对: %v", assetsMenu)
+	if assetsMenu == nil || len(assetsMenu["children"].([]any)) != 5 {
+		t.Fatalf("assets 子菜单数不对（应含 集市/工作台）: %v", assetsMenu)
 	}
 
 	// 按角色权限过滤：wangwu（评审员，perms=knowledge,modeling,governance）

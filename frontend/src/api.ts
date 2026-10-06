@@ -56,7 +56,7 @@ export interface Review {
 
 export interface Notification { id: string; cat: string; title: string; time: string; to: string; unread: boolean }
 
-export interface Version { v: string; date: string; desc: string; status: string }
+export interface Version { id: number; v: string; date: string; desc: string; status: string }
 
 export interface KbTerm { term: string; en: string; def: string; source: string }
 
@@ -170,7 +170,64 @@ export interface PrefSettings {
   notifyCats?: string[];
 }
 
+export interface FieldProfile { name: string; type: string; nullRate: string; sample: string; comment: string; aiFilled?: boolean }
+export interface TableProfile {
+  name: string; comment: string; rows: string; fields: number; pk: string;
+  fks: string[]; siblings: string[]; profileFields: FieldProfile[];
+}
 export interface UserSetting { account: string; settings: PrefSettings }
+
+// ─── 模块补齐 ───
+
+export interface MarketItem {
+  id: string; name: string; comment: string; type: string; source: string;
+  domain: string; sensitive: string; owner: string; freq: string;
+  status: string; subscribers: number;
+}
+
+export interface MarketRequest {
+  id: string; itemId: string; itemName: string; applicant: string;
+  reason: string; status: string; at: string;
+}
+
+export interface Binding {
+  id: string; objectId: string; viewId: string; pkField: string;
+  fieldMap: Record<string, string>; syncMode: string; status: string;
+  lastSync: string; owner: string;
+}
+
+export interface BindingRun { id: string; bindingId: string; status: string; detail: string; at: string }
+
+export interface OntoCandidate {
+  id: string; source: string; suggestion: string; kind: string;
+  evidence: string; status: string; by: string; at: string;
+}
+
+export interface EntityAlignment {
+  id: string; leftTerm: string; rightTerm: string; sourceA: string; sourceB: string;
+  strategy: string; score: number; status: string; by: string; at: string;
+}
+
+export interface Member { ontoId: string; userId: string; name: string; role: string }
+
+export interface GateCheck { key: string; name: string; passed: boolean; reason: string }
+
+export interface ConsistencyIssue { level: string; key: string; detail: string }
+
+export interface RunResult { ruleId: string; fired: number; instances: number; detail: string }
+
+export interface RetractReport {
+  versionId: number; ontoId: string; version: string;
+  affectedObjects: number; affectedBindings: number; affectedViews: number;
+}
+
+export interface WorkbenchSnapshot {
+  tasksRunning: number; tasksFailed: number; myAssets: number; pendingTodos: number;
+  recentRuns: BindingRun[]; recentPipelines: PipelineRun[];
+  recentQueries: { id: string; question: string; latencyMs: number; by: string; at: string }[];
+  alerts: ConsistencyIssue[];
+}
+
 
 async function get<T>(path: string): Promise<T> {
   const res = await fetch(path);
@@ -285,4 +342,46 @@ export const api = {
   },
   settings: (user: string) => get<UserSetting>(`/api/v1/settings?user=${encodeURIComponent(user)}`),
   saveSettings: (u: UserSetting) => send<UserSetting>('/api/v1/settings', 'PUT', u),
+  // ─── 模块补齐 ───
+  marketItems: () => get<MarketItem[]>('/api/v1/market-items'),
+  createMarketItem: (m: MarketItem) => send<MarketItem>('/api/v1/market-items', 'POST', m),
+  updateMarketItem: (id: string, m: MarketItem) => send<MarketItem>(`/api/v1/market-items/${id}`, 'PUT', m),
+  deleteMarketItem: (id: string) => send<null>(`/api/v1/market-items/${id}`, 'DELETE'),
+  marketRequests: () => get<MarketRequest[]>('/api/v1/market-requests'),
+  requestMarketItem: (itemId: string, p: { applicant: string; reason?: string; id?: string }) =>
+    send<MarketRequest>(`/api/v1/market-items/${itemId}/request`, 'POST', p),
+  decideMarketRequest: (id: string, action: 'approve' | 'reject') =>
+    send<MarketRequest>(`/api/v1/market-requests/${id}`, 'PUT', { action }),
+  workbench: (user: string) => get<WorkbenchSnapshot>(`/api/v1/workbench?user=${encodeURIComponent(user)}`),
+  bindings: () => get<Binding[]>('/api/v1/bindings'),
+  createBinding: (b: Binding) => send<Binding>('/api/v1/bindings', 'POST', b),
+  updateBinding: (id: string, b: Binding) => send<Binding>(`/api/v1/bindings/${id}`, 'PUT', b),
+  deleteBinding: (id: string) => send<null>(`/api/v1/bindings/${id}`, 'DELETE'),
+  bindingRuns: (binding = '') => get<BindingRun[]>(`/api/v1/binding-runs?binding=${binding}`),
+  syncBinding: (id: string) => send<BindingRun>(`/api/v1/bindings/${id}/sync`, 'POST'),
+  candidates: (status = '') => get<OntoCandidate[]>(`/api/v1/convergence/candidates?status=${status}`),
+  generateCandidates: () => send<OntoCandidate[]>('/api/v1/convergence/generate', 'POST'),
+  adoptCandidate: (id: string, by: string) =>
+    send<OntoCandidate>(`/api/v1/convergence/candidates/${id}/adopt`, 'POST', { by }),
+  dropCandidate: (id: string, by: string) =>
+    send<OntoCandidate>(`/api/v1/convergence/candidates/${id}/drop`, 'POST', { by }),
+  alignments: (status = '') => get<EntityAlignment[]>(`/api/v1/alignments?status=${status}`),
+  generateAlignments: () => send<EntityAlignment[]>('/api/v1/alignments/generate', 'POST'),
+  decideAlignment: (id: string, action: 'merge' | 'drop', by: string) =>
+    send<EntityAlignment>(`/api/v1/alignments/${id}/decide`, 'POST', { action, by }),
+  members: (onto: string) => get<Member[]>(`/api/v1/ontologies/${onto}/members`),
+  setMember: (onto: string, userId: string, role: string) =>
+    send<Member>(`/api/v1/ontologies/${onto}/members`, 'PUT', { userId, role }),
+  removeMember: (onto: string, userId: string) =>
+    send<null>(`/api/v1/ontologies/${onto}/members/${userId}`, 'DELETE'),
+  releaseGate: (onto = 'scm') => get<GateCheck[]>(`/api/v1/release-gate?onto=${onto}`),
+  publishOntology: (onto: string, by: string) =>
+    send<{ version: Version; checks: GateCheck[] }>(`/api/v1/ontologies/${onto}/publish`, 'POST', { by }),
+  exportOntology: (onto: string, format: 'owl' | 'rdf') =>
+    fetch(`/api/v1/ontologies/${onto}/export?format=${format}`).then(r => r.text()),
+  retractVersion: (id: number, by: string) =>
+    send<RetractReport>(`/api/v1/versions/${id}/retract`, 'POST', { by }),
+  consistency: (onto = 'scm') => get<ConsistencyIssue[]>(`/api/v1/reasoning/consistency?onto=${onto}`),
+  runRule: (ruleId: string) => send<RunResult>('/api/v1/reasoning/run', 'POST', { ruleId }),
+  tableProfile: (name: string) => get<TableProfile>(`/api/v1/table-profiles/${encodeURIComponent(name)}`),
 };

@@ -5,7 +5,9 @@ TRUNCATE users, ontologies, memberships, objects, edges, functions, views,
          datasources, rules, reviews, notifications, capabilities, versions, table_profiles,
          kb_domains, kb_entries, synonyms, instances, instance_events, rule_firings, actions, roles,
          capability_calls, query_history, pipeline_tasks, pipeline_runs, sandbox_branches,
-         menus, data_rules, dep_services, dep_checks, audit_logs, user_settings;
+         menus, data_rules, dep_services, dep_checks, audit_logs, user_settings,
+         market_items, market_requests, bindings, binding_runs, onto_candidates, entity_alignments
+         RESTART IDENTITY;
 
 INSERT INTO users (id, account, name, dept, post, roles, status, last_login) VALUES
 ('u1', 'zhangsan', '张三', '平台部 / 数据AI部', '数据架构师', ARRAY['本体管理员','数据开发'], '正常', '2026-10-03 09:12'),
@@ -214,7 +216,7 @@ INSERT INTO synonyms (id, terms, standard, status, by, at) VALUES
 INSERT INTO instances (id, object_id, status, props, risk_score, order_dt, promise_dt) VALUES
 ('PO20260930001', 'o4', '已发货',
  '{"type":"采购订单","supplier":"S-0012 华兴电子","plant":"RCBJ-YK","material":"M-100233 电容 0402","amount":"58,200.00 CNY"}',
- 76, '2026-09-30 10:21', '2026-10-15 00:00'),
+ 76, '2026-09-30 10:21', '2026-10-05 00:00'),
 ('PO20261002091', 'o4', '已下达',
  '{"type":"采购订单","supplier":"S-0031 翔宇科技","plant":"RCBJ-BSE","material":"M-100870 MCU","amount":"128,400.00 CNY"}',
  92, '2026-10-02 14:05', '2026-10-25 00:00'),
@@ -264,23 +266,31 @@ INSERT INTO menus (id, parent_id, name, route, icon, sort, visible) VALUES
 ('assets/datasources', 'assets', '数据源中心', 'assets/datasources', '', 1, true),
 ('assets/views',       'assets', '逻辑视图',   'assets/views',       '', 2, true),
 ('assets/pipelines',   'assets', '数据加工',   'assets/pipelines',   '', 3, true),
+('assets/market',       'assets', '数据集市',   'assets/market',       '', 4, true),
+('assets/workbench',    'assets', '数据工作台', 'assets/workbench',    '', 5, true),
 ('knowledge', '', '知识运营', '', 'BookOutlined', 2, true),
 ('knowledge/entries',  'knowledge', '知识库',     'knowledge/entries',  '', 1, true),
 ('knowledge/synonyms', 'knowledge', '同义词治理', 'knowledge/synonyms', '', 2, true),
+('knowledge/convergence', 'knowledge', '隐式收敛', 'knowledge/convergence', '', 3, true),
 ('modeling', '', '本体建模', '', 'DeploymentUnitOutlined', 3, true),
 ('modeling/ontologies', 'modeling', '本体管理', 'modeling/ontologies', '', 1, true),
 ('modeling/registry',   'modeling', '注册中心', 'modeling/registry',   '', 2, true),
+('modeling/ai-modeling', 'modeling', '智能建模', 'modeling/ai-modeling', '', 3, true),
+('modeling/version-ops', 'modeling', '版本与导出', 'modeling/version-ops', '', 4, true),
 ('runtime', '', '本体运行时', '', 'ApiOutlined', 4, true),
-('runtime/instances', 'runtime', '实例 360°',   'runtime/instances', '', 1, true),
+('runtime/binding',   'runtime', '数据绑定',    'runtime/binding',   '', 1, true),
+('runtime/instances', 'runtime', '实例 360°',   'runtime/instances', '', 2, true),
 ('runtime/rules',     'runtime', '规则与行动', 'runtime/rules',     '', 2, true),
 ('reasoning', '', '推理演绎', '', 'BulbOutlined', 5, true),
-('reasoning/query', 'reasoning', '语义查询', 'reasoning/query', '', 1, true),
+('reasoning/query',  'reasoning', '语义查询', 'reasoning/query',  '', 1, true),
+('reasoning/engine',  'reasoning', '推理引擎', 'reasoning/engine',  '', 2, true),
 ('sandbox', '', '推演沙盘', '', 'ExperimentOutlined', 6, true),
 ('sandbox/compare', 'sandbox', '沙盘 · 多分支对比', 'sandbox/compare', '', 1, true),
 ('apps', '', '智能应用', '', 'RocketOutlined', 7, true),
 ('apps/capabilities', 'apps', '能力出口', 'apps/capabilities', '', 1, true),
 ('governance', '', '治理演化', '', 'SafetyCertificateOutlined', 8, true),
-('governance/reviews', 'governance', '评审与发布', 'governance/reviews', '', 1, true),
+('governance/reviews',  'governance', '评审与发布', 'governance/reviews',  '', 1, true),
+('governance/evolution', 'governance', '演化与撤回', 'governance/evolution', '', 2, true),
 ('admin', '', '系统管理', '', 'SettingOutlined', 9, true),
 ('admin/overview',    'admin', '系统运营',   'admin/overview',    '', 1, true),
 ('admin/org',         'admin', '组织与权限', 'admin/org',         '', 2, true),
@@ -325,5 +335,38 @@ INSERT INTO audit_logs (at, module, level, operator, content, trace_id) VALUES
 
 INSERT INTO user_settings (account, settings) VALUES
 ('zhangsan', '{"theme":"light","density":"default","monoFont":true,"landingPage":"","defaultOnto":"scm","notifyCats":["待办处理","治理任务","协同分享"]}');
+
+-- ─── 模块补齐（complete-remaining-modules） ───
+
+INSERT INTO market_items (id, name, comment, type, source, domain, sensitive, owner, freq, status, subscribers) VALUES
+('mk-1', 'purchase_order', '采购订单',       '表',      'scm_prod / MySQL',        '供应链', 'L2', '张三', '214万行 · 日更',   '上架', 23),
+('mk-2', 'lv_order_delivery', '订单交付视图', 'VIEW',   '联邦层 StarRocks',        '供应链', 'L3', '继承依赖', '逻辑视图 · 已发布', '上架', 41),
+('mk-3', 'supplier',        '供应商主数据',   'API',     'SRM 系统',                '供应链', 'L2', '王五', '主数据 · 实时',   '上架', 17),
+('mk-4', 'kb_sop',          '质量 SOP 文档',  'KB 文档', 'KB 知识库 · 在线增量',    '供应链', 'L2', '王五', '15min 增量',      '上架', 9),
+('mk-5', 'code_biz_logic',  '订单拆分逻辑',   '代码索引', 'CodeNexus · 每日 03:00', '供应链', 'L2', '孙七', '函数级索引',      '审核中', 0);
+
+INSERT INTO market_requests (id, item_id, applicant, reason, status, at) VALUES
+('mr-1', 'mk-2', '赵六', 'Agent 消费订单交付风险特征', '待审批', '2026-10-05 14:20'),
+('mr-2', 'mk-3', '孙七', '供应商画像看板取数',         '已通过', '2026-10-03 09:11');
+
+INSERT INTO bindings (id, object_id, view_id, pk_field, field_map, sync_mode, status, last_sync, owner) VALUES
+('bd-1', 'o4', 'v1', 'po_id', '{"po_id":"订单号","supplier_id":"供应商","amount":"金额","promise_dt":"承诺交期","status":"状态"}', 'CDC',  '正常', '2026-10-03 09:58', '张三'),
+('bd-2', 'o1', 'v2', 'supplier_id', '{"supplier_id":"供应商编码","ontime_rate":"准时率","level":"分级"}', 'CRON', '正常', '2026-10-03 03:00', '张三'),
+('bd-3', 'o3', 'v3', 'material_id', '{"material_id":"物料编码","category":"分类","uom":"单位"}', 'FULL', '告警', '2026-10-02 18:44', '孙七');
+
+INSERT INTO binding_runs (id, binding_id, status, detail, at) VALUES
+('br-1', 'bd-1', '成功', 'CDC 增量 +1,204 行 · 位点 884207', '2026-10-03 09:58'),
+('br-2', 'bd-2', '成功', 'CRON 全量 38 表 · 耗时 3m12s',    '2026-10-03 03:00'),
+('br-3', 'bd-3', '失败', 'mes_prod CDC 断连 · 等待重试',     '2026-10-02 18:44');
+
+INSERT INTO onto_candidates (id, source, suggestion, kind, evidence, status, by, at) VALUES
+('oc-1', '知识条目「来料检验规范」', '来料检验记录', '对象', 'SOP 中高频名词 ×12 · 已有数据表 iln_inspect（未入本体）', '待裁决', '', ''),
+('oc-2', '同义词组「物料/料号」',    '物料编码',     '属性', '标准词与两处源表字段名一致',                             '待裁决', '', ''),
+('oc-3', '知识条目「供应商准入流程」', 'QUALIFIES',  '关系', '流程图 4 节点均连接 供应商↔准入评估',                    '已丢弃', '张三', '2026-09-30 11:02');
+
+INSERT INTO entity_alignments (id, left_term, right_term, source_a, source_b, strategy, score, status, by, at) VALUES
+('ea-1', '启明 X7 加速卡',     '启明 X7 推理加速卡',   'SRM 供应商主数据', 'KB 资产台账', '包含召回', 48, '待裁决', '', ''),
+('ea-2', '华南仓',             '华南中心仓',           'WMS 仓库主数据',   'MES 工厂档案', '别名召回', 52, '待裁决', '', ''),
+('ea-3', '王氏精密',           '王氏精密制造（东莞）', 'SRM 供应商主数据', '工商信息 API', '包含召回', 44, '待裁决', '', '');
 
 COMMIT;

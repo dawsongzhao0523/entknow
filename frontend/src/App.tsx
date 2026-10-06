@@ -15,6 +15,16 @@ import LogicalViews from './pages/LogicalViews';
 import Pipelines from './pages/Pipelines';
 import Sandbox from './pages/Sandbox';
 import Placeholder from './pages/Placeholder';
+import Market from './pages/assets/Market';
+import Workbench from './pages/assets/Workbench';
+import Convergence from './pages/knowledge/Convergence';
+import OntologyDetail from './pages/modeling/OntologyDetail';
+import AiModeling from './pages/modeling/AiModeling';
+import VersionOps from './pages/modeling/VersionOps';
+import Binding from './pages/runtime/Binding';
+import ReasoningEngine from './pages/reasoning/Engine';
+import Evolution from './pages/governance/Evolution';
+
 import Overview from './pages/admin/Overview';
 import OrgAdmin from './pages/OrgAdmin';
 import Permissions from './pages/admin/Permissions';
@@ -48,6 +58,15 @@ export default function App() {
         <Route path="admin/monitor" element={<Monitor />} />
         <Route path="admin/logs" element={<Logs />} />
         <Route path="admin/settings" element={<Settings />} />
+        <Route path="assets/market" element={<Market />} />
+        <Route path="assets/workbench" element={<Workbench />} />
+        <Route path="knowledge/convergence" element={<Convergence />} />
+        <Route path="modeling/ontology/detail" element={<OntologyDetail />} />
+        <Route path="modeling/ai-modeling" element={<AiModeling />} />
+        <Route path="modeling/version-ops" element={<VersionOps />} />
+        <Route path="runtime/binding" element={<Binding />} />
+        <Route path="reasoning/engine" element={<ReasoningEngine />} />
+        <Route path="governance/evolution" element={<Evolution />} />
         <Route path="*" element={<Placeholder />} />
       </Route>
     </Routes>

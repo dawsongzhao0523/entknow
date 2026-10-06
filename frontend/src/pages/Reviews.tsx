@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
-import { App, Button, Card, Input, Modal, Popconfirm, Select, Space, Table, Tag, Tooltip, Typography } from 'antd';
+import { Alert, App, Button, Card, Input, Modal, Popconfirm, Select, Space, Table, Tabs, Tag, Tooltip, Typography } from 'antd';
 import { CheckOutlined, CloseOutlined, PlusOutlined, RollbackOutlined } from '@ant-design/icons';
-import { api, type Review } from '../api';
+import { api, type GateCheck, type Review } from '../api';
 
 const { Title, Text } = Typography;
 
@@ -17,6 +17,11 @@ export default function Reviews() {
   const [rows, setRows] = useState<Review[]>([]);
   const [err, setErr] = useState('');
   const [createOpen, setCreateOpen] = useState(false);
+  const [gate, setGate] = useState<GateCheck[] | null>(null);
+
+  useEffect(() => {
+    api.releaseGate('scm').then(setGate).catch(() => {});
+  }, [rows.length]);
   const [rejecting, setRejecting] = useState<Review | null>(null);
   const [rejectReason, setRejectReason] = useState('');
   const [form, setForm] = useState({ title: '', type: TYPES[0], sla: '剩 3 天' });
@@ -60,7 +65,10 @@ export default function Reviews() {
         （POST /api/v1/reviews · PUT /api/v1/reviews/:id/decision）</Text>
       {err && <Card style={{ marginTop: 12 }}>API 异常：{err}</Card>}
 
-      <Card size="small" style={{ marginTop: 12 }}
+      <div style={{ marginTop: 12 }}>
+      <Tabs items={[
+        { key: 'reviews', label: `评审队列（${rows.length}）`, children: (
+      <Card size="small"
         extra={<Button type="primary" icon={<PlusOutlined />} onClick={() => setCreateOpen(true)}>新建评审</Button>}>
         <Table<Review> size="small" rowKey="id" pagination={false} dataSource={rows}
           columns={[
@@ -88,6 +96,23 @@ export default function Reviews() {
             ) },
           ]} />
       </Card>
+        ) },
+        { key: 'gate', label: '发布门禁', children: (
+          <Card size="small">
+            <Alert type="info" showIcon style={{ marginBottom: 12 }}
+              message="发布「供应链本体」前的确定性检查（发布入口在 本体详情 → 发布新版本，门禁全过才执行）" />
+            <Space size={12} wrap>
+              {(gate ?? []).map(c => (
+                <Tag key={c.key} color={c.passed ? 'green' : 'red'} style={{ padding: '6px 12px', fontSize: 13 }}>
+                  {c.passed ? '✓' : '✗'} {c.name}：{c.passed ? '通过' : c.reason}
+                </Tag>
+              ))}
+              {gate === null && <Text type="secondary">评估中…</Text>}
+            </Space>
+          </Card>
+        ) },
+      ]} />
+      </div>
 
       <Modal title="驳回评审（必填原因）" open={!!rejecting} onOk={() => {
         if (!rejectReason.trim()) { message.warning('驳回必须填写原因'); return; }

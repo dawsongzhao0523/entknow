@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card, Table, Tag, Typography } from 'antd';
 import { api, type Ontology, type Version } from '../api';
 
@@ -8,6 +9,7 @@ const statusColor: Record<string, string> = { PUBLISHED: 'green', DRAFT: 'defaul
 const roleColor: Record<string, string> = { 所有者: 'gold', 建模者: 'blue', 评审者: 'purple', 查看者: 'default' };
 
 export default function Ontologies() {
+  const nav = useNavigate();
   const [ontos, setOntos] = useState<Ontology[]>([]);
   const [versions, setVersions] = useState<Version[]>([]);
   const [err, setErr] = useState('');
@@ -25,7 +27,7 @@ export default function Ontologies() {
       <Card size="small" style={{ marginTop: 12 }}>
         <Table<Ontology> size="small" rowKey="id" pagination={false} dataSource={ontos}
           columns={[
-            { title: '本体', dataIndex: 'name', render: (v: string) => <b>{v}</b> },
+            { title: '本体', dataIndex: 'name', render: (v: string, r) => <a onClick={() => nav(`/modeling/ontology/detail?onto=${r.id}`)}><b>{v}</b></a> },
             { title: '场景', dataIndex: 'scene' },
             { title: '版本', dataIndex: 'version', width: 70 },
             { title: '状态', dataIndex: 'status', width: 90,

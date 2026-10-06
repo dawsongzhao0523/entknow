@@ -213,6 +213,7 @@ type Capability struct {
 }
 
 type Version struct {
+	ID     int    `json:"id"`
 	V      string `json:"v"`
 	Date   string `json:"date"`
 	Desc   string `json:"desc"`
@@ -465,7 +466,7 @@ func (s *Store) ListUsers(ctx context.Context) ([]User, error) {
 
 func (s *Store) ListVersions(ctx context.Context, ontoID string) ([]Version, error) {
 	rows, err := s.pool.Query(ctx, `
-		SELECT v, date, description, status FROM versions WHERE onto_id = $1 ORDER BY id`, ontoID)
+		SELECT id, v, date, description, status FROM versions WHERE onto_id = $1 ORDER BY id`, ontoID)
 	if err != nil {
 		return nil, err
 	}
@@ -473,7 +474,7 @@ func (s *Store) ListVersions(ctx context.Context, ontoID string) ([]Version, err
 	var out []Version
 	for rows.Next() {
 		var v Version
-		if err := rows.Scan(&v.V, &v.Date, &v.Desc, &v.Status); err != nil {
+		if err := rows.Scan(&v.ID, &v.V, &v.Date, &v.Desc, &v.Status); err != nil {
 			return nil, err
 		}
 		out = append(out, v)

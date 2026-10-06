@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import {
+  Alert,
+  Tabs,
   App, Button, Card, Drawer, Form, Input, Modal, Popconfirm, Select, Space,
   Statistic, Table, Tag, Typography,
 } from 'antd';
@@ -11,6 +13,27 @@ const { Title, Text } = Typography;
 const protoColor = (p: string) => (p.includes('MCP') ? 'purple' : p.includes('REST') ? 'blue' : 'cyan');
 
 /** 能力出口：目录（真实计数 base+日志）+ 调用记录 + 注册/编辑 */
+/** CLI 出口：由能力目录数据驱动的命令手册（复制可用） */
+function CliManual({ caps }: { caps: Capability[] }) {
+  const { message } = App.useApp();
+  return (
+    <Card size="small" title="CLI 出口 · 命令手册（由能力目录实时渲染）">
+      <Alert type="info" showIcon style={{ marginBottom: 12 }}
+        message="能力出口同时以 MCP / REST / CLI 三种协议开放；CLI 命令按能力目录自动生成，复制即用。" />
+      <Table<Capability> size="small" rowKey="id" pagination={false} dataSource={caps}
+        columns={[
+          { title: '能力', dataIndex: 'name', render: (v: string) => <b>{v}</b> },
+          { title: '协议', dataIndex: 'proto', width: 120 },
+          { title: 'CLI 命令', key: 'cmd', render: (_, c) => (
+            <Text className="mono" copyable={{ onCopy: () => message.success('已复制') }} style={{ fontSize: 12 }}>
+              entknow invoke {c.id} --caller \"$USER\" --proto {c.proto.split('/')[0]}
+            </Text>
+          ) },
+        ]} />
+    </Card>
+  );
+}
+
 export default function CapabilityOutlet() {
   const { message } = App.useApp();
   const [caps, setCaps] = useState<Capability[]>([]);
@@ -73,7 +96,10 @@ export default function CapabilityOutlet() {
       <Title level={4}>能力出口</Title>
       <Text type="secondary">本体能力的统一出口（MCP/REST/CLI）：调用量 = 历史基数 + 真实调用日志，注册与调用均为真实写路径</Text>
 
-      <Card size="small" style={{ marginTop: 12 }} extra={
+      <div style={{ marginTop: 12 }}>
+      <Tabs items={[
+        { key: 'catalog', label: `能力目录（${caps.length}）`, children: (
+      <Card size="small" extra={
         <Button type="primary" icon={<PlusOutlined />} onClick={() => {
           setEditing(null); regForm.resetFields(); setRegOpen(true);
         }}>注册能力</Button>
@@ -107,6 +133,10 @@ export default function CapabilityOutlet() {
             ) },
           ]} />
       </Card>
+        ) },
+        { key: 'cli', label: 'CLI 出口', children: <CliManual caps={caps} /> },
+      ]} />
+      </div>
 
       <Drawer title={detail ? `${detail.name} · 最近调用` : ''} width={520} open={!!detail} onClose={() => setDetail(null)}>
         {detail && <>

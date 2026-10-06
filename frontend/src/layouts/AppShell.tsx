@@ -28,16 +28,16 @@ const ICONS: Record<string, React.ReactNode> = {
 const FALLBACK: { key: string; label: string; icon?: React.ReactNode; children?: [string, string][] }[] = [
   { key: 'home', label: '首页', icon: <HomeOutlined /> },
   { key: 'assets', label: '数据资产', icon: <DatabaseOutlined />, children: [
-    ['assets/datasources', '数据源中心'], ['assets/views', '逻辑视图'], ['assets/pipelines', '数据加工'],
+    ['assets/datasources', '数据源中心'], ['assets/views', '逻辑视图'], ['assets/pipelines', '数据加工'], ['assets/market', '数据集市'], ['assets/workbench', '数据工作台'],
   ]},
   { key: 'knowledge', label: '知识运营', icon: <BookOutlined />, children: [
-    ['knowledge/entries', '知识库'], ['knowledge/synonyms', '同义词治理'],
+    ['knowledge/entries', '知识库'], ['knowledge/synonyms', '同义词治理'], ['knowledge/convergence', '隐式收敛'],
   ]},
   { key: 'modeling', label: '本体建模', icon: <DeploymentUnitOutlined />, children: [
-    ['modeling/ontologies', '本体管理'], ['modeling/registry', '注册中心'],
+    ['modeling/ontologies', '本体管理'], ['modeling/registry', '注册中心'], ['modeling/ai-modeling', '智能建模'], ['modeling/version-ops', '版本与导出'],
   ]},
   { key: 'runtime', label: '本体运行时', icon: <ApiOutlined />, children: [
-    ['runtime/instances', '实例 360°'], ['runtime/rules', '规则与行动'],
+    ['runtime/binding', '数据绑定'], ['runtime/instances', '实例 360°'], ['runtime/rules', '规则与行动'],
   ]},
   { key: 'reasoning', label: '推理演绎', icon: <BulbOutlined />, children: [['reasoning/query', '语义查询']] },
   { key: 'sandbox', label: '推演沙盘', icon: <ExperimentOutlined />, children: [['sandbox/compare', '沙盘 · 多分支对比']] },

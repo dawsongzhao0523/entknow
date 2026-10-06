@@ -1,7 +1,10 @@
 import { useCallback, useEffect, useState } from 'react';
-import { App, Button, Card, Form, Input, Modal, Popconfirm, Select, Space, Table, Tag, Typography } from 'antd';
+import {
+  App, Button, Card, Descriptions, Form, Input, Modal, Popconfirm, Select,
+  Space, Table, Tabs, Tag, Typography,
+} from 'antd';
 import { EditOutlined, PlusOutlined } from '@ant-design/icons';
-import { api, type Datasource } from '../api';
+import { api, type Datasource, type FieldProfile, type TableProfile } from '../api';
 
 const { Title, Text } = Typography;
 
@@ -13,6 +16,51 @@ const SENS = ['L1', 'L2', 'L3', 'L4'];
 const empty = { name: '', type: 'MySQL', kind: '结构化', host: '', status: '正常', mode: 'CRON', sensitive: 'L2', owner: '张三', tables: 0 };
 
 /** 数据源中心：注册 / 编辑 / 同步策略 / 停用（真实写路径） */
+
+/** 元数据探查：按表名取真实 table_profiles */
+function ProfilePanel() {
+  const { message } = App.useApp();
+  const [name, setName] = useState('purchase_order');
+  const [profile, setProfile] = useState<TableProfile | null>(null);
+  const search = async () => {
+    try {
+      setProfile(await api.tableProfile(name.trim()));
+    } catch (e) {
+      setProfile(null);
+      message.error(String((e as Error).message));
+    }
+  };
+  useEffect(() => { search(); /* eslint-disable-next-line */ }, []);
+  return (
+    <Card size="small">
+      <Space style={{ marginBottom: 12 }}>
+        <Input className="mono" style={{ width: 240 }} value={name} onChange={e => setName(e.target.value)}
+          placeholder="表名，如 purchase_order" onPressEnter={search} />
+        <Button type="primary" onClick={search}>探查</Button>
+      </Space>
+      {profile && <>
+        <Descriptions size="small" bordered column={4}>
+          <Descriptions.Item label="表名"><span className="mono">{profile.name}</span></Descriptions.Item>
+          <Descriptions.Item label="注释">{profile.comment}</Descriptions.Item>
+          <Descriptions.Item label="行数">{profile.rows}</Descriptions.Item>
+          <Descriptions.Item label="字段数">{profile.fields}</Descriptions.Item>
+          <Descriptions.Item label="主键"><span className="mono">{profile.pk}</span></Descriptions.Item>
+          <Descriptions.Item label="外键" span={3}>{profile.fks.join(' · ')}</Descriptions.Item>
+        </Descriptions>
+        <Table size="small" rowKey="name" style={{ marginTop: 12 }} pagination={false}
+          dataSource={profile.profileFields}
+          columns={[
+            { title: '字段', dataIndex: 'name', render: (v: string) => <span className="mono">{v}</span> },
+            { title: '类型', dataIndex: 'type', width: 130 },
+            { title: '空值率', dataIndex: 'nullRate', width: 90 },
+            { title: '示例', dataIndex: 'sample', width: 200 },
+            { title: '注释', dataIndex: 'comment', render: (v: string, r: FieldProfile) => v || (r.aiFilled ? <Tag color="purple">AI 补全</Tag> : '—') },
+          ]} />
+      </>}
+    </Card>
+  );
+}
+
 export default function Datasources() {
   const { message } = App.useApp();
   const [dss, setDss] = useState<Datasource[]>([]);
@@ -49,12 +97,15 @@ export default function Datasources() {
       <Title level={4}>数据源中心</Title>
       <Text type="secondary">业务数据连接的注册、同步策略与生命周期（POST/PUT /api/v1/datasources）</Text>
 
-      <Card size="small" style={{ marginTop: 12 }} extra={
+      <div style={{ marginTop: 12 }}>
+      <Tabs items={[
+        { key: 'list', label: `结构化数据源（${dss.filter(d => d.kind === '结构化').length}）`, children: (
+      <Card size="small" extra={
         <Button type="primary" icon={<PlusOutlined />} onClick={() => {
           setEditing(null); form.resetFields(); setOpen(true);
         }}>注册数据源</Button>
       }>
-        <Table<Datasource> size="small" rowKey="id" pagination={false} dataSource={dss}
+        <Table<Datasource> size="small" rowKey="id" pagination={false} dataSource={dss.filter(d => d.kind === '结构化')}
           columns={[
             { title: '数据源', dataIndex: 'name', render: (v: string) => <b>{v}</b> },
             { title: '类型', dataIndex: 'type', width: 110 },
@@ -88,6 +139,24 @@ export default function Datasources() {
             ) },
           ]} />
       </Card>
+        ) },
+        { key: 'docs', label: `文档源（${dss.filter(d => d.kind === '非结构化').length}）`, children: (
+          <Card size="small">
+            <Table<Datasource> size="small" rowKey="id" pagination={false}
+              dataSource={dss.filter(d => d.kind === '非结构化')}
+              columns={[
+                { title: '数据源', dataIndex: 'name', render: (v: string) => <b>{v}</b> },
+                { title: '类型', dataIndex: 'type', width: 110 },
+                { title: '同步', dataIndex: 'mode', width: 70, render: (v: string) => modeText[v] },
+                { title: '状态', dataIndex: 'status', width: 70 },
+                { title: '负责人', dataIndex: 'owner', width: 80 },
+                { title: '最近同步', dataIndex: 'lastSync', width: 130 },
+              ]} />
+          </Card>
+        ) },
+        { key: 'profile', label: '元数据探查', children: <ProfilePanel /> },
+      ]} />
+      </div>
 
       <Modal title={editing ? `编辑数据源：${editing.name}` : '注册数据源'} open={open} onOk={save}
         onCancel={() => setOpen(false)} okText="保存" cancelText="取消">

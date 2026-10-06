@@ -367,6 +367,79 @@ CREATE TABLE IF NOT EXISTS user_settings (
   settings jsonb NOT NULL DEFAULT '{}'
 );
 
+-- ─── 模块补齐（complete-remaining-modules） ───
+
+-- 数据集市：可消费资产目录与权限申请
+CREATE TABLE IF NOT EXISTS market_items (
+  id          text PRIMARY KEY,
+  name        text NOT NULL,
+  comment     text NOT NULL DEFAULT '',
+  type        text NOT NULL,               -- 表 | VIEW | API | KB 文档 | 代码索引
+  source      text NOT NULL DEFAULT '',
+  domain      text NOT NULL DEFAULT '',
+  sensitive   text NOT NULL DEFAULT '',
+  owner       text NOT NULL DEFAULT '',
+  freq        text NOT NULL DEFAULT '',    -- 更新频率/规模说明
+  status      text NOT NULL DEFAULT '上架', -- 上架 | 审核中 | 下架
+  subscribers integer NOT NULL DEFAULT 0
+);
+
+CREATE TABLE IF NOT EXISTS market_requests (
+  id         text PRIMARY KEY,
+  item_id    text NOT NULL,
+  applicant  text NOT NULL,
+  reason     text NOT NULL DEFAULT '',
+  status     text NOT NULL DEFAULT '待审批', -- 待审批 | 已通过 | 已驳回
+  at         text NOT NULL DEFAULT ''
+);
+
+-- 数据绑定：本体对象 ↔ 物理视图 + 字段映射 + 同步
+CREATE TABLE IF NOT EXISTS bindings (
+  id        text PRIMARY KEY,
+  object_id text NOT NULL,
+  view_id   text NOT NULL,
+  pk_field  text NOT NULL DEFAULT '',
+  field_map jsonb NOT NULL DEFAULT '{}',  -- {视图字段: 对象属性}
+  sync_mode text NOT NULL DEFAULT 'FULL', -- FULL | CDC | CRON
+  status    text NOT NULL DEFAULT '正常',  -- 正常 | 告警 | 停用
+  last_sync text NOT NULL DEFAULT '',
+  owner     text NOT NULL DEFAULT ''
+);
+
+CREATE TABLE IF NOT EXISTS binding_runs (
+  id         text PRIMARY KEY,
+  binding_id text NOT NULL,
+  status     text NOT NULL DEFAULT '成功',  -- 成功 | 失败
+  detail     text NOT NULL DEFAULT '',
+  at         text NOT NULL DEFAULT ''
+);
+
+-- 隐式本体收敛：知识 → 本体候选（确定性召回）与裁决
+CREATE TABLE IF NOT EXISTS onto_candidates (
+  id         text PRIMARY KEY,
+  source     text NOT NULL DEFAULT '',     -- 来源（知识条目/同义词组）
+  suggestion text NOT NULL,                -- 建议对象名
+  kind       text NOT NULL DEFAULT '对象', -- 对象 | 关系 | 属性
+  evidence   text NOT NULL DEFAULT '',     -- 触发依据
+  status     text NOT NULL DEFAULT '待裁决', -- 待裁决 | 已采纳 | 已丢弃
+  by         text NOT NULL DEFAULT '',
+  at         text NOT NULL DEFAULT ''
+);
+
+-- 跨源实体对齐：不同来源的术语对齐裁决
+CREATE TABLE IF NOT EXISTS entity_alignments (
+  id        text PRIMARY KEY,
+  left_term  text NOT NULL,
+  right_term text NOT NULL,
+  source_a  text NOT NULL DEFAULT '',
+  source_b  text NOT NULL DEFAULT '',
+  strategy  text NOT NULL DEFAULT '',      -- 包含召回 | 别名召回 | 同义词表
+  score     integer NOT NULL DEFAULT 0,    -- 相似度×100
+  status    text NOT NULL DEFAULT '待裁决', -- 待裁决 | 已合并 | 已丢弃
+  by        text NOT NULL DEFAULT '',
+  at        text NOT NULL DEFAULT ''
+);
+
 -- 幂等演进（已有库补列；新库因 CREATE 已含而 no-op）
 ALTER TABLE reviews ADD COLUMN IF NOT EXISTS decided_by text NOT NULL DEFAULT '';
 ALTER TABLE reviews ADD COLUMN IF NOT EXISTS decided_at text NOT NULL DEFAULT '';
