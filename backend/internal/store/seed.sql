@@ -3,13 +3,21 @@ BEGIN;
 
 TRUNCATE users, ontologies, memberships, objects, edges, functions, views,
          datasources, rules, reviews, notifications, capabilities, versions, table_profiles,
-         kb_domains, kb_entries, synonyms, instances, instance_events, rule_firings, actions;
+         kb_domains, kb_entries, synonyms, instances, instance_events, rule_firings, actions, roles;
 
 INSERT INTO users (id, account, name, dept, post, roles, status, last_login) VALUES
 ('u1', 'zhangsan', '张三', '平台部 / 数据AI部', '数据架构师', ARRAY['本体管理员','数据开发'], '正常', '2026-10-03 09:12'),
 ('u2', 'wangwu',   '王五', '供应链 / 采购部',   '业务专家',     ARRAY['评审员'],              '正常', '2026-10-03 08:47'),
 ('u3', 'sunqi',    '孙七', '平台部 / 数据AI部', '数据开发工程师', ARRAY['数据开发'],           '正常', '2026-10-02 19:31'),
 ('u4', 'zhaoliu',  '赵六', '信息技术中心',     '系统集成工程师', ARRAY['系统集成'],           '正常', '2026-10-02 17:05');
+
+INSERT INTO roles (id, name, descr, perms, built_in) VALUES
+('admin',     '本体管理员', '本体全生命周期管理与发布', ARRAY['m1','m2','m3','m4','m5','m6','m7','m8','m9'], true),
+('data-dev',  '数据开发',   '数据资产接入与加工',       ARRAY['m1','m2','m3'], false),
+('reviewer',  '评审员',     '知识与本体评审',           ARRAY['m2','m3','m8'], false),
+('integrator','系统集成',   '外部系统与数据源集成',     ARRAY['m1','m7'], false),
+('agent-dev', '智能体开发', 'Agent 能力消费与行动开发', ARRAY['m4','m5','m7'], false),
+('readonly',  '只读访客',   '只读浏览',                 ARRAY['m1','m2','m3','m4','m5'], false);
 
 INSERT INTO ontologies (id, name, scene, version, status, owner, members, object_count, edge_count, created) VALUES
 ('scm',       '供应链本体',   '订单交付风险场景',       'v0.4', 'DRAFT',     '张三', 6,  7, 4, '2026-08-12'),

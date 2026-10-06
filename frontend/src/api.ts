@@ -68,6 +68,13 @@ export interface Action {
   status: string; detail?: string; time: string;
 }
 
+export interface Role { id: string; name: string; desc?: string; perms: string[]; builtIn: boolean }
+
+export interface User {
+  id: string; account: string; name: string; dept: string; post: string;
+  roles: string[]; status: string; lastLogin: string;
+}
+
 async function get<T>(path: string): Promise<T> {
   const res = await fetch(path);
   if (!res.ok) throw new Error(`${path} → HTTP ${res.status}`);
@@ -123,4 +130,11 @@ export const api = {
   actions: (instance = '') => get<Action[]>(`/api/v1/actions?instance=${instance}`),
   executeAction: (p: { id: string; funcId: string; instanceId: string; user: string; trigger?: string; confirm?: boolean }) =>
     send<Action>('/api/v1/actions', 'POST', p),
+  users: () => get<User[]>('/api/v1/users'),
+  createUser: (u: User) => send<User>('/api/v1/users', 'POST', u),
+  updateUser: (id: string, u: User) => send<User>(`/api/v1/users/${id}`, 'PUT', u),
+  roles: () => get<Role[]>('/api/v1/roles'),
+  createRole: (r: Role) => send<Role>('/api/v1/roles', 'POST', r),
+  updateRole: (id: string, r: Role) => send<Role>(`/api/v1/roles/${id}`, 'PUT', r),
+  deleteRole: (id: string) => send<null>(`/api/v1/roles/${id}`, 'DELETE'),
 };

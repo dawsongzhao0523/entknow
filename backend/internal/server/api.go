@@ -327,6 +327,98 @@ func MountAPI(mux *http.ServeMux, st *store.Store) {
 		w.WriteHeader(http.StatusCreated)
 		writeJSON(w, out)
 	})
+
+	// ─── M9 组织与权限 ───
+
+	mux.HandleFunc("GET /api/v1/roles", handle(func(r *http.Request) ([]store.Role, error) {
+		return st.ListRoles(r.Context())
+	}))
+	mux.HandleFunc("POST /api/v1/roles", func(w http.ResponseWriter, r *http.Request) {
+		var role store.Role
+		if err := json.NewDecoder(r.Body).Decode(&role); err != nil {
+			writeErr(w, http.StatusBadRequest, "请求体不是合法 JSON")
+			return
+		}
+		if role.ID == "" || role.Name == "" {
+			writeErr(w, http.StatusBadRequest, "id / name 均为必填")
+			return
+		}
+		out, created, err := st.CreateRole(r.Context(), role)
+		if err != nil {
+			writeStoreResult(w, out, err)
+			return
+		}
+		if !created {
+			w.Header().Set("X-Idempotent-Replay", "true")
+		}
+		w.WriteHeader(http.StatusCreated)
+		writeJSON(w, out)
+	})
+	mux.HandleFunc("PUT /api/v1/roles/{id}", func(w http.ResponseWriter, r *http.Request) {
+		var role store.Role
+		if err := json.NewDecoder(r.Body).Decode(&role); err != nil {
+			writeErr(w, http.StatusBadRequest, "请求体不是合法 JSON")
+			return
+		}
+		role.ID = r.PathValue("id")
+		if role.Name == "" {
+			writeErr(w, http.StatusBadRequest, "name 必填")
+			return
+		}
+		out, err := st.UpdateRole(r.Context(), role)
+		writeStoreResult(w, out, err)
+	})
+	mux.HandleFunc("DELETE /api/v1/roles/{id}", func(w http.ResponseWriter, r *http.Request) {
+		if err := st.DeleteRole(r.Context(), r.PathValue("id")); err != nil {
+			writeStoreResult(w, nil, err)
+			return
+		}
+		w.WriteHeader(http.StatusNoContent)
+	})
+
+	mux.HandleFunc("POST /api/v1/users", func(w http.ResponseWriter, r *http.Request) {
+		var u store.User
+		if err := json.NewDecoder(r.Body).Decode(&u); err != nil {
+			writeErr(w, http.StatusBadRequest, "请求体不是合法 JSON")
+			return
+		}
+		if u.ID == "" || u.Account == "" || u.Name == "" {
+			writeErr(w, http.StatusBadRequest, "id / account / name 均为必填")
+			return
+		}
+		if u.Status != "" && u.Status != "正常" {
+			writeErr(w, http.StatusBadRequest, "新建用户状态只能为「正常」或不填")
+			return
+		}
+		out, created, err := st.CreateUser(r.Context(), u)
+		if err != nil {
+			writeStoreResult(w, out, err)
+			return
+		}
+		if !created {
+			w.Header().Set("X-Idempotent-Replay", "true")
+		}
+		w.WriteHeader(http.StatusCreated)
+		writeJSON(w, out)
+	})
+	mux.HandleFunc("PUT /api/v1/users/{id}", func(w http.ResponseWriter, r *http.Request) {
+		var u store.User
+		if err := json.NewDecoder(r.Body).Decode(&u); err != nil {
+			writeErr(w, http.StatusBadRequest, "请求体不是合法 JSON")
+			return
+		}
+		u.ID = r.PathValue("id")
+		if u.Account == "" || u.Name == "" {
+			writeErr(w, http.StatusBadRequest, "account / name 均为必填")
+			return
+		}
+		if u.Status != "正常" && u.Status != "停用" {
+			writeErr(w, http.StatusBadRequest, "status 只允许 正常 / 停用")
+			return
+		}
+		out, err := st.UpdateUser(r.Context(), u)
+		writeStoreResult(w, out, err)
+	})
 }
 
 // writeStoreResult 统一写端点错误映射：404 / 409 / 403 / 400 / 500。

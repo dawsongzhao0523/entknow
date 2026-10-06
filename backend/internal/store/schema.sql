@@ -236,6 +236,16 @@ CREATE TABLE IF NOT EXISTS actions (
   time        text NOT NULL DEFAULT ''
 );
 
+-- ─── M9 组织与权限 ───
+
+CREATE TABLE IF NOT EXISTS roles (
+  id        text PRIMARY KEY,
+  name      text NOT NULL,                  -- users.roles 引用此名
+  descr     text NOT NULL DEFAULT '',
+  perms     text[] NOT NULL DEFAULT '{}',   -- 菜单键（m1-m9）
+  built_in  boolean NOT NULL DEFAULT false
+);
+
 -- 幂等演进（已有库补列；新库因 CREATE 已含而 no-op）
 ALTER TABLE reviews ADD COLUMN IF NOT EXISTS decided_by text NOT NULL DEFAULT '';
 ALTER TABLE reviews ADD COLUMN IF NOT EXISTS decided_at text NOT NULL DEFAULT '';
