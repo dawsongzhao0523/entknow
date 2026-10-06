@@ -274,3 +274,54 @@ func min(a, b int) int {
 	}
 	return b
 }
+
+func TestCreateOntology(t *testing.T) {
+	h := demoServer(t)
+
+	// 非法 init → 400
+	rec := callJSON(t, h, http.MethodPost, "/api/v1/ontologies",
+		map[string]any{"id": "onto-x", "name": "测试", "scene": "s", "init": "nope"})
+	if rec.Code != http.StatusBadRequest {
+		t.Fatalf("非法 init 应 400，实际 %d", rec.Code)
+	}
+	// 模板：4 对象 + 3 关系 + 创建者为所有者
+	rec = callJSON(t, h, http.MethodPost, "/api/v1/ontologies",
+		map[string]any{"id": "onto-tpl", "name": "测试本体", "scene": "模板验证", "owner": "zhangsan", "init": "template"})
+	if rec.Code != http.StatusCreated {
+		t.Fatalf("创建失败: %d %s", rec.Code, rec.Body.String())
+	}
+	body := decodeMap(t, rec)
+	if body["myRole"] != "所有者" || body["objects"].(float64) != 4 || body["edges"].(float64) != 3 {
+		t.Fatalf("模板初始化计数/角色异常: %v", body)
+	}
+	// 重放幂等
+	rec = callJSON(t, h, http.MethodPost, "/api/v1/ontologies",
+		map[string]any{"id": "onto-tpl", "name": "测试本体", "scene": "模板验证", "init": "template"})
+	if rec.Code != http.StatusCreated || rec.Header().Get("X-Idempotent-Replay") != "true" {
+		t.Fatalf("重放应 201+replay，实际 %d", rec.Code)
+	}
+	// 逆向：从 table_profiles 生成对象草稿（seed 有 1 张 purchase_order）
+	rec = callJSON(t, h, http.MethodPost, "/api/v1/ontologies",
+		map[string]any{"id": "onto-rev", "name": "逆向本体", "scene": "逆向验证", "owner": "sunqi", "init": "reverse"})
+	if rec.Code != http.StatusCreated {
+		t.Fatalf("逆向创建失败: %d %s", rec.Code, rec.Body.String())
+	}
+	objs := []map[string]any{}
+	loadList(t, h, "/api/v1/objects?scope=canvas", &objs)
+	found := false
+	for _, o := range objs {
+		if o["ontology"] == "逆向本体" && o["status"] == "DRAFT" {
+			found = true
+		}
+	}
+	if !found {
+		t.Fatal("逆向初始化未生成画布对象草稿")
+	}
+	// 空白：仅元数据
+	rec = callJSON(t, h, http.MethodPost, "/api/v1/ontologies",
+		map[string]any{"id": "onto-blank", "name": "空白本体", "scene": "空白", "init": "blank"})
+	body = decodeMap(t, rec)
+	if body["objects"].(float64) != 0 {
+		t.Fatalf("空白初始化不应有对象: %v", body)
+	}
+}

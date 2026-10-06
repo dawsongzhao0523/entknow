@@ -72,7 +72,7 @@ func (s *Store) CreateObject(ctx context.Context, o Object) (Object, bool, error
 func (s *Store) GetObject(ctx context.Context, id string) (Object, error) {
 	o, err := scanObject(s.pool.QueryRow(ctx, `
 		SELECT id, name, en, kind, version, status, ref_count, owner,
-		       state_machine, ontology, shared, perm, mapping, props::text
+		       state_machine, ontology, canvas, shared, perm, mapping, props::text
 		FROM objects WHERE id = $1`, id))
 	if errors.Is(err, pgx.ErrNoRows) {
 		return o, ErrNotFound

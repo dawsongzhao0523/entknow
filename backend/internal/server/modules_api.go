@@ -313,6 +313,34 @@ func mountModules(api *http.ServeMux, st *store.Store) {
 }
 
 func mountOrgPosts(api *http.ServeMux, st *store.Store) {
+	// ─── 本体创建（三初始化） ───
+	api.HandleFunc("POST /api/v1/ontologies", func(w http.ResponseWriter, r *http.Request) {
+		var in struct {
+			ID    string `json:"id"`
+			Name  string `json:"name"`
+			Scene string `json:"scene"`
+			Owner string `json:"owner"`
+			Init  string `json:"init"`
+		}
+		if err := json.NewDecoder(r.Body).Decode(&in); err != nil || in.ID == "" || in.Name == "" || in.Scene == "" {
+			writeErr(w, http.StatusBadRequest, "id / name / scene 均为必填")
+			return
+		}
+		if in.Owner == "" {
+			in.Owner = "zhangsan"
+		}
+		out, created, err := st.CreateOntology(r.Context(), in.ID, in.Name, in.Scene, in.Owner, in.Init)
+		if err != nil {
+			writeStoreResult(w, out, err)
+			return
+		}
+		if !created {
+			w.Header().Set("X-Idempotent-Replay", "true")
+		}
+		w.WriteHeader(http.StatusCreated)
+		writeJSON(w, out)
+	})
+
 	// ─── 组织架构 ───
 	api.HandleFunc("GET /api/v1/org-units", handle(func(r *http.Request) ([]store.OrgUnit, error) {
 		return st.ListOrgUnits(r.Context())

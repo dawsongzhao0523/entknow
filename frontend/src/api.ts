@@ -13,6 +13,7 @@ export interface OntoObject {
   id: string; name: string; en: string; kind: string; version: string; status: string;
   refCount: number; owner: string; stateMachine?: string[]; ontology: string;
   shared: boolean; perm?: string; mapping?: string; props?: Prop[];
+  canvas?: boolean;
 }
 
 export interface Edge {
@@ -266,6 +267,8 @@ async function send<T>(path: string, method: string, body?: unknown): Promise<T>
 
 export const api = {
   ontologies: (user = 'zhangsan') => get<Ontology[]>(`/api/v1/ontologies?user=${user}`),
+  createOntology: (p: { id: string; name: string; scene: string; owner?: string; init?: 'blank' | 'template' | 'reverse' }) =>
+    send<Ontology>('/api/v1/ontologies', 'POST', p),
   objects: (scope?: 'canvas' | 'registry') =>
     get<OntoObject[]>(scope ? `/api/v1/objects?scope=${scope}` : '/api/v1/objects'),
   createObject: (o: OntoObject) => send<OntoObject>('/api/v1/objects', 'POST', o),

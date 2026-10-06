@@ -2,18 +2,11 @@
 
 ## Requirements
 
-### Requirement: 元素创建幂等与校验
-POST objects/edges/functions SHALL 以客户端 id 幂等；kind ∈ {静态事实,单体动态,立方动态}、cat ∈ {指标,派生,行动,权限}（否则 400）；新建元素 status 强制 DRAFT。
+### Requirement: 本体创建（三初始化）
+POST /api/v1/ontologies SHALL 以客户端 id 幂等创建；init=blank 仅元数据、template 生成供应链最小集（4 对象 + 3 关系画布草稿）、reverse 从 table_profiles 生成对象草稿（上限 4）；非法 init 400；创建者 SHALL 自动成为所有者（myRole=所有者）。
 
-### Requirement: 关系引用联动
-POST edges SHALL 校验两端对象存在且 PUBLISHED（否则 400）；成功时 SHALL 在同一事务内创建关系并使两端对象 ref_count 各 +1。
+### Requirement: 建模画布
+建模画布 SHALL 渲染当前工作本体的画布对象（节点，按类型着色）与关系（贝塞尔连线 + 名称标签 + 箭头）；点击对象 SHALL 打开属性面板（属性表/状态机/生命周期流转：提交评审/发布/废弃，走既有治理 API）；点击关系 SHALL 展示边属性；节点 SHALL 可拖拽且布局按本体本地保存、支持保存/重排；新建对象 SHALL 真实写路径（DRAFT 草稿）。
 
-#### Scenario: 引用草稿对象
-- **WHEN** 创建 from 指向 DRAFT 对象的关系
-- **THEN** 400，两端 ref_count 不变
-
-### Requirement: 生命周期流转
-POST /{type}/{id}/transition SHALL 按 submit（DRAFT→IN_REVIEW）/ publish（DRAFT|IN_REVIEW→PUBLISHED）/ deprecate（PUBLISHED→DEPRECATED）迁移；同向终态重放幂等返回现状；非法迁移 409；未知元素 404。
-
-### Requirement: 元素编辑
-PUT SHALL 全量编辑元素业务字段（不改变 status/version 语义由流转负责）；未知 404。
+### Requirement: 本体管理卡片化
+本体管理 SHALL 以卡片网格展示（场景/版本/状态/我的角色/对象关系成员计数），当前工作本体高亮；点击卡片设为工作本体；新建向导 SHALL 提供三初始化路径并真实创建。

@@ -155,6 +155,29 @@ export default function Datasources() {
           </Card>
         ) },
         { key: 'profile', label: '元数据探查', children: <ProfilePanel /> },
+        { key: 'policy', label: '更新策略', children: (
+          <Card size="small">
+            <Table<Datasource> size="small" rowKey="id" pagination={false} dataSource={dss}
+              columns={[
+                { title: '数据源', dataIndex: 'name', render: (v: string) => <b>{v}</b> },
+                { title: '类型', dataIndex: 'type', width: 110 },
+                { title: '状态', dataIndex: 'status', width: 80, render: (v: string) => (
+                  <Tag color={statusColor[v]}>{v}</Tag>) },
+                { title: '表数', dataIndex: 'tables', width: 70, align: 'center', render: (v?: number) => v ?? '—' },
+                { title: '更新策略', key: 'mode', width: 220, render: (_, d) => (
+                  <Select size="small" value={d.mode} style={{ width: 150 }}
+                    options={MODES.map(m => ({ value: m, label: modeText[m] }))}
+                    onChange={async mode => {
+                      try {
+                        await api.updateDatasource(d.id, { ...d, mode });
+                        message.success(`「${d.name}」更新策略 → ${modeText[mode]}`);
+                        reload();
+                      } catch (e) { message.error(String((e as Error).message)); }
+                    }} />) },
+                { title: '最近同步', dataIndex: 'lastSync', width: 130 },
+              ]} />
+          </Card>
+        ) },
       ]} />
       </div>
 

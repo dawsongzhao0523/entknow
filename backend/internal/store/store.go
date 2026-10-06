@@ -102,6 +102,7 @@ type Object struct {
 	Owner        string   `json:"owner"`
 	StateMachine []string `json:"stateMachine,omitempty"`
 	Ontology     string   `json:"ontology"`
+	Canvas       bool     `json:"canvas"`
 	Shared       bool     `json:"shared"`
 	Perm         string   `json:"perm,omitempty"`
 	Mapping      string   `json:"mapping,omitempty"`
@@ -265,7 +266,7 @@ func (s *Store) ListObjects(ctx context.Context, scope string) ([]Object, error)
 	canvasOnly := scope == "canvas"
 	rows, err := s.pool.Query(ctx, `
 		SELECT id, name, en, kind, version, status, ref_count, owner,
-		       state_machine, ontology, shared, perm, mapping, props::text
+		       state_machine, ontology, canvas, shared, perm, mapping, props::text
 		FROM objects WHERE (NOT $1 OR canvas) ORDER BY id`, canvasOnly)
 	if err != nil {
 		return nil, err
@@ -289,7 +290,7 @@ func scanObject(rows rowScanner) (Object, error) {
 	var o Object
 	var props string
 	if err := rows.Scan(&o.ID, &o.Name, &o.En, &o.Kind, &o.Version, &o.Status, &o.RefCount,
-		&o.Owner, &o.StateMachine, &o.Ontology, &o.Shared, &o.Perm, &o.Mapping, &props); err != nil {
+		&o.Owner, &o.StateMachine, &o.Ontology, &o.Canvas, &o.Shared, &o.Perm, &o.Mapping, &props); err != nil {
 		return o, err
 	}
 	if err := json.Unmarshal([]byte(props), &o.Props); err != nil {

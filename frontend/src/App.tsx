@@ -19,6 +19,7 @@ import Market from './pages/assets/Market';
 import Workbench from './pages/assets/Workbench';
 import Convergence from './pages/knowledge/Convergence';
 import OntologyDetail from './pages/modeling/OntologyDetail';
+import Designer from './pages/modeling/Designer';
 import AiModeling from './pages/modeling/AiModeling';
 import VersionOps from './pages/modeling/VersionOps';
 import Binding from './pages/runtime/Binding';
@@ -45,6 +46,7 @@ export default function App() {
         <Route path="knowledge/synonyms" element={<Synonyms />} />
         <Route path="modeling/ontologies" element={<Ontologies />} />
         <Route path="modeling/registry" element={<Registry />} />
+        <Route path="modeling/designer" element={<Designer />} />
         <Route path="runtime/instances" element={<Instance360 />} />
         <Route path="runtime/rules" element={<RuntimeRules />} />
         <Route path="governance/reviews" element={<Reviews />} />
