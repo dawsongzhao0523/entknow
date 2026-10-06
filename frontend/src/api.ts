@@ -70,6 +70,16 @@ export interface Action {
 
 export interface Role { id: string; name: string; desc?: string; perms: string[]; builtIn: boolean }
 
+export interface Capability {
+  id: string; name: string; desc: string; proto: string; calls: string; owner: string;
+  callsTotal: number; realCalls: number;
+}
+
+export interface CapabilityCall {
+  id: string; capabilityId: string; caller: string; status: string;
+  latencyMs: number; calledAt: string;
+}
+
 export interface User {
   id: string; account: string; name: string; dept: string; post: string;
   roles: string[]; status: string; lastLogin: string;
@@ -101,6 +111,13 @@ export const api = {
   functions: () => get<Func[]>('/api/v1/functions'),
   datasources: () => get<Datasource[]>('/api/v1/datasources'),
   views: () => get<unknown[]>('/api/v1/views'),
+  capabilities: () => get<Capability[]>('/api/v1/capabilities'),
+  createCapability: (c: Capability) => send<Capability>('/api/v1/capabilities', 'POST', c),
+  updateCapability: (id: string, c: Capability) => send<Capability>(`/api/v1/capabilities/${id}`, 'PUT', c),
+  deleteCapability: (id: string) => send<null>(`/api/v1/capabilities/${id}`, 'DELETE'),
+  invokeCapability: (id: string, p: { id: string; caller: string; status?: string; latencyMs?: number }) =>
+    send<Capability>(`/api/v1/capabilities/${id}/invoke`, 'POST', p),
+  capabilityCalls: (id: string) => get<CapabilityCall[]>(`/api/v1/capabilities/${id}/calls`),
   reviews: () => get<Review[]>('/api/v1/reviews'),
   createReview: (r: Pick<Review, 'id' | 'title' | 'type' | 'from'> & { sla?: string }) =>
     send<Review>('/api/v1/reviews', 'POST', r),

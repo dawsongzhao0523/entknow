@@ -246,7 +246,19 @@ CREATE TABLE IF NOT EXISTS roles (
   built_in  boolean NOT NULL DEFAULT false
 );
 
+-- ─── M7 能力出口 ───
+
+CREATE TABLE IF NOT EXISTS capability_calls (
+  id            text PRIMARY KEY,
+  capability_id text NOT NULL,
+  caller        text NOT NULL DEFAULT '',
+  status        text NOT NULL DEFAULT 'ok',      -- ok | error
+  latency_ms    integer NOT NULL DEFAULT 0,
+  called_at     text NOT NULL DEFAULT ''
+);
+
 -- 幂等演进（已有库补列；新库因 CREATE 已含而 no-op）
 ALTER TABLE reviews ADD COLUMN IF NOT EXISTS decided_by text NOT NULL DEFAULT '';
 ALTER TABLE reviews ADD COLUMN IF NOT EXISTS decided_at text NOT NULL DEFAULT '';
 ALTER TABLE reviews ADD COLUMN IF NOT EXISTS comment    text NOT NULL DEFAULT '';
+ALTER TABLE capabilities ADD COLUMN IF NOT EXISTS base_calls integer NOT NULL DEFAULT 0;

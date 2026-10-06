@@ -4,6 +4,7 @@ package server
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
 
 	"github.com/dawsongzhao0523/entknow/backend/internal/store"
@@ -419,6 +420,83 @@ func MountAPI(mux *http.ServeMux, st *store.Store) {
 		out, err := st.UpdateUser(r.Context(), u)
 		writeStoreResult(w, out, err)
 	})
+
+	// ─── M7 能力出口 ───
+
+	mux.HandleFunc("POST /api/v1/capabilities", func(w http.ResponseWriter, r *http.Request) {
+		var c store.Capability
+		if err := json.NewDecoder(r.Body).Decode(&c); err != nil {
+			writeErr(w, http.StatusBadRequest, "请求体不是合法 JSON")
+			return
+		}
+		if c.ID == "" || c.Name == "" || c.Proto == "" {
+			writeErr(w, http.StatusBadRequest, "id / name / proto 均为必填")
+			return
+		}
+		out, created, err := st.CreateCapability(r.Context(), c)
+		if err != nil {
+			writeStoreResult(w, out, err)
+			return
+		}
+		if !created {
+			w.Header().Set("X-Idempotent-Replay", "true")
+		}
+		w.WriteHeader(http.StatusCreated)
+		writeJSON(w, out)
+	})
+	mux.HandleFunc("PUT /api/v1/capabilities/{id}", func(w http.ResponseWriter, r *http.Request) {
+		var c store.Capability
+		if err := json.NewDecoder(r.Body).Decode(&c); err != nil {
+			writeErr(w, http.StatusBadRequest, "请求体不是合法 JSON")
+			return
+		}
+		c.ID = r.PathValue("id")
+		if c.Name == "" || c.Proto == "" {
+			writeErr(w, http.StatusBadRequest, "name / proto 必填")
+			return
+		}
+		out, err := st.UpdateCapability(r.Context(), c)
+		writeStoreResult(w, out, err)
+	})
+	mux.HandleFunc("DELETE /api/v1/capabilities/{id}", func(w http.ResponseWriter, r *http.Request) {
+		if err := st.DeleteCapability(r.Context(), r.PathValue("id")); err != nil {
+			writeStoreResult(w, nil, err)
+			return
+		}
+		w.WriteHeader(http.StatusNoContent)
+	})
+	mux.HandleFunc("POST /api/v1/capabilities/{id}/invoke", func(w http.ResponseWriter, r *http.Request) {
+		var in struct {
+			ID        string `json:"id"`
+			Caller    string `json:"caller"`
+			Status    string `json:"status"`
+			LatencyMs int    `json:"latencyMs"`
+		}
+		if err := json.NewDecoder(r.Body).Decode(&in); err != nil {
+			writeErr(w, http.StatusBadRequest, "请求体不是合法 JSON")
+			return
+		}
+		if in.ID == "" || in.Caller == "" {
+			writeErr(w, http.StatusBadRequest, "id / caller 均为必填")
+			return
+		}
+		if in.Status != "" && in.Status != "ok" && in.Status != "error" {
+			writeErr(w, http.StatusBadRequest, "status 只允许 ok / error")
+			return
+		}
+		out, err := st.InvokeCapability(r.Context(), store.CapabilityCall{
+			ID: in.ID, CapabilityID: r.PathValue("id"), Caller: in.Caller,
+			Status: in.Status, LatencyMs: in.LatencyMs,
+		})
+		writeStoreResult(w, out, err)
+	})
+	mux.HandleFunc("GET /api/v1/capabilities/{id}/calls", handle(func(r *http.Request) ([]store.CapabilityCall, error) {
+		limit := 0
+		if v := r.URL.Query().Get("limit"); v != "" {
+			fmt.Sscanf(v, "%d", &limit)
+		}
+		return st.ListCapabilityCalls(r.Context(), r.PathValue("id"), limit)
+	}))
 }
 
 // writeStoreResult 统一写端点错误映射：404 / 409 / 403 / 400 / 500。

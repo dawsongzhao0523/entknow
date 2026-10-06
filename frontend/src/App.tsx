@@ -10,6 +10,7 @@ import Synonyms from './pages/Synonyms';
 import Instance360 from './pages/Instance360';
 import RuntimeRules from './pages/RuntimeRules';
 import OrgAdmin from './pages/OrgAdmin';
+import CapabilityOutlet from './pages/CapabilityOutlet';
 import Placeholder from './pages/Placeholder';
 
 export default function App() {
@@ -25,6 +26,7 @@ export default function App() {
         <Route path="m4/instance-360" element={<Instance360 />} />
         <Route path="m4/runtime" element={<RuntimeRules />} />
         <Route path="m8/reviews" element={<Reviews />} />
+        <Route path="m7/capability" element={<CapabilityOutlet />} />
         <Route path="m9/org" element={<OrgAdmin />} />
         <Route path="*" element={<Placeholder />} />
       </Route>

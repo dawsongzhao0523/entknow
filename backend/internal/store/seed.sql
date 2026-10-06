@@ -3,7 +3,8 @@ BEGIN;
 
 TRUNCATE users, ontologies, memberships, objects, edges, functions, views,
          datasources, rules, reviews, notifications, capabilities, versions, table_profiles,
-         kb_domains, kb_entries, synonyms, instances, instance_events, rule_firings, actions, roles;
+         kb_domains, kb_entries, synonyms, instances, instance_events, rule_firings, actions, roles,
+         capability_calls;
 
 INSERT INTO users (id, account, name, dept, post, roles, status, last_login) VALUES
 ('u1', 'zhangsan', '张三', '平台部 / 数据AI部', '数据架构师', ARRAY['本体管理员','数据开发'], '正常', '2026-10-03 09:12'),
@@ -104,11 +105,11 @@ INSERT INTO notifications (id, cat, title, time, to_path, unread) VALUES
 ('n5', '协同分享', '王五 分享了画布「订单交付风险 v0.4」给你',           '昨天 15:40', '/m3/designer', false),
 ('n6', '协同分享', '赵六 邀请你加入「设备运维本体」评审组',             '2 天前',     '/m3/ontology/detail?onto=equipment&sec=members', false);
 
-INSERT INTO capabilities (id, name, description, proto, calls, owner) VALUES
-('c1', 'get_object',           '获取对象实例最小上下文切片',         'MCP/REST/CLI', '8,412', '平台组'),
-('c2', 'semantic_query',       '自然语言 → DSL → 执行',              'MCP/REST/CLI', '12,401', '平台组'),
-('c3', 'run_action',           '执行 Action（dry-run + 确认令牌）',  'MCP/REST/CLI', '231',   '平台组'),
-('c4', 'supplier_risk_agent',  '供应商风险智能体（消费方）',         'MCP',          '1,204', 'AI 组');
+INSERT INTO capabilities (id, name, description, proto, calls, owner, base_calls) VALUES
+('c1', 'get_object',           '获取对象实例最小上下文切片',         'MCP/REST/CLI', '', '平台组', 8412),
+('c2', 'semantic_query',       '自然语言 → DSL → 执行',              'MCP/REST/CLI', '', '平台组', 12401),
+('c3', 'run_action',           '执行 Action（dry-run + 确认令牌）',  'MCP/REST/CLI', '', '平台组', 231),
+('c4', 'supplier_risk_agent',  '供应商风险智能体（消费方）',         'MCP',          '', 'AI 组', 1204);
 
 INSERT INTO versions (onto_id, v, date, description, status) VALUES
 ('scm', 'v0.1', '08-12', '最小可行本体（4对象+3关系+2Action）', 'PUBLISHED'),

@@ -202,12 +202,14 @@ type User struct {
 }
 
 type Capability struct {
-	ID    string `json:"id"`
-	Name  string `json:"name"`
-	Desc  string `json:"desc"`
-	Proto string `json:"proto"`
-	Calls string `json:"calls"`
-	Owner string `json:"owner"`
+	ID         string `json:"id"`
+	Name       string `json:"name"`
+	Desc       string `json:"desc"`
+	Proto      string `json:"proto"`
+	Calls      string `json:"calls"` // 千分位字符串（兼容原型展示）
+	Owner      string `json:"owner"`
+	CallsTotal int    `json:"callsTotal"` // base_calls + 调用日志数
+	RealCalls  int    `json:"realCalls"`  // 真实调用日志数
 }
 
 type Version struct {
@@ -454,24 +456,6 @@ func (s *Store) ListUsers(ctx context.Context) ([]User, error) {
 			return nil, err
 		}
 		out = append(out, u)
-	}
-	return out, rows.Err()
-}
-
-func (s *Store) ListCapabilities(ctx context.Context) ([]Capability, error) {
-	rows, err := s.pool.Query(ctx, `
-		SELECT id, name, description, proto, calls, owner FROM capabilities ORDER BY id`)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var out []Capability
-	for rows.Next() {
-		var c Capability
-		if err := rows.Scan(&c.ID, &c.Name, &c.Desc, &c.Proto, &c.Calls, &c.Owner); err != nil {
-			return nil, err
-		}
-		out = append(out, c)
 	}
 	return out, rows.Err()
 }

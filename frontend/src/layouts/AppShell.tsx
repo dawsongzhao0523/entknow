@@ -24,7 +24,7 @@ const NAV: { key: string; label: string; icon?: React.ReactNode; children?: [str
   ]},
   { key: 'm5', label: '推理演绎', icon: <BulbOutlined /> },
   { key: 'm6', label: '推演沙盘', icon: <ExperimentOutlined /> },
-  { key: 'm7', label: '智能应用', icon: <RocketOutlined /> },
+  { key: 'm7', label: '智能应用', icon: <RocketOutlined />, children: [['m7/capability', '能力出口']] },
   { key: 'm8', label: '治理演化', icon: <SafetyCertificateOutlined />, children: [['m8/reviews', '评审与发布']] },
   { key: 'm9', label: '系统管理', icon: <SettingOutlined />, children: [['m9/org', '组织与权限']] },
 ];
