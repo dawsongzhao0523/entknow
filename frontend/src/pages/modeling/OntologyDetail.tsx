@@ -1,10 +1,10 @@
 import { useCallback, useEffect, useState } from 'react';
 import {
-  App, Button, Card, Descriptions, Input, Menu, Modal, Popconfirm, Select, Space,
+  App, Alert, Button, Card, Descriptions, Input, Menu, Modal, Popconfirm, Select, Space, Upload,
   Table, Tag, Timeline, Typography,
 } from 'antd';
 import { useSearchParams } from 'react-router-dom';
-import { CloudUploadOutlined, DeleteOutlined, FileTextOutlined } from '@ant-design/icons';
+import { CloudUploadOutlined, DeleteOutlined, FileTextOutlined, UploadOutlined } from '@ant-design/icons';
 import {
   api, type Edge, type Func, type GateCheck, type Member, type OntoObject,
   type Ontology, type User, type Version,
@@ -42,6 +42,9 @@ export default function OntologyDetail() {
   const [funcs, setFuncs] = useState<Func[]>([]);
   const [addOpen, setAddOpen] = useState(false);
   const [createType, setCreateType] = useState<ElementType | null>(null);
+  const [importPreview, setImportPreview] = useState<{objects: {en: string; label: string; kind: string; props: {name: string; type: string}[] | null}[]; edges: {name: string; label: string; from: string; to: string}[]; stats: Record<string, number>} | null>(null);
+  const [importOpen, setImportOpen] = useState(false);
+  const [importing, setImporting] = useState(false);
   const [newUser, setNewUser] = useState('');
   const [newRole, setNewRole] = useState('查看者');
   const [exportFmt, setExportFmt] = useState<'owl' | 'rdf'>('owl');
@@ -99,6 +102,23 @@ export default function OntologyDetail() {
   // ─── Section 渲染 ───
   const overview = cur && (
     <>
+      <Card size="small" style={{ marginBottom: 12 }} extra={
+        <Upload accept=".owl,.rdf,.ttl" showUploadList={false} beforeUpload={async (file) => {
+          const formData = new FormData();
+          formData.append('file', file);
+          try {
+            const res = await fetch(`/api/v1/ontologies/${onto}/import/preview`, { method: 'POST', body: formData });
+            if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error ?? '解析失败');
+            setImportPreview(await res.json());
+            setImportOpen(true);
+          } catch (e) { message.error(String((e as Error).message)); }
+          return false; // 阻止自动上传
+        }}>
+          <Button icon={<UploadOutlined />}>导入 OWL/RDF 文件</Button>
+        </Upload>
+      }>
+        <Alert type="info" showIcon message="支持导入 Protégé 等工具构建的 OWL/RDF 本体文件（.owl / .rdf / .ttl），解析后预览并确认导入。" />
+      </Card>
       <Card size="small" title="发布门禁" style={{ marginBottom: 12 }}>
         <Space size={12} wrap>
           {(gate ?? []).map(c => (
@@ -262,6 +282,62 @@ export default function OntologyDetail() {
             options={users.map(u => ({ value: u.account, label: `${u.name}（${u.account}）` }))} />
           <Select style={{ width: 120 }} value={newRole} onChange={setNewRole} options={ROLES.map(r => ({ value: r }))} />
         </Space>
+      </Modal>
+
+      <Modal title="导入预览" open={importOpen} width={680} onCancel={() => setImportOpen(false)}
+        footer={[
+          <Button key="cancel" onClick={() => setImportOpen(false)}>取消</Button>,
+          <Button key="confirm" type="primary" loading={importing} onClick={async () => {
+            if (!importPreview) return;
+            setImporting(true);
+            try {
+              const res = await fetch(`/api/v1/ontologies/${onto}/import/confirm?owner=${encodeURIComponent(user)}`, {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(importPreview),
+              });
+              if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error ?? '导入失败');
+              const created = await res.json();
+              message.success(`导入完成：${created.objects} 个对象 · ${created.edges} 个关系（幂等，重复导入不产生重复数据）`);
+              setImportOpen(false);
+              reload();
+            } catch (e) { message.error(String((e as Error).message)); }
+            finally { setImporting(false); }
+          }}>确认导入</Button>,
+        ]}>
+        {importPreview && (
+          <>
+            <Space size={16} style={{ marginBottom: 12 }}>
+              <Tag color="blue">{importPreview.stats.objects} 个对象</Tag>
+              <Tag color="green">{importPreview.stats.edges} 个关系</Tag>
+              <Tag color="orange">{importPreview.stats.props || 0} 个属性</Tag>
+            </Space>
+            {importPreview.objects.length > 0 && (
+              <>
+                <Text strong>对象</Text>
+                <Table size="small" rowKey="en" pagination={false} style={{ marginBottom: 12 }}
+                  dataSource={importPreview.objects}
+                  columns={[
+                    { title: '英文名', dataIndex: 'en', render: (v: string) => <span className="mono">{v}</span> },
+                    { title: '中文名', dataIndex: 'label' },
+                    { title: '类型', dataIndex: 'kind', width: 90, render: (v: string) => <Tag>{v}</Tag> },
+                    { title: '属性数', key: 'props', width: 70, render: (_, r: { props: unknown[] | null }) => (r.props?.length ?? 0) },
+                  ]} />
+              </>
+            )}
+            {importPreview.edges.length > 0 && (
+              <>
+                <Text strong>关系</Text>
+                <Table size="small" rowKey="name" pagination={false}
+                  dataSource={importPreview.edges}
+                  columns={[
+                    { title: '关系名', dataIndex: 'name', render: (v: string) => <span className="mono">{v}</span> },
+                    { title: '标签', dataIndex: 'label' },
+                    { title: '起点 → 终点', key: 'ft', render: (_, r: { from: string; to: string }) => `${r.from} → ${r.to}` },
+                  ]} />
+              </>
+            )}
+          </>
+        )}
       </Modal>
 
       <ElementCreate

@@ -317,6 +317,36 @@ func mountModules(api *http.ServeMux, st *store.Store) {
 }
 
 func mountOrgPosts(api *http.ServeMux, st *store.Store) {
+	// ─── 本体文件导入（OWL/RDF 预览 + 确认） ───
+	api.HandleFunc("POST /api/v1/ontologies/{id}/import/preview", func(w http.ResponseWriter, r *http.Request) {
+		file, header, err := r.FormFile("file")
+		if err != nil {
+			writeErr(w, http.StatusBadRequest, "请上传 .owl/.rdf/.ttl 文件")
+			return
+		}
+		defer file.Close()
+		buf := make([]byte, 10<<20) // 10MB 上限
+		n, _ := file.Read(buf)
+		preview, err := store.ParseOntologyFile(header.Filename, buf[:n])
+		if err != nil {
+			writeErr(w, http.StatusBadRequest, err.Error())
+			return
+		}
+		writeJSON(w, preview)
+	})
+	api.HandleFunc("POST /api/v1/ontologies/{id}/import/confirm", func(w http.ResponseWriter, r *http.Request) {
+		var preview store.ImportPreview
+		if err := json.NewDecoder(r.Body).Decode(&preview); err != nil {
+			writeErr(w, http.StatusBadRequest, "请求体不是合法 JSON")
+			return
+		}
+		owner := r.URL.Query().Get("owner")
+		if owner == "" {
+			owner = "张三"
+		}
+		created, err := st.ConfirmImport(r.Context(), r.PathValue("id"), &preview, owner)
+		writeStoreResult(w, created, err)
+	})
 	// ─── 调度器状态 ───
 	api.HandleFunc("GET /api/v1/scheduler/status", handle(func(r *http.Request) (map[string]any, error) {
 		return map[string]any{
