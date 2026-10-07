@@ -58,14 +58,16 @@ export default function Designer() {
   const cur = ontos.find(o => o.id === onto);
   const curName = cur?.name ?? '供应链本体';
   const canvasObjs = useMemo(() => objects.filter(o => o.canvas && o.ontology === curName), [objects, curName]);
-  const pos = useMemo(() => LAYOUTS[layout](canvasObjs.map(o => o.id)), [layout, canvasObjs]);
+  const canvasObjNames = useMemo(() => new Set(canvasObjs.map(o => o.name)), [canvasObjs]);
+  const canvasEdges = useMemo(() => edges.filter(e => canvasObjNames.has(e.from) && canvasObjNames.has(e.to)), [edges, canvasObjNames]);
+  const pos = useMemo(() => LAYOUTS[layout](canvasObjs.map(o => o.name)), [layout, canvasObjs]);
 
   const objName = (id: string) => objects.find(o => o.id === id)?.name ?? id;
 
   const selObj = sel?.kind === 'node' ? canvasObjs.find(o => o.id === sel.id) : null;
-  const selEdge = sel?.kind === 'edge' ? edges.find(e => e.id === sel.id) : null;
+  const selEdge = sel?.kind === 'edge' ? canvasEdges.find(e => e.id === sel.id) : null;
   const neighbors = useMemo(() => sel?.kind !== 'node' ? null :
-    new Set([sel.id, ...edges.filter(e => e.from === sel.id || e.to === sel.id).flatMap(e => [e.from, e.to])]), [sel, edges]);
+    new Set([sel.id, ...canvasEdges.filter(e => e.from === objName(sel.id) || e.to === objName(sel.id)).flatMap(e => [e.from, e.to])]), [sel, canvasEdges]);
   const edgeHot = (e: Edge) =>
     sel?.kind === 'edge' ? e.id === sel.id : sel?.kind === 'node' ? (e.from === sel.id || e.to === sel.id) : false;
 
@@ -179,13 +181,13 @@ export default function Designer() {
       <div style={{ display: 'flex', alignItems: 'center', marginBottom: 12, flexWrap: 'wrap', gap: 8 }}>
         <div>
           <Title level={4} style={{ margin: 0 }}>本体设计器</Title>
-          <Text type="secondary">{curName} · {canvasObjs.length} 对象 · {edges.length} 关系</Text>
+          <Text type="secondary">{curName} · {canvasObjs.length} 对象 · {canvasEdges.length} 关系</Text>
         </div>
         <div style={{ flex: 1 }} />
         <Space wrap>
           <Segmented defaultValue="对象" options={['⬤ 对象', '── 关系', 'ƒ 函数', '⛨ 权限']} />
-          <Select defaultValue={cur?.version ?? 'v0.4'} style={{ width: 130 }}
-            options={(ontos.find(o => o.id === onto) ? [ontos.find(o => o.id === onto)!] : ontos).map(o => ({ value: o.version, label: `${o.version} · ${o.status === 'DRAFT' ? '草稿' : '生产中'}` }))} />
+          <Select value={cur?.version ?? '—'} style={{ width: 130 }} disabled
+            options={cur ? [{ value: cur.version, label: `${cur.version} · ${cur.status === 'DRAFT' ? '草稿' : '生产中'}` }] : []} />
           <Tooltip title="左侧面板"><Button type={leftOpen ? 'default' : 'text'} icon={<VerticalLeftOutlined />} onClick={() => setLeftOpen(!leftOpen)} /></Tooltip>
           <Tooltip title="底部属性面板"><Button type={bottomOpen ? 'default' : 'text'} icon={<VerticalAlignBottomOutlined />} onClick={() => setBottomOpen(!bottomOpen)} /></Tooltip>
           <Tooltip title="AI 建模助手"><Button type={rightOpen ? 'default' : 'text'} icon={<VerticalRightOutlined />} onClick={() => setRightOpen(!rightOpen)} /></Tooltip>
@@ -252,7 +254,7 @@ export default function Designer() {
                 <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 z" fill="#6b7688" /></marker>
                 <marker id="arrSel" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 z" fill="#059669" /></marker>
               </defs>
-              {edges.map(e => {
+              {canvasEdges.map(e => {
                 const a = pos[e.from] ?? [400, 120];
                 const b = pos[e.to] ?? [400, 360];
                 const [x1, y1] = center(a); const [x2, y2] = center(b);
@@ -270,8 +272,8 @@ export default function Designer() {
             </svg>
 
             {canvasObjs.map(o => {
-              const p = pos[o.id] ?? [400, 200];
-              const dim = !!neighbors && !neighbors.has(o.id);
+              const p = pos[o.name] ?? [400, 200];
+              const dim = !!neighbors && !neighbors.has(o.name);
               const isSel = sel?.kind === 'node' && sel.id === o.id;
               return (
                 <div key={o.id} style={nodeStyle(p[0], p[1], KIND_COLOR[o.kind] ?? '#64748b', dim, isSel)}
@@ -300,7 +302,7 @@ export default function Designer() {
               );
             })}
 
-            {edges.map(e => {
+            {canvasEdges.map(e => {
               const a = pos[e.from] ?? [400, 120];
               const b = pos[e.to] ?? [400, 360];
               const [x1, y1] = center(a); const [x2, y2] = center(b);
