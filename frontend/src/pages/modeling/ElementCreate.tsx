@@ -41,9 +41,13 @@ export default function ElementCreate({
           }) : [{ name: v.en + '_id', type: 'string', comment: '新建，待补全' }],
         });
       } else if (type === 'edge') {
+        const edgeProps = v.edgeProps ? v.edgeProps.split('\n').filter(Boolean).map((line: string) => {
+          const [name, type, comment] = line.split(/[：:]/).map(s2 => s2.trim());
+          return { name: name || line.trim(), type: type || 'string', comment: comment ?? '', temporal: v.temporal ?? '', agg: v.agg ?? '' };
+        }) : [];
         await api.createEdge({
           id, name: v.name, from: v.from, to: v.to, version: 'v0.1', status: 'DRAFT',
-          refCount: 0, props: [], perm: '',
+          refCount: 0, props: edgeProps, perm: '',
         });
       } else if (type === 'function') {
         await api.createFunction({
@@ -97,15 +101,40 @@ export default function ElementCreate({
               <Input placeholder="如 SUPPLY（供应）" />
             </Form.Item>
             <Space style={{ display: 'flex' }} size={12}>
-              <Form.Item name="from" label="起点对象" rules={[{ required: true }]} style={{ width: 200 }}>
-                <Select showSearch placeholder="选择对象" options={objects.map(o => ({ value: o.name, label: o.name }))} />
+              <Form.Item name="from" label="起点对象" rules={[{ required: true, message: '请选择起点' }]} style={{ width: 200 }}>
+                <Select showSearch optionFilterProp="label" placeholder="搜索并选择对象"
+                  options={objects.map(o => ({ value: o.name, label: o.name }))} />
               </Form.Item>
-              <Form.Item name="to" label="终点对象" rules={[{ required: true }]} style={{ width: 200 }}>
-                <Select showSearch placeholder="选择对象" options={objects.map(o => ({ value: o.name, label: o.name }))} />
+              <Form.Item name="to" label="终点对象" rules={[{ required: true, message: '请选择终点' }]} style={{ width: 200 }}>
+                <Select showSearch optionFilterProp="label" placeholder="搜索并选择对象"
+                  options={objects.map(o => ({ value: o.name, label: o.name }))} />
               </Form.Item>
             </Space>
-            <Form.Item name="kind" label="关系类型" initialValue="一对多">
-              <Radio.Group options={EDGE_KINDS.map(k => ({ value: k, label: k }))} optionType="button" />
+            <Space style={{ display: 'flex' }} size={12}>
+              <Form.Item name="kind" label="基数" initialValue="一对多" style={{ width: 140 }}>
+                <Select options={EDGE_KINDS.map(k => ({ value: k, label: k }))} />
+              </Form.Item>
+              <Form.Item name="temporal" label="时序约束" style={{ width: 140 }}>
+                <Select allowClear placeholder="选择时序" options={[
+                  { value: '月度', label: '月度' }, { value: '季度', label: '季度' },
+                  { value: '年度', label: '年度' }, { value: '实时', label: '实时' },
+                ]} />
+              </Form.Item>
+              <Form.Item name="agg" label="聚合方式" style={{ width: 120 }}>
+                <Select allowClear placeholder="聚合" options={[
+                  { value: 'sum', label: '求和' }, { value: 'avg', label: '均值' },
+                  { value: 'max', label: '最大' }, { value: 'min', label: '最小' },
+                ]} />
+              </Form.Item>
+            </Space>
+            <Form.Item name="edgeProps" label="边属性（每行一个：属性名：类型：说明）">
+              <TextArea rows={3} placeholder='供货量：decimal：月度供货金额 · 时延：int：平均交付天数 · 成本：decimal：单价成本' />
+            </Form.Item>
+            <Form.Item name="constraint" label="约束规则（选填）">
+              <Select allowClear placeholder="关联规则（在规则管理中创建）" options={[
+                { value: 'delay>20%', label: '时延变化>20% → 下游风险重算' },
+                { value: 'cost>threshold', label: '成本超阈值 → 触发预警' },
+              ]} />
             </Form.Item>
           </>
         )}

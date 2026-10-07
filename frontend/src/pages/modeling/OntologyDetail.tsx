@@ -270,7 +270,7 @@ export default function OntologyDetail() {
         onClose={() => setCreateType(null)}
         onCreated={reload}
         ontology={ontoName}
-        objects={myObjects.map(o => ({ id: o.id, name: o.name }))}
+        objects={objects.map(o => ({ id: o.id, name: o.name }))}
       />
     </div>
   );

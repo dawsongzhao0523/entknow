@@ -352,7 +352,7 @@ export default function Designer() {
         onClose={() => setCreateType(null)}
         onCreated={reload}
         ontology={curName}
-        objects={canvasObjs.map(o => ({ id: o.id, name: o.name }))}
+        objects={objects.map(o => ({ id: o.id, name: o.name }))}
       />
     </>
   );
