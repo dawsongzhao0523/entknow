@@ -446,7 +446,7 @@ func (s *Store) ListVersions(ctx context.Context, ontoID string) ([]Version, err
 		return nil, err
 	}
 	defer rows.Close()
-	var out []Version
+	out := []Version{} // 非 nil：空结果序列化为 [] 而非 null
 	for rows.Next() {
 		var v Version
 		if err := rows.Scan(&v.ID, &v.V, &v.Date, &v.Desc, &v.Status); err != nil {
