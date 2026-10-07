@@ -200,7 +200,7 @@ export default function Datasources() {
           </Space>
           <Form.Item label="连接串" style={{ marginBottom: 8 }}>
             <Space.Compact style={{ display: 'flex' }}>
-              <Form.Item name="host" noStyle><Input placeholder="mysql://192.0.2.x:3306/db（示例地址）" /></Form.Item>
+              <Form.Item name="host" noStyle><Input placeholder="mysql://用户名:密码@192.0.2.x:3306/数据库名" /></Form.Item>
               <Button loading={testing} onClick={async () => {
                 const host = form.getFieldValue('host');
                 const type = form.getFieldValue('type') || 'MySQL';
