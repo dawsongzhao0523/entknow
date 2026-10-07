@@ -1,0 +1,31 @@
+backend/internal/store/owlimport.go
+  d2feb3b21e472516 42-55,161-199
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.8.1",
+  "base_commit_sha": "4a0bbe5dc07c76913c05b12cbe63e385555ebbdc",
+  "prompts": {
+    "d2feb3b21e472516": {
+      "agent_id": {
+        "tool": "zcode",
+        "id": "sess_640dac34-2670-4904-ae98-aa4e9073f17c",
+        "model": "GLM-5.3"
+      },
+      "human_author": "dawsongzhao0523 <133857587+dawsongzhao0523@users.noreply.github.com>",
+      "messages": [],
+      "total_additions": 53,
+      "total_deletions": 0,
+      "accepted_lines": 6634,
+      "overriden_lines": 0,
+      "messages_url": "https://gitai.gz.cvte.cn/cas/0727884aa884203d040be8d8fc6ec9df575531f9aecf0b5088df46ba81bc46f3",
+      "token_usage": {
+        "input_tokens": 467101497,
+        "output_tokens": 567089,
+        "cache_read_tokens": 456789760,
+        "cache_creation_tokens": 0,
+        "total_cost": 0.0
+      }
+    }
+  }
+}
