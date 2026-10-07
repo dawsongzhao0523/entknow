@@ -1,0 +1,35 @@
+backend/internal/server/modules_api.go
+  d2feb3b21e472516 7,10,318-341
+frontend/src/api.ts
+  d2feb3b21e472516 286-287
+frontend/src/pages/Datasources.tsx
+  d2feb3b21e472516 7,69-70,75,201-217,230-233
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.8.1",
+  "base_commit_sha": "1b1710f567d8df88ef79ec8d9a425a24e79ff40e",
+  "prompts": {
+    "d2feb3b21e472516": {
+      "agent_id": {
+        "tool": "zcode",
+        "id": "sess_640dac34-2670-4904-ae98-aa4e9073f17c",
+        "model": "GLM-5.3"
+      },
+      "human_author": "dawsongzhao0523 <133857587+dawsongzhao0523@users.noreply.github.com>",
+      "messages": [],
+      "total_additions": 53,
+      "total_deletions": 3,
+      "accepted_lines": 6634,
+      "overriden_lines": 0,
+      "messages_url": "https://gitai.gz.cvte.cn/cas/10e7223173f20e86ec90835225ecdb06e35e604d123ed00101822f1b330806e2",
+      "token_usage": {
+        "input_tokens": 347846646,
+        "output_tokens": 507372,
+        "cache_read_tokens": 341848640,
+        "cache_creation_tokens": 0,
+        "total_cost": 0.0
+      }
+    }
+  }
+}
