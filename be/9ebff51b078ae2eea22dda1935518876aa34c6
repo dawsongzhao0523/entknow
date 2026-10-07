@@ -1,0 +1,35 @@
+frontend/src/pages/modeling/OntologyDetail.tsx
+  d2feb3b21e472516 3,7,45-47,105-121,287-340
+backend/internal/server/modules_api.go
+  d2feb3b21e472516 320-349
+backend/internal/store/owlimport.go
+  d2feb3b21e472516 1-273
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.8.1",
+  "base_commit_sha": "be9ebff51b078ae2eea22dda1935518876aa34c6",
+  "prompts": {
+    "d2feb3b21e472516": {
+      "agent_id": {
+        "tool": "zcode",
+        "id": "sess_640dac34-2670-4904-ae98-aa4e9073f17c",
+        "model": "GLM-5.3"
+      },
+      "human_author": "dawsongzhao0523 <133857587+dawsongzhao0523@users.noreply.github.com>",
+      "messages": [],
+      "total_additions": 403,
+      "total_deletions": 24,
+      "accepted_lines": 6962,
+      "overriden_lines": 0,
+      "messages_url": "https://gitai.gz.cvte.cn/cas/d86c0f5e2b556e7589cac4f1a68892ca1ebd04a12ac59a172aca3c704a712446",
+      "token_usage": {
+        "input_tokens": 451138776,
+        "output_tokens": 562188,
+        "cache_read_tokens": 441653888,
+        "cache_creation_tokens": 0,
+        "total_cost": 0.0
+      }
+    }
+  }
+}
