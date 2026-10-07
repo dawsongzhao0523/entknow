@@ -106,7 +106,7 @@ INSERT INTO notifications (id, cat, title, time, to_path, unread, to_user) VALUE
 ('n2', '待办处理', '术语归并「供应商 ≈ 供货商」待你裁决',                 '1 小时前',  '/knowledge/synonyms', true, 'wangwu'),
 ('n3', '治理任务', 'K3 知识临期：3 条知识将在 7 天内到期',               '今天 08:30','/knowledge/entries', true, 'zhangsan'),
 ('n4', '治理任务', '映射断链：lv_order_delivery 上游 schema 变更，需影响确认', '昨天 18:02', '/assets/pipelines', false, 'zhangsan'),
-('n5', '协同分享', '王五 分享了画布「订单交付风险 v0.4」给你',           '昨天 15:40', '/modeling/registry', false, 'zhangsan'),
+('n5', '协同分享', '王五 分享了画布「订单交付风险 v0.4」给你',           '昨天 15:40', '/modeling/ontologies', false, 'zhangsan'),
 ('n6', '协同分享', '赵六 邀请你加入「设备运维本体」评审组',             '2 天前',     '/modeling/ontologies', false, 'wangwu');
 
 INSERT INTO capabilities (id, name, description, proto, calls, owner, base_calls) VALUES
@@ -275,10 +275,8 @@ INSERT INTO menus (id, parent_id, name, route, icon, sort, visible) VALUES
 ('knowledge/convergence', 'knowledge', '隐式收敛', 'knowledge/convergence', '', 3, true),
 ('modeling', '', '本体建模', '', 'DeploymentUnitOutlined', 3, true),
 ('modeling/ontologies', 'modeling', '本体管理', 'modeling/ontologies', '', 1, true),
-('modeling/registry',   'modeling', '注册中心', 'modeling/registry',   '', 2, true),
-('modeling/designer',   'modeling', '本体设计器', 'modeling/designer', '', 3, true),
-('modeling/ai-modeling', 'modeling', '智能建模', 'modeling/ai-modeling', '', 4, true),
-('modeling/version-ops', 'modeling', '版本与导出', 'modeling/version-ops', '', 5, true),
+('modeling/designer',   'modeling', '本体设计器', 'modeling/designer', '', 2, true),
+('modeling/ai-modeling', 'modeling', '智能建模', 'modeling/ai-modeling', '', 3, true),
 ('runtime', '', '本体运行时', '', 'ApiOutlined', 4, true),
 ('runtime/binding',   'runtime', '数据绑定',    'runtime/binding',   '', 1, true),
 ('runtime/instances', 'runtime', '实例 360°',   'runtime/instances', '', 2, true),

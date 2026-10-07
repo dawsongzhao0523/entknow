@@ -35,7 +35,7 @@ const FALLBACK: { key: string; label: string; icon?: React.ReactNode; children?:
     ['knowledge/entries', '知识库'], ['knowledge/synonyms', '同义词治理'], ['knowledge/convergence', '隐式收敛'],
   ]},
   { key: 'modeling', label: '本体建模', icon: <DeploymentUnitOutlined />, children: [
-    ['modeling/ontologies', '本体管理'], ['modeling/registry', '注册中心'], ['modeling/designer', '本体设计器'], ['modeling/ai-modeling', '智能建模'], ['modeling/version-ops', '版本与导出'],
+    ['modeling/ontologies', '本体管理'], ['modeling/designer', '本体设计器'], ['modeling/ai-modeling', '智能建模'],
   ]},
   { key: 'runtime', label: '本体运行时', icon: <ApiOutlined />, children: [
     ['runtime/binding', '数据绑定'], ['runtime/instances', '实例 360°'], ['runtime/rules', '规则与行动'],

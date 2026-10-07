@@ -1,8 +1,7 @@
-import { Route, Routes } from 'react-router-dom';
+import { Navigate, Route, Routes } from 'react-router-dom';
 import AppShell from './layouts/AppShell';
 import Home from './pages/Home';
 import Ontologies from './pages/Ontologies';
-import Registry from './pages/Registry';
 import Datasources from './pages/Datasources';
 import Reviews from './pages/Reviews';
 import KnowledgeBase from './pages/KnowledgeBase';
@@ -21,7 +20,6 @@ import Convergence from './pages/knowledge/Convergence';
 import OntologyDetail from './pages/modeling/OntologyDetail';
 import Designer from './pages/modeling/Designer';
 import AiModeling from './pages/modeling/AiModeling';
-import VersionOps from './pages/modeling/VersionOps';
 import Binding from './pages/runtime/Binding';
 import ReasoningEngine from './pages/reasoning/Engine';
 import Evolution from './pages/governance/Evolution';
@@ -45,7 +43,7 @@ export default function App() {
         <Route path="knowledge/entries" element={<KnowledgeBase />} />
         <Route path="knowledge/synonyms" element={<Synonyms />} />
         <Route path="modeling/ontologies" element={<Ontologies />} />
-        <Route path="modeling/registry" element={<Registry />} />
+        <Route path="modeling/registry" element={<Navigate to="/modeling/ontology/detail?sec=objects" replace />} />
         <Route path="modeling/designer" element={<Designer />} />
         <Route path="runtime/instances" element={<Instance360 />} />
         <Route path="runtime/rules" element={<RuntimeRules />} />
@@ -65,7 +63,7 @@ export default function App() {
         <Route path="knowledge/convergence" element={<Convergence />} />
         <Route path="modeling/ontology/detail" element={<OntologyDetail />} />
         <Route path="modeling/ai-modeling" element={<AiModeling />} />
-        <Route path="modeling/version-ops" element={<VersionOps />} />
+        <Route path="modeling/version-ops" element={<Navigate to="/modeling/ontology/detail?sec=versions" replace />} />
         <Route path="runtime/binding" element={<Binding />} />
         <Route path="reasoning/engine" element={<ReasoningEngine />} />
         <Route path="governance/evolution" element={<Evolution />} />
