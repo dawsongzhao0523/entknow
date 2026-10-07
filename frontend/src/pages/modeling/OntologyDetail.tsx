@@ -148,7 +148,7 @@ export default function OntologyDetail() {
   );
 
   const edgesSec = (
-    <Card size="small" extra={<Button size="small" onClick={() => setCreateType('edge')}>新建关系</Button>}>
+    <Card size="small" extra={<Button size="small" type="primary" onClick={() => setCreateType('edge')}>新建关系</Button>}>
       <Table<Edge> size="small" rowKey="id" pagination={false} dataSource={myEdges}
         columns={[
           { title: '关系', dataIndex: 'name', render: (v: string) => <b>{v}</b> },
@@ -166,7 +166,7 @@ export default function OntologyDetail() {
   );
 
   const funcsSec = (
-    <Card size="small" extra={<Button size="small" onClick={() => setCreateType('function')}>新建函数</Button>}>
+    <Card size="small" extra={<Button size="small" type="primary" onClick={() => setCreateType('function')}>新建函数</Button>}>
       <Table<Func> size="small" rowKey="id" pagination={false} dataSource={myFuncs}
         columns={[
           { title: '函数', dataIndex: 'name', render: (v: string) => <b>{v}</b> },

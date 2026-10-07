@@ -113,8 +113,8 @@ func (s *Store) CreateEdge(ctx context.Context, e Edge) (Edge, bool, error) {
 		if err != nil {
 			return e, false, err
 		}
-		if status != "PUBLISHED" {
-			return e, false, fmt.Errorf("%w: 对象「%s」状态为 %s，仅 PUBLISHED 可被引用", ErrInvalid, objName, status)
+		if status == "DEPRECATED" {
+			return e, false, fmt.Errorf("%w: 对象「%s」已废弃，不可引用", ErrInvalid, objName)
 		}
 	}
 	props := "[]"
