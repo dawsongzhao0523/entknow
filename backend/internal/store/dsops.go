@@ -53,9 +53,9 @@ func (s *Store) CreateDatasource(ctx context.Context, d Datasource) (Datasource,
 		return d, false, err
 	}
 	tag, err := s.pool.Exec(ctx, `
-		INSERT INTO datasources (id, name, type, kind, host, status, mode, tables, sensitive, owner, last_sync, sync_interval_min)
-		VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,'') ON CONFLICT (id) DO NOTHING`,
-		d.ID, d.Name, d.Type, d.Kind, d.Host, d.Status, d.Mode, d.Tables, d.Sensitive, d.Owner, d.SyncIntervalMin)
+		INSERT INTO datasources (id, name, type, kind, host, status, mode, tables, sensitive, owner, last_sync, sync_interval_min, sync_config)
+		VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,'', \$12::jsonb) ON CONFLICT (id) DO NOTHING`,
+		d.ID, d.Name, d.Type, d.Kind, d.Host, d.Status, d.Mode, d.Tables, d.Sensitive, d.Owner, d.SyncIntervalMin, string(d.SyncConfig))
 	if err != nil {
 		return d, false, err
 	}
@@ -70,10 +70,10 @@ func (s *Store) CreateDatasource(ctx context.Context, d Datasource) (Datasource,
 func (s *Store) GetDatasource(ctx context.Context, id string) (Datasource, error) {
 	var d Datasource
 	err := s.pool.QueryRow(ctx, `
-		SELECT id, name, type, kind, host, status, mode, tables, sensitive, owner, last_sync, sync_interval_min
+		SELECT id, name, type, kind, host, status, mode, tables, sensitive, owner, last_sync, sync_interval_min, sync_config::text
 		FROM datasources WHERE id = $1`, id).
 		Scan(&d.ID, &d.Name, &d.Type, &d.Kind, &d.Host, &d.Status, &d.Mode,
-			&d.Tables, &d.Sensitive, &d.Owner, &d.LastSync, &d.SyncIntervalMin)
+			&d.Tables, &d.Sensitive, &d.Owner, &d.LastSync, &d.SyncIntervalMin, &d.SyncConfig)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return d, ErrNotFound
 	}
@@ -86,9 +86,9 @@ func (s *Store) UpdateDatasource(ctx context.Context, d Datasource) (Datasource,
 		return d, fmt.Errorf("%w: mode/status 取值非法", ErrInvalid)
 	}
 	tag, err := s.pool.Exec(ctx, `
-		UPDATE datasources SET name=$2, type=$3, kind=$4, host=$5, status=$6, mode=$7, sync_interval_min=$11,
+		UPDATE datasources SET name=$2, type=$3, kind=$4, host=$5, status=$6, mode=$7, sync_interval_min=$11, sync_config=$12::jsonb,
 			tables=$8, sensitive=$9, owner=$10 WHERE id=$1`,
-		d.ID, d.Name, d.Type, d.Kind, d.Host, d.Status, d.Mode, d.Tables, d.Sensitive, d.Owner, d.SyncIntervalMin)
+		d.ID, d.Name, d.Type, d.Kind, d.Host, d.Status, d.Mode, d.Tables, d.Sensitive, d.Owner, d.SyncIntervalMin, string(d.SyncConfig))
 	if err != nil {
 		return d, err
 	}

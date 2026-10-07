@@ -238,6 +238,67 @@ export default function Datasources() {
                 { value: 1440, label: '每 24 小时' },
               ]} />
             </Form.Item>
+            <Form.Item noStyle shouldUpdate={(prev, cur) => prev.mode !== cur.mode}>
+              {({ getFieldValue }) => {
+                const mode = getFieldValue('mode');
+                if (mode === 'CDC') {
+                  return (
+                    <>
+                      <Form.Item label="CDC 配置" style={{ marginBottom: 8 }}>
+                        <Space size={12} style={{ display: 'flex' }} wrap>
+                          <Form.Item name={['syncConfig', 'binlogPosition']} label="起始位点" noStyle>
+                            <Select style={{ width: 130 }} defaultValue="latest" options={[
+                              { value: 'latest', label: '最新位点' },
+                              { value: 'earliest', label: '最早位点' },
+                              { value: 'specific', label: '指定位点' },
+                            ]} />
+                          </Form.Item>
+                          <Form.Item name={['syncConfig', 'tables']} label="捕获表" noStyle>
+                            <Select mode="tags" style={{ width: 220 }} placeholder="输入表名回车添加" />
+                          </Form.Item>
+                        </Space>
+                      </Form.Item>
+                      <Form.Item label="捕获操作" style={{ marginBottom: 8 }}>
+                        <Space size={12}>
+                          <Form.Item name={['syncConfig', 'captureInsert']} valuePropName="checked" noStyle>
+                            <Select style={{ width: 100 }} defaultValue={true} options={[{ value: true, label: 'INSERT ✓' }, { value: false, label: 'INSERT ✗' }]} />
+                          </Form.Item>
+                          <Form.Item name={['syncConfig', 'captureUpdate']} valuePropName="checked" noStyle>
+                            <Select style={{ width: 100 }} defaultValue={true} options={[{ value: true, label: 'UPDATE ✓' }, { value: false, label: 'UPDATE ✗' }]} />
+                          </Form.Item>
+                          <Form.Item name={['syncConfig', 'captureDelete']} valuePropName="checked" noStyle>
+                            <Select style={{ width: 100 }} defaultValue={false} options={[{ value: true, label: 'DELETE ✓' }, { value: false, label: 'DELETE ✗' }]} />
+                          </Form.Item>
+                        </Space>
+                      </Form.Item>
+                    </>
+                  );
+                }
+                if (mode === 'EVENT') {
+                  return (
+                    <Form.Item label="事件配置" style={{ marginBottom: 8 }}>
+                      <Space size={12} style={{ display: 'flex' }} wrap>
+                        <Form.Item name={['syncConfig', 'webhookUrl']} noStyle>
+                          <Input style={{ width: 280 }} placeholder="Webhook URL (https://api.example.com/hook)" />
+                        </Form.Item>
+                        <Form.Item name={['syncConfig', 'eventType']} noStyle>
+                          <Select style={{ width: 130 }} defaultValue="all" options={[
+                            { value: 'all', label: '全部事件' },
+                            { value: 'create', label: '仅创建' },
+                            { value: 'update', label: '仅更新' },
+                            { value: 'delete', label: '仅删除' },
+                          ]} />
+                        </Form.Item>
+                        <Form.Item name={['syncConfig', 'authToken']} noStyle>
+                          <Input.Password style={{ width: 160 }} placeholder="认证 Token" />
+                        </Form.Item>
+                      </Space>
+                    </Form.Item>
+                  );
+                }
+                return null;
+              }}
+            </Form.Item>
             <Form.Item name="sensitive" label="敏感级" style={{ width: 90 }}>
               <Select options={SENS.map(s => ({ value: s, label: s }))} />
             </Form.Item>

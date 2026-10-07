@@ -469,6 +469,12 @@ CREATE TABLE IF NOT EXISTS parse_profiles (
   owner     text NOT NULL DEFAULT ''
 );
 
+-- 数据源同步配置（JSONB，按 mode 存不同结构）
+-- CRON: {intervalMin:5}
+-- CDC: {binlogPosition:latest,tables:[t1,t2],captureInsert:true,captureUpdate:true,captureDelete:false}
+-- EVENT: {webhookUrl:https://...,eventType:create/update,authToken:}
+ALTER TABLE datasources ADD COLUMN IF NOT EXISTS sync_config jsonb NOT NULL DEFAULT '{}';
+
 -- 数据源独立同步间隔（分钟），调度器按此间隔判断到期
 ALTER TABLE datasources ADD COLUMN IF NOT EXISTS sync_interval_min integer NOT NULL DEFAULT 5;
 

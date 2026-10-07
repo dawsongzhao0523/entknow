@@ -149,18 +149,19 @@ type View struct {
 }
 
 type Datasource struct {
-	ID        string `json:"id"`
-	Name      string `json:"name"`
-	Type      string `json:"type"`
-	Kind      string `json:"kind"`
-	Host      string `json:"host,omitempty"`
-	Status    string `json:"status"`
-	Mode      string `json:"mode"`
-	Tables    *int   `json:"tables,omitempty"`
-	Sensitive string `json:"sensitive"`
-	Owner     string `json:"owner"`
-	LastSync  string `json:"lastSync"`
-	SyncIntervalMin int `json:"syncIntervalMin"`
+	ID              string          `json:"id"`
+	Name            string          `json:"name"`
+	Type            string          `json:"type"`
+	Kind            string          `json:"kind"`
+	Host            string          `json:"host,omitempty"`
+	Status          string          `json:"status"`
+	Mode            string          `json:"mode"`
+	Tables          *int            `json:"tables,omitempty"`
+	Sensitive       string          `json:"sensitive"`
+	Owner           string          `json:"owner"`
+	LastSync        string          `json:"lastSync"`
+	SyncIntervalMin int             `json:"syncIntervalMin"`
+	SyncConfig      json.RawMessage `json:"syncConfig,omitempty"`
 }
 
 type Rule struct {
@@ -366,7 +367,7 @@ func (s *Store) ListViews(ctx context.Context) ([]View, error) {
 
 func (s *Store) ListDatasources(ctx context.Context) ([]Datasource, error) {
 	rows, err := s.pool.Query(ctx, `
-		SELECT id, name, type, kind, host, status, mode, tables, sensitive, owner, last_sync, sync_interval_min
+		SELECT id, name, type, kind, host, status, mode, tables, sensitive, owner, last_sync, sync_interval_min, sync_config::text
 		FROM datasources ORDER BY id`)
 	if err != nil {
 		return nil, err
