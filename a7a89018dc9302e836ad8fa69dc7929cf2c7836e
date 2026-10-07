@@ -1,0 +1,43 @@
+frontend/src/pages/modeling/OntologyDetail.tsx
+  d2feb3b21e472516 3,7-11,15,18-24,28,31-33,39-41,45-46,54-56,62-65,78,81,86-95,97-100,109-125,127-176,178-189,191-247,249-253,258
+openspec/changes/archive/modeling-nav-parity/tasks.md
+  d2feb3b21e472516 1-5
+backend/internal/store/seed.sql
+  d2feb3b21e472516 109,278-279
+frontend/src/App.tsx
+  d2feb3b21e472516 1,46,66
+frontend/src/layouts/AppShell.tsx
+  d2feb3b21e472516 38
+openspec/changes/archive/modeling-nav-parity/proposal.md
+  d2feb3b21e472516 1-13
+openspec/specs/CHANGELOG.md
+  d2feb3b21e472516 34
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.8.1",
+  "base_commit_sha": "a7a89018dc9302e836ad8fa69dc7929cf2c7836e",
+  "prompts": {
+    "d2feb3b21e472516": {
+      "agent_id": {
+        "tool": "zcode",
+        "id": "sess_640dac34-2670-4904-ae98-aa4e9073f17c",
+        "model": "GLM-5.3"
+      },
+      "human_author": "dawsongzhao0523 <133857587+dawsongzhao0523@users.noreply.github.com>",
+      "messages": [],
+      "total_additions": 214,
+      "total_deletions": 88,
+      "accepted_lines": 6795,
+      "overriden_lines": 0,
+      "messages_url": "https://gitai.gz.cvte.cn/cas/4f881ba71c0ec282ddd92288909a611e889895976ee1d00f637560fc87013eb2",
+      "token_usage": {
+        "input_tokens": 225547756,
+        "output_tokens": 389816,
+        "cache_read_tokens": 221790400,
+        "cache_creation_tokens": 0,
+        "total_cost": 0.0
+      }
+    }
+  }
+}
