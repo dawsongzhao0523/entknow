@@ -1,0 +1,51 @@
+frontend/src/pages/LogicalViews.tsx
+  d2feb3b21e472516 2-4,6,21-25,68,127-148
+backend/internal/server/modules_api.go
+  d2feb3b21e472516 316-373
+frontend/src/pages/Instance360.tsx
+  d2feb3b21e472516 8,17,60-74
+frontend/src/api.ts
+  d2feb3b21e472516 224-228,282,344-348
+backend/internal/server/modules_integration_test.go
+  d2feb3b21e472516 328-369
+backend/internal/store/parseops.go
+  d2feb3b21e472516 1-115
+frontend/src/pages/Pipelines.tsx
+  d2feb3b21e472516 2,4,20-24,27,61-74,78,80-153,179-187
+backend/internal/store/schema.sql
+  d2feb3b21e472516 461-471
+frontend/src/pages/governance/Evolution.tsx
+  d2feb3b21e472516 3-4,7-8,21-24,35-40,54-66,71-72,79-152
+backend/internal/store/seed.sql
+  d2feb3b21e472516 10,398-400
+frontend/src/pages/RuntimeRules.tsx
+  d2feb3b21e472516 2,4,11,26-40,42-55,57-60,66-129,131-140,142-149
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.8.1",
+  "base_commit_sha": "5f0e240adf9b4d1932adcd9c06300288f3b2c004",
+  "prompts": {
+    "d2feb3b21e472516": {
+      "agent_id": {
+        "tool": "zcode",
+        "id": "sess_640dac34-2670-4904-ae98-aa4e9073f17c",
+        "model": "GLM-5.3"
+      },
+      "human_author": "dawsongzhao0523 <133857587+dawsongzhao0523@users.noreply.github.com>",
+      "messages": [],
+      "total_additions": 715,
+      "total_deletions": 235,
+      "accepted_lines": 7209,
+      "overriden_lines": 0,
+      "messages_url": "https://gitai.gz.cvte.cn/cas/c9dc84f17a48c1788b63a5109f3f5ae155d99d3ad7169682d72a2ede928d9936",
+      "token_usage": {
+        "input_tokens": 187477173,
+        "output_tokens": 357931,
+        "cache_read_tokens": 184894976,
+        "cache_creation_tokens": 0,
+        "total_cost": 0.0
+      }
+    }
+  }
+}
