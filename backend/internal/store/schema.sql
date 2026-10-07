@@ -469,6 +469,9 @@ CREATE TABLE IF NOT EXISTS parse_profiles (
   owner     text NOT NULL DEFAULT ''
 );
 
+-- 数据源独立同步间隔（分钟），调度器按此间隔判断到期
+ALTER TABLE datasources ADD COLUMN IF NOT EXISTS sync_interval_min integer NOT NULL DEFAULT 5;
+
 -- 组织架构与岗位字典（add-org-posts）：users.dept 存组织全路径，users.post 存岗位名
 CREATE TABLE IF NOT EXISTS org_units (
   id        text PRIMARY KEY,

@@ -91,7 +91,7 @@ func (s *Scheduler) tick(ctx context.Context) {
 
 	// 查找所有 CRON 模式且到期的数据源
 	sources, err := s.store.pool.Query(ctx, `
-		SELECT id, name, type, last_sync FROM datasources
+		SELECT id, name, type, last_sync, sync_interval_min FROM datasources
 		WHERE mode = 'CRON' AND status = '正常'`)
 	if err != nil {
 		log.Printf("scheduler: 查询到期源失败: %v", err)
@@ -100,21 +100,23 @@ func (s *Scheduler) tick(ctx context.Context) {
 	}
 	defer sources.Close()
 
-	var due []struct {
+	type dueSrc struct {
 		id, name, dsType, lastSync string
+		intervalMin                int
 	}
+	var due []dueSrc
 	for sources.Next() {
-		var d struct{ id, name, dsType, lastSync string }
-		if err := sources.Scan(&d.id, &d.name, &d.dsType, &d.lastSync); err != nil {
+		var d dueSrc
+		if err := sources.Scan(&d.id, &d.name, &d.dsType, &d.lastSync, &d.intervalMin); err != nil {
 			continue
 		}
-		// 判断是否到期：last_sync 为空或距今超过 syncInterval
+		// 判断是否到期：last_sync 为空或距今超过该源的独立间隔
 		if d.lastSync == "" {
 			due = append(due, d)
 			continue
 		}
 		if t, err := time.Parse("2006-01-02 15:04", d.lastSync); err == nil {
-			if time.Since(t) >= s.syncInterval {
+			if time.Since(t) >= time.Duration(d.intervalMin)*time.Minute {
 				due = append(due, d)
 			}
 		}

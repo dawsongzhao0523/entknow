@@ -160,6 +160,7 @@ type Datasource struct {
 	Sensitive string `json:"sensitive"`
 	Owner     string `json:"owner"`
 	LastSync  string `json:"lastSync"`
+	SyncIntervalMin int `json:"syncIntervalMin"`
 }
 
 type Rule struct {
@@ -365,7 +366,7 @@ func (s *Store) ListViews(ctx context.Context) ([]View, error) {
 
 func (s *Store) ListDatasources(ctx context.Context) ([]Datasource, error) {
 	rows, err := s.pool.Query(ctx, `
-		SELECT id, name, type, kind, host, status, mode, tables, sensitive, owner, last_sync
+		SELECT id, name, type, kind, host, status, mode, tables, sensitive, owner, last_sync, sync_interval_min
 		FROM datasources ORDER BY id`)
 	if err != nil {
 		return nil, err
@@ -375,7 +376,7 @@ func (s *Store) ListDatasources(ctx context.Context) ([]Datasource, error) {
 	for rows.Next() {
 		var d Datasource
 		if err := rows.Scan(&d.ID, &d.Name, &d.Type, &d.Kind, &d.Host, &d.Status, &d.Mode,
-			&d.Tables, &d.Sensitive, &d.Owner, &d.LastSync); err != nil {
+			&d.Tables, &d.Sensitive, &d.Owner, &d.LastSync, &d.SyncIntervalMin); err != nil {
 			return nil, err
 		}
 		out = append(out, d)

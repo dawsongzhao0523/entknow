@@ -230,6 +230,14 @@ export default function Datasources() {
             <Form.Item name="mode" label="同步策略" style={{ width: 130 }}>
               <Select options={MODES.map(m => ({ value: m, label: modeText[m] }))} />
             </Form.Item>
+            <Form.Item name="syncIntervalMin" label="同步间隔" style={{ width: 130 }} initialValue={5}>
+              <Select options={[
+                { value: 1, label: '每 1 分钟' }, { value: 5, label: '每 5 分钟' },
+                { value: 15, label: '每 15 分钟' }, { value: 30, label: '每 30 分钟' },
+                { value: 60, label: '每 1 小时' }, { value: 360, label: '每 6 小时' },
+                { value: 1440, label: '每 24 小时' },
+              ]} />
+            </Form.Item>
             <Form.Item name="sensitive" label="敏感级" style={{ width: 90 }}>
               <Select options={SENS.map(s => ({ value: s, label: s }))} />
             </Form.Item>
