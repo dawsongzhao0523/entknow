@@ -1,0 +1,39 @@
+frontend/src/pages/Datasources.tsx
+  d2feb3b21e472516 3,71,78,166-173
+backend/cmd/entknow/main.go
+  d2feb3b21e472516 49-53
+frontend/src/api.ts
+  d2feb3b21e472516 287
+backend/internal/server/modules_api.go
+  d2feb3b21e472516 320-328
+backend/internal/store/scheduler.go
+  d2feb3b21e472516 1-148
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.8.1",
+  "base_commit_sha": "f0eb541bb906532b5fcdf954fc0c937281e27aa1",
+  "prompts": {
+    "d2feb3b21e472516": {
+      "agent_id": {
+        "tool": "zcode",
+        "id": "sess_640dac34-2670-4904-ae98-aa4e9073f17c",
+        "model": "GLM-5.3"
+      },
+      "human_author": "dawsongzhao0523 <133857587+dawsongzhao0523@users.noreply.github.com>",
+      "messages": [],
+      "total_additions": 190,
+      "total_deletions": 16,
+      "accepted_lines": 6755,
+      "overriden_lines": 0,
+      "messages_url": "https://gitai.gz.cvte.cn/cas/c4a32f4f9fb32408d2d83577e87d21445f0e1e0a6a3b8432198477954cc49c34",
+      "token_usage": {
+        "input_tokens": 409276267,
+        "output_tokens": 540945,
+        "cache_read_tokens": 401534656,
+        "cache_creation_tokens": 0,
+        "total_cost": 0.0
+      }
+    }
+  }
+}
