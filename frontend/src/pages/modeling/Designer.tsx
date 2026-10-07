@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   App, Button, Card, Input, Modal, Radio, Segmented, Select, Space,
   Table, Tabs, Tag, Tooltip, Typography,
@@ -26,7 +26,7 @@ const LAYOUTS: Record<string, (ids: string[]) => Pos> = {
   横向: ids => { const p: Pos = {}; ids.forEach((id, i) => { p[id] = [30 + i * 260, 230]; }); return p; },
   纵向: ids => { const p: Pos = {}; ids.forEach((id, i) => { p[id] = [475, 16 + i * 136]; }); return p; },
 };
-const center = (p: [number, number]): [number, number] => [p[0] + NODE_W / 2, p[1] + NODE_H / 2];
+
 
 /** 本体设计器：IDE 式三栏（左对象库 / 中画布 / 右AI占位）+ 底部属性面板（对齐原型） */
 export default function Designer() {
@@ -45,6 +45,11 @@ export default function Designer() {
   const [newName, setNewName] = useState('');
   const [newEn, setNewEn] = useState('');
   const [newKind, setNewKind] = useState('静态事实');
+  const [chat, setChat] = useState<{ role: 'user' | 'ai'; text: string }[]>([
+    { role: 'ai', text: '你好！我可以回答关于当前本体的问题，或执行建模指令。试试输入「列出所有对象」或「SUPPLY 的属性是什么」。' },
+  ]);
+  const [input, setInput] = useState('');
+  const chatRef = useRef<HTMLDivElement>(null);
 
   const reload = useCallback(() => {
     api.objects().then(setObjects).catch(() => {});
@@ -77,6 +82,33 @@ export default function Designer() {
     padding: '10px 12px', boxShadow: isSel ? '0 0 0 2px rgba(59,130,246,.25)' : '0 1px 3px rgba(15,23,42,.08)',
     borderTop: `3px solid ${color}`, cursor: 'pointer', opacity: dim ? 0.28 : 1, transition: 'opacity .2s',
   });
+
+  const aiReply = (q: string, objs: OntoObject[], eds: Edge[]): string => {
+    const lower = q.toLowerCase();
+    if (q.includes('对象') || q.includes('列出') || lower.includes('list')) {
+      return `当前本体有 ${objs.length} 个对象：\n${objs.map(o => `· ${o.name}（${o.en}）· ${o.kind} · ${o.version}`).join('\n')}`;
+    }
+    if (q.includes('关系') || q.includes('边') || lower.includes('edge')) {
+      return `当前有 ${eds.length} 条关系：\n${eds.map(e => `· ${e.name}：${e.from} → ${e.to}`).join('\n')}`;
+    }
+    if (q.includes('属性') || lower.includes('prop')) {
+      const target = objs.find(o => q.includes(o.name));
+      if (target) {
+        return `「${target.name}」的属性：\n${(target.props ?? []).map(p => `· ${p.name}（${p.type}）${p.comment ? ' — ' + p.comment : ''}`).join('\n')}`;
+      }
+      return '请指明对象名，如「采购订单的属性是什么」';
+    }
+    if (q.includes('状态机') || lower.includes('state')) {
+      const sm = objs.filter(o => o.stateMachine);
+      return sm.length > 0
+        ? `有状态机的对象：\n${sm.map(o => `· ${o.name}：${o.stateMachine!.join(' → ')}`).join('\n')}`
+        : '当前本体没有定义状态机的对象';
+    }
+    if (q.includes('创建') || q.includes('新建') || lower.includes('create')) {
+      return '请在左侧面板点击「添加对象」按钮创建新对象，或在「智能建模」使用七步法向导。';
+    }
+    return `已收到指令「${q}」。当前为确定性规则引擎（可查询对象/关系/属性/状态机），LLM 自由对话为后续提案。`;
+  };
 
   const transition = async (action: string) => {
     if (!selObj) return;
@@ -257,11 +289,15 @@ export default function Designer() {
               {canvasEdges.map(e => {
                 const a = pos[e.from] ?? [400, 120];
                 const b = pos[e.to] ?? [400, 360];
-                const [x1, y1] = center(a); const [x2, y2] = center(b);
                 const hot = edgeHot(e);
                 const dim = !!sel && !hot;
+                // 贝塞尔曲线：从源节点底部中心 → 目标节点顶部中心，避开节点卡片
+                const [x1, y1] = [a[0] + NODE_W / 2, a[1] + NODE_H];
+                const [x2, y2] = [b[0] + NODE_W / 2, b[1]];
+                const midY = (y1 + y2) / 2;
+                const d = `M ${x1} ${y1} C ${x1} ${midY}, ${x2} ${midY}, ${x2} ${y2}`;
                 return (
-                  <line key={e.id} x1={x1} y1={y1} x2={x2} y2={y2}
+                  <path key={e.id} d={d} fill="none"
                     stroke={hot ? '#059669' : '#b6c2d4'} strokeWidth={hot ? 2.4 : 1.6}
                     strokeOpacity={dim ? 0.25 : 1}
                     markerEnd={hot ? 'url(#arrSel)' : 'url(#arr)'}
@@ -305,16 +341,21 @@ export default function Designer() {
             {canvasEdges.map(e => {
               const a = pos[e.from] ?? [400, 120];
               const b = pos[e.to] ?? [400, 360];
-              const [x1, y1] = center(a); const [x2, y2] = center(b);
+              const x1 = a[0] + NODE_W / 2; const y1 = a[1] + NODE_H;
+              const x2 = b[0] + NODE_W / 2; const y2 = b[1];
               const hot = edgeHot(e);
               const dim = !!sel && !hot;
               return (
                 <div key={e.id}
                   style={{
-                    position: 'absolute', left: `${(((x1 + x2) / 2) / 1100) * 100}%`, top: `${(((y1 + y2) / 2) / 560) * 100}%`,
-                    transform: 'translate(-50%,-50%)', background: '#fff', border: `1px solid ${hot ? '#059669' : '#dbe4f0'}`,
+                    position: 'absolute',
+                    left: `${(((x1 + x2) / 2) / 1100) * 100}%`,
+                    top: `${(((y1 + y2) / 2) / 560) * 100}%`,
+                    transform: 'translate(-50%,-50%)',
+                    background: '#fff', border: `1px solid ${hot ? '#059669' : '#dbe4f0'}`,
                     borderRadius: 8, padding: '3px 10px', fontSize: 11.5, color: '#1a1a2e', cursor: 'pointer',
                     whiteSpace: 'nowrap', textAlign: 'center', opacity: dim ? 0.25 : 1, transition: 'opacity .2s',
+                    zIndex: 5,
                   }}
                   onClick={ev => { ev.stopPropagation(); setSel({ kind: 'edge', id: e.id }); }}>
                   <b>{e.name}</b>
@@ -334,19 +375,47 @@ export default function Designer() {
           </div>
         </Card>
 
-        {/* ─── 右栏：AI 助手占位 ─── */}
+        {/* ─── 右栏：AI 建模助手（Codex 风格对话） ─── */}
         {rightOpen && (
-          <div style={{ width: 280, flex: 'none', height: '100%' }}>
-            <Card size="small" title="AI 建模助手" style={{ height: '100%' }}
-              styles={{ body: { height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', gap: 12 } }}>
-              <Text type="secondary" style={{ fontSize: 12, textAlign: 'center', padding: '0 20px' }}>
-                AI 辅助建模对话（需求澄清 / 本体设计 / 构建验证三个 Skill）需接入 LLM 服务，为后续提案。
-              </Text>
-              <Text type="secondary" style={{ fontSize: 12 }}>当前可用确定性工具：</Text>
-              <Space direction="vertical" size={4}>
-                <Button size="small" block onClick={() => window.location.href = '/modeling/ai-modeling'}>七步法向导 →</Button>
-                <Button size="small" block onClick={() => window.location.href = '/knowledge/convergence'}>隐式收敛候选 →</Button>
-              </Space>
+          <div style={{ width: 300, flex: 'none', height: '100%' }}>
+            <Card size="small" title="AI 建模助手" style={{ height: '100%', display: 'flex', flexDirection: 'column' }}
+              styles={{ body: { flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', padding: 10, overflow: 'hidden' } }}>
+              {/* 消息区（滚动） */}
+              <div ref={chatRef} style={{ flex: 1, minHeight: 0, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 8, paddingRight: 4 }}>
+                <div style={{ fontSize: 11, color: '#6b7688', padding: '6px 0', textAlign: 'center', flex: 'none' }}>
+                  确定性规则引擎 · LLM 在线对话为后续提案
+                </div>
+                {chat.map((m, i) => (
+                  <div key={i} style={{
+                    fontSize: 12, padding: '8px 10px', borderRadius: 8, flex: 'none',
+                    alignSelf: m.role === 'user' ? 'flex-end' : 'flex-start',
+                    background: m.role === 'user' ? '#059669' : '#f1f3f5',
+                    color: m.role === 'user' ? '#fff' : '#1a1a2e',
+                    maxWidth: '90%',
+                  }}>{m.text}</div>
+                ))}
+              </div>
+              {/* 输入区：固定底部 */}
+              <div style={{ flex: 'none', paddingTop: 10, borderTop: '1px solid #f1f3f5', marginTop: 8 }}>
+                <Input.Search
+                  size="small" placeholder="向 AI 提问 / 下达建模指令" enterButton="发送"
+                  value={input}
+                  onChange={e => setInput(e.target.value)}
+                  onSearch={v => {
+                    if (!v.trim()) return;
+                    setChat(c => [...c, { role: 'user', text: v }]);
+                    setInput('');
+                    // 确定性回复（非 LLM）
+                    setTimeout(() => {
+                      const reply = aiReply(v, canvasObjs, canvasEdges);
+                      setChat(c => [...c, { role: 'ai', text: reply }]);
+                    }, 300);
+                  }}
+                />
+                <Text type="secondary" style={{ fontSize: 11, display: 'block', marginTop: 6 }}>
+                  当前对象 {canvasObjs.length} · 关系 {canvasEdges.length}
+                </Text>
+              </div>
             </Card>
           </div>
         )}
