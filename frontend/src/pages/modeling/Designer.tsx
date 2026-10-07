@@ -32,8 +32,10 @@ function OntoNode({ data, selected }: NodeProps) {
       boxShadow: selected ? '0 0 0 2px rgba(59,130,246,.25)' : '0 1px 3px rgba(15,23,42,.08)',
       borderTop: `3px solid ${color}`,
     }}>
-      <Handle type="target" position={Position.Top} style={{ background: color }} />
-      <Handle type="source" position={Position.Bottom} style={{ background: color }} />
+      <Handle type="target" position={Position.Top}
+        style={{ background: color, width: 12, height: 12, border: '2px solid #fff', cursor: 'crosshair' }} />
+      <Handle type="source" position={Position.Bottom}
+        style={{ background: color, width: 12, height: 12, border: '2px solid #fff', cursor: 'crosshair' }} />
       <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
         <span style={{ width: 26, height: 26, borderRadius: 7, background: color, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, flex: 'none', fontWeight: 700 }}>
           {d.en[0]}
@@ -132,6 +134,19 @@ export default function Designer() {
   }, [canvasEdges, canvasObjs, sel, objects]);
 
   const selObj = sel?.kind === 'node' ? canvasObjs.find(o => o.id === sel.id) : null;
+
+  // 拖拽连线：从源节点 Handle 拖到目标节点 Handle 时触发
+  const [connectFrom, setConnectFrom] = useState<string | undefined>();
+  const [connectTo, setConnectTo] = useState<string | undefined>();
+  const onConnect = useCallback((params: { source: string; target: string }) => {
+    const src = objects.find(o => o.id === params.source);
+    const tgt = objects.find(o => o.id === params.target);
+    if (src && tgt && src.id !== tgt.id) {
+      setConnectFrom(src.name);
+      setConnectTo(tgt.name);
+      setCreateType('edge');
+    }
+  }, [objects]);
   const selEdge = sel?.kind === 'edge' ? canvasEdges.find(e => e.id === sel.id) : null;
 
   const transition = async (action: string) => {
@@ -288,7 +303,7 @@ export default function Designer() {
         <Card size="small" style={{ flex: 1, minWidth: 0, height: '100%', display: 'flex', flexDirection: 'column' }}
           styles={{ body: { flex: 1, minHeight: 0, padding: 0 } }}
           title="建模画布"
-          extra={<Text type="secondary" style={{ fontSize: 12 }}>拖拽节点 · 滚轮缩放 · 空白处拖拽平移</Text>}>
+          extra={<Text type="secondary" style={{ fontSize: 12 }}>拖拽节点移动 · 从节点底部拖到另一节点顶部连线 · 滚轮缩放 · 空白拖拽平移</Text>}>
           <ReactFlow
             nodes={flowNodes}
             edges={flowEdges}
@@ -296,6 +311,7 @@ export default function Designer() {
             onNodeClick={(_, node) => setSel({ kind: 'node', id: node.id })}
             onEdgeClick={(_, edge) => setSel({ kind: 'edge', id: edge.id })}
             onPaneClick={() => setSel(null)}
+            onConnect={onConnect}
             fitView
             minZoom={0.3}
             maxZoom={2}
@@ -349,10 +365,12 @@ export default function Designer() {
       <ElementCreate
         type={createType ?? 'object'}
         open={!!createType}
-        onClose={() => setCreateType(null)}
+        onClose={() => { setCreateType(null); setConnectFrom(undefined); setConnectTo(undefined); }}
         onCreated={reload}
         ontology={curName}
         objects={objects.map(o => ({ id: o.id, name: o.name }))}
+        initialFrom={connectFrom}
+        initialTo={connectTo}
       />
     </>
   );

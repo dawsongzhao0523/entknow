@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { App, Form, Input, Modal, Radio, Select, Space } from 'antd';
 import { api } from '../../api';
 import { useSession } from '../../session';
@@ -15,13 +15,22 @@ export type ElementType = 'object' | 'edge' | 'function' | 'rule';
 export default function ElementCreate({
   type, open, onClose, onCreated, ontology,
   objects = [], // 供关系选择 from/to
+  initialFrom, initialTo, // 拖拽连线时预填
 }: {
   type: ElementType; open: boolean; onClose: () => void; onCreated: () => void;
   ontology: string; objects?: { id: string; name: string }[];
+  initialFrom?: string; initialTo?: string;
 }) {
   const { message } = App.useApp();
   const { user } = useSession();
   const [form] = Form.useForm();
+
+  // 打开时预填拖拽连线的起点/终点
+  React.useEffect(() => {
+    if (open && type === 'edge' && initialFrom && initialTo) {
+      form.setFieldsValue({ from: initialFrom, to: initialTo });
+    }
+  }, [open, type, initialFrom, initialTo, form]);
   const [saving, setSaving] = useState(false);
 
   const title = { object: '新建对象', edge: '新建关系', function: '新建函数', rule: '新建规则' }[type];
