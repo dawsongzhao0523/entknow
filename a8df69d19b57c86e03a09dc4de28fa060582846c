@@ -1,0 +1,39 @@
+frontend/src/api.ts
+  d2feb3b21e472516 277
+frontend/src/pages/modeling/OntologyDetail.tsx
+  d2feb3b21e472516 13,44,130-135,151,169,266-274
+frontend/src/pages/modeling/ElementCreate.tsx
+  d2feb3b21e472516 1-143
+frontend/src/pages/modeling/Designer.tsx
+  d2feb3b21e472516 3,17,76,261-266,348-356
+frontend/src/pages/Ontologies.tsx
+  d2feb3b21e472516 75-78
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.8.1",
+  "base_commit_sha": "a8df69d19b57c86e03a09dc4de28fa060582846c",
+  "prompts": {
+    "d2feb3b21e472516": {
+      "agent_id": {
+        "tool": "zcode",
+        "id": "sess_640dac34-2670-4904-ae98-aa4e9073f17c",
+        "model": "GLM-5.3"
+      },
+      "human_author": "dawsongzhao0523 <133857587+dawsongzhao0523@users.noreply.github.com>",
+      "messages": [],
+      "total_additions": 189,
+      "total_deletions": 40,
+      "accepted_lines": 6766,
+      "overriden_lines": 0,
+      "messages_url": "https://gitai.gz.cvte.cn/cas/4057832c88aafc3b1bd8a41ccfce4e568de41541f261a1b39fc8bf08fe8c39dc",
+      "token_usage": {
+        "input_tokens": 357840487,
+        "output_tokens": 514709,
+        "cache_read_tokens": 351754240,
+        "cache_creation_tokens": 0,
+        "total_cost": 0.0
+      }
+    }
+  }
+}
