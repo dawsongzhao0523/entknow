@@ -221,6 +221,11 @@ export interface EntityAlignment {
 
 export interface Member { ontoId: string; userId: string; name: string; role: string }
 
+export interface ParseProfile {
+  id: string; name: string; docType: string; chunk: string;
+  extract: string; status: string; owner: string;
+}
+
 export interface OrgUnit {
   id: string; parentId: string; name: string; sort: number;
   path?: string; children?: OrgUnit[];
@@ -274,6 +279,7 @@ export const api = {
   createObject: (o: OntoObject) => send<OntoObject>('/api/v1/objects', 'POST', o),
   edges: () => get<Edge[]>('/api/v1/edges'),
   functions: () => get<Func[]>('/api/v1/functions'),
+  createFunction: (f: Func) => send<Func>('/api/v1/functions', 'POST', f),
   datasources: () => get<Datasource[]>('/api/v1/datasources'),
   createDatasource: (d: Datasource) => send<Datasource>('/api/v1/datasources', 'POST', d),
   updateDatasource: (id: string, d: Datasource) => send<Datasource>(`/api/v1/datasources/${id}`, 'PUT', d),
@@ -335,6 +341,11 @@ export const api = {
   createRuleFiring: (f: Pick<RuleFiring, 'id' | 'ruleId' | 'detail'> & { instanceId?: string }) =>
     send<RuleFiring>('/api/v1/rule-firings', 'POST', f),
   rules: () => get<Rule[]>('/api/v1/rules'),
+  createRule: (r: Rule) => send<Rule>('/api/v1/rules', 'POST', r),
+  parseProfiles: () => get<ParseProfile[]>('/api/v1/parse-profiles'),
+  createParseProfile: (p: ParseProfile) => send<ParseProfile>('/api/v1/parse-profiles', 'POST', p),
+  updateParseProfile: (id: string, p: ParseProfile) => send<ParseProfile>(`/api/v1/parse-profiles/${id}`, 'PUT', p),
+  deleteParseProfile: (id: string) => send<null>(`/api/v1/parse-profiles/${id}`, 'DELETE'),
   actions: (instance = '') => get<Action[]>(`/api/v1/actions?instance=${instance}`),
   executeAction: (p: { id: string; funcId: string; instanceId: string; user: string; trigger?: string; confirm?: boolean }) =>
     send<Action>('/api/v1/actions', 'POST', p),

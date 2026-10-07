@@ -458,6 +458,17 @@ CREATE TABLE IF NOT EXISTS system_logs (
   trace_id  text NOT NULL DEFAULT ''
 );
 
+-- 非结构化数据解析策略（proto-parity）
+CREATE TABLE IF NOT EXISTS parse_profiles (
+  id        text PRIMARY KEY,
+  name      text NOT NULL,
+  doc_type  text NOT NULL DEFAULT '',   -- 附件 pdf / 绘图 drawio / 表格 xlsx / 模型路由
+  chunk     text NOT NULL DEFAULT '',   -- 分块策略
+  extract   text NOT NULL DEFAULT '',   -- 抽取目标（实体/关系候选）
+  status    text NOT NULL DEFAULT '启用', -- 启用 | 停用
+  owner     text NOT NULL DEFAULT ''
+);
+
 -- 组织架构与岗位字典（add-org-posts）：users.dept 存组织全路径，users.post 存岗位名
 CREATE TABLE IF NOT EXISTS org_units (
   id        text PRIMARY KEY,

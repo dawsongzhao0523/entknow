@@ -325,3 +325,45 @@ func TestCreateOntology(t *testing.T) {
 		t.Fatalf("空白初始化不应有对象: %v", body)
 	}
 }
+
+func TestParseProfilesAndRuleCreate(t *testing.T) {
+	h := demoServer(t)
+
+	// 解析策略：同名 409 → 幂等创建 → 编辑 → 删除
+	rec := callJSON(t, h, http.MethodPost, "/api/v1/parse-profiles",
+		map[string]any{"id": "pp-x1", "name": "附件解析器"})
+	if rec.Code != http.StatusConflict {
+		t.Fatalf("同名策略应 409，实际 %d", rec.Code)
+	}
+	rec = callJSON(t, h, http.MethodPost, "/api/v1/parse-profiles",
+		map[string]any{"id": "pp-t1", "name": "表格解析", "docType": "xlsx", "chunk": "按行", "extract": "实体候选"})
+	if rec.Code != http.StatusCreated {
+		t.Fatalf("创建失败: %d %s", rec.Code, rec.Body.String())
+	}
+	rec = callJSON(t, h, http.MethodPut, "/api/v1/parse-profiles/pp-t1",
+		map[string]any{"name": "表格解析改", "docType": "xlsx", "status": "停用"})
+	if rec.Code != http.StatusOK || decodeMap(t, rec)["status"] != "停用" {
+		t.Fatalf("编辑失败: %d", rec.Code)
+	}
+	rec = callJSON(t, h, http.MethodDelete, "/api/v1/parse-profiles/pp-t1", nil)
+	if rec.Code != http.StatusNoContent {
+		t.Fatalf("删除失败: %d", rec.Code)
+	}
+
+	// 规则创建：非法 kind 400 → 幂等创建（DRAFT）
+	rec = callJSON(t, h, http.MethodPost, "/api/v1/rules",
+		map[string]any{"id": "RX", "def": "x", "kind": "Z→Z"})
+	if rec.Code != http.StatusBadRequest {
+		t.Fatalf("非法 kind 应 400，实际 %d", rec.Code)
+	}
+	rec = callJSON(t, h, http.MethodPost, "/api/v1/rules",
+		map[string]any{"id": "R9", "def": "齐套率<70% → SUPPLY 边标记「风险」", "kind": "E→E"})
+	if rec.Code != http.StatusCreated {
+		t.Fatalf("规则创建失败: %d %s", rec.Code, rec.Body.String())
+	}
+	rec = callJSON(t, h, http.MethodPost, "/api/v1/rules",
+		map[string]any{"id": "R9", "def": "x", "kind": "E→E"})
+	if rec.Code != http.StatusCreated || rec.Header().Get("X-Idempotent-Replay") != "true" {
+		t.Fatalf("规则重放应 201+replay，实际 %d", rec.Code)
+	}
+}

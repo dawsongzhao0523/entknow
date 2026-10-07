@@ -313,6 +313,64 @@ func mountModules(api *http.ServeMux, st *store.Store) {
 }
 
 func mountOrgPosts(api *http.ServeMux, st *store.Store) {
+	// ─── 解析策略（非结构化加工） ───
+	api.HandleFunc("GET /api/v1/parse-profiles", handle(func(r *http.Request) ([]store.ParseProfile, error) {
+		return st.ListParseProfiles(r.Context())
+	}))
+	api.HandleFunc("POST /api/v1/parse-profiles", func(w http.ResponseWriter, r *http.Request) {
+		var p store.ParseProfile
+		if err := json.NewDecoder(r.Body).Decode(&p); err != nil || p.ID == "" || p.Name == "" {
+			writeErr(w, http.StatusBadRequest, "id / name 均为必填")
+			return
+		}
+		out, created, err := st.CreateParseProfile(r.Context(), p)
+		if err != nil {
+			writeStoreResult(w, out, err)
+			return
+		}
+		if !created {
+			w.Header().Set("X-Idempotent-Replay", "true")
+		}
+		w.WriteHeader(http.StatusCreated)
+		writeJSON(w, out)
+	})
+	api.HandleFunc("PUT /api/v1/parse-profiles/{id}", func(w http.ResponseWriter, r *http.Request) {
+		var p store.ParseProfile
+		if err := json.NewDecoder(r.Body).Decode(&p); err != nil || p.Name == "" {
+			writeErr(w, http.StatusBadRequest, "name 必填")
+			return
+		}
+		p.ID = r.PathValue("id")
+		out, err := st.UpdateParseProfile(r.Context(), p)
+		writeStoreResult(w, out, err)
+	})
+	api.HandleFunc("DELETE /api/v1/parse-profiles/{id}", func(w http.ResponseWriter, r *http.Request) {
+		if err := st.DeleteParseProfile(r.Context(), r.PathValue("id")); err != nil {
+			writeStoreResult(w, nil, err)
+			return
+		}
+		w.WriteHeader(http.StatusNoContent)
+	})
+
+	// ─── 传播规则创建 ───
+	api.HandleFunc("POST /api/v1/rules", func(w http.ResponseWriter, r *http.Request) {
+		var in store.Rule
+		if err := json.NewDecoder(r.Body).Decode(&in); err != nil || in.ID == "" || in.Def == "" {
+			writeErr(w, http.StatusBadRequest, "id / def 均为必填")
+			return
+		}
+		out, created, err := st.CreateRule(r.Context(), in)
+		if err != nil {
+			writeStoreResult(w, out, err)
+			return
+		}
+		if !created {
+			w.Header().Set("X-Idempotent-Replay", "true")
+		}
+		w.WriteHeader(http.StatusCreated)
+		writeJSON(w, out)
+	})
+
 	// ─── 本体创建（三初始化） ───
 	api.HandleFunc("POST /api/v1/ontologies", func(w http.ResponseWriter, r *http.Request) {
 		var in struct {

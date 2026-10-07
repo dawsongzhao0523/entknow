@@ -5,6 +5,7 @@ import {
 } from 'antd';
 import { LockOutlined, ThunderboltOutlined } from '@ant-design/icons';
 import { api, type Func, type Instance } from '../api';
+import { useNavigate } from 'react-router-dom';
 
 const { Title, Text } = Typography;
 const ME = '张三';
@@ -13,6 +14,7 @@ const riskColor = (s: number) => (s > 80 ? '#c23b3b' : s > 60 ? '#c9861a' : '#2d
 
 /** 实例 360°：属性 / 状态机 / 时间线 / 治理化行动执行（风险分>80 强制二次确认） */
 export default function Instance360() {
+  const nav = useNavigate();
   const { message } = App.useApp();
   const [list, setList] = useState<Instance[]>([]);
   const [cur, setCur] = useState<Instance | null>(null);
@@ -55,6 +57,21 @@ export default function Instance360() {
       <Title level={4}>实例 360°</Title>
       <Text type="secondary">对象实例的全息视图：属性、状态机、风险分与时间线；行动经治理网关执行（真实写路径）</Text>
       {err && <Card style={{ marginTop: 12 }}>{err}</Card>}
+      <Card size="small" title="关联实体（图谱入口）" style={{ marginTop: 12 }}>
+        <Space size={8} wrap>
+          {Object.entries(cur?.props ?? {})
+            .filter(([k]) => ['supplier', 'plant', 'material'].includes(k))
+            .map(([k, v]) => (
+              <Tag key={k} color="blue" style={{ cursor: 'pointer', padding: '4px 10px' }}
+                onClick={() => nav(`/runtime/instances?kw=${encodeURIComponent(String(v))}`)}>
+                {k === 'supplier' ? '供应商' : k === 'plant' ? '工厂' : '物料'} · {String(v)}
+              </Tag>
+            ))}
+          {cur && !['supplier', 'plant', 'material'].some(k => k in (cur.props ?? {})) && (
+            <Text type="secondary">该实例暂无关联实体属性</Text>
+          )}
+        </Space>
+      </Card>
 
       <Card size="small" style={{ marginTop: 12 }}>
         <Space>

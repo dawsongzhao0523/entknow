@@ -7,7 +7,7 @@ TRUNCATE users, ontologies, memberships, objects, edges, functions, views,
          capability_calls, query_history, pipeline_tasks, pipeline_runs, sandbox_branches,
          menus, data_rules, dep_services, dep_checks, audit_logs, user_settings,
          market_items, market_requests, bindings, binding_runs, onto_candidates, entity_alignments,
-         org_units, posts, system_logs, notification_reads
+         org_units, posts, system_logs, notification_reads, parse_profiles
          RESTART IDENTITY;
 
 INSERT INTO users (id, account, name, dept, post, roles, status, last_login) VALUES
@@ -394,5 +394,9 @@ INSERT INTO posts (id, name, descr, sort) VALUES
 ('post-dev',  '数据开发工程师', '管道与视图开发',   3),
 ('post-int',  '系统集成工程师', '外部系统集成',     4),
 ('post-mgr',  '计划主管',     '供应链计划与行动',   5);
+
+INSERT INTO parse_profiles (id, name, doc_type, chunk, extract, status, owner) VALUES
+('pp-attach', '附件解析器',     'pdf / docx',      '按段落 512 token · 重叠 64', '实体候选（供应商/物料/工厂）· 关系候选（供应/生产）', '启用', '张三'),
+('pp-route',  '分级模型路由',   'drawio / png 图片', '整图 OCR · 版面分析',        '流程节点 → 状态机候选 · 连线 → 关系候选',          '启用', '王五');
 
 COMMIT;

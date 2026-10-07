@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
-import { App, Button, Card, Drawer, Form, Input, Modal, Popconfirm, Select, Space, Table, Tag, Typography } from 'antd';
+import { App, Button, Card, Drawer, Form, Input, Modal, Popconfirm, Select, Space, Table, Tabs, Tag, Typography } from 'antd';
 import { CaretRightOutlined, HistoryOutlined, PlusOutlined } from '@ant-design/icons';
-import { api, type PipelineRun, type PipelineTask } from '../api';
+import { api, type ParseProfile, type PipelineRun, type PipelineTask } from '../api';
 
 const { Title, Text } = Typography;
 
@@ -17,8 +17,14 @@ export default function Pipelines() {
   const [open, setOpen] = useState(false);
   const [form] = Form.useForm();
 
+  const [profiles, setProfiles] = useState<ParseProfile[]>([]);
+  const [ppForm] = Form.useForm();
+  const [ppEditing, setPpEditing] = useState<ParseProfile | null>(null);
+  const [ppOpen, setPpOpen] = useState(false);
+
   const reload = useCallback(() => {
     api.pipelineTasks().then(setTasks).catch(e => message.error(String((e as Error).message)));
+    api.parseProfiles().then(setProfiles).catch(() => {});
   }, [message]);
 
   const openRuns = useCallback(async (t: PipelineTask) => {
@@ -52,47 +58,99 @@ export default function Pipelines() {
     }
   };
 
+  const savePP = async () => {
+    const v = await ppForm.validateFields();
+    try {
+      if (ppEditing) {
+        await api.updateParseProfile(ppEditing.id, { ...v, id: ppEditing.id, owner: ppEditing.owner });
+        message.success('解析策略已更新');
+      } else {
+        await api.createParseProfile({ ...v, id: `pp-${Date.now().toString(36)}` });
+        message.success('解析策略已创建');
+      }
+      setPpOpen(false); reload();
+    } catch (e) { message.error(String((e as Error).message)); }
+  };
+
   return (
     <div>
       <Title level={4}>数据加工</Title>
-      <Text type="secondary">加工流水线：采集 / 清洗 / 探查 / 转换 / UTOPIA_PUSH，手动运行产生真实执行记录（幂等）</Text>
+      <Text type="secondary">管道编排：采集 / 清洗 / 探查 / 转换 / UTOPIA_PUSH · 解析策略：非结构化数据抽取配置（均真实 CRUD）</Text>
 
-      <Card size="small" style={{ marginTop: 12 }} extra={
-        <Button type="primary" icon={<PlusOutlined />} onClick={() => { form.resetFields(); setOpen(true); }}>注册任务</Button>
-      }>
-        <Table<PipelineTask> size="small" rowKey="id" pagination={false} dataSource={tasks}
-          columns={[
-            { title: '任务', dataIndex: 'name', render: (v: string) => <b>{v}</b> },
-            { title: '类型', dataIndex: 'type', width: 110,
-              render: (v: string) => <Tag color={TYPE_COLOR[v]}>{v}</Tag> },
-            { title: '源 → 目标', key: 'st', render: (_, p) => (
-              <span style={{ fontSize: 12 }}>{p.source || '—'} <Text type="secondary">→</Text> {p.target || '—'}</span>
-            ) },
-            { title: '调度', dataIndex: 'schedule', width: 120 },
-            { title: '状态', dataIndex: 'status', width: 84,
-              render: (v: string) => <Tag color={v === '运行中' ? 'green' : v === '失败' ? 'red' : 'default'}>{v}</Tag> },
-            { title: '最近运行', dataIndex: 'lastRun', width: 140 },
-            { title: '操作', key: 'op', width: 230, render: (_, t) => (
-              <Space size={0}>
-                {t.status !== '已停用' && (
-                  <Button size="small" type="link" icon={<CaretRightOutlined />} onClick={() => run(t)}>运行</Button>
-                )}
-                <Button size="small" type="link" icon={<HistoryOutlined />} onClick={() => openRuns(t)}>记录</Button>
-                <Popconfirm title={t.status === '已停用' ? `启用「${t.name}」？` : `停用「${t.name}」？`}
-                  onConfirm={async () => {
-                    try {
-                      await api.setPipelineTaskStatus(t.id, t.status === '已停用' ? '运行中' : '已停用');
-                      message.success('已更新'); reload();
-                    } catch (e) { message.error(String((e as Error).message)); }
-                  }}>
-                  <Button size="small" type="link" danger={t.status !== '已停用'}>
-                    {t.status === '已停用' ? '启用' : '停用'}
-                  </Button>
-                </Popconfirm>
-              </Space>
-            ) },
-          ]} />
-      </Card>
+      <div style={{ marginTop: 12 }}>
+        <Tabs items={[
+          { key: 'pipeline', label: `管道编排（${tasks.length}）`, children: (
+            <Card size="small" extra={
+              <Button type="primary" icon={<PlusOutlined />} onClick={() => { form.resetFields(); setOpen(true); }}>注册任务</Button>
+            }>
+              <Table<PipelineTask> size="small" rowKey="id" pagination={false} dataSource={tasks}
+                columns={[
+                  { title: '任务', dataIndex: 'name', render: (v: string) => <b>{v}</b> },
+                  { title: '类型', dataIndex: 'type', width: 110,
+                    render: (v: string) => <Tag color={TYPE_COLOR[v]}>{v}</Tag> },
+                  { title: '源 → 目标', key: 'st', render: (_, p) => (
+                    <span style={{ fontSize: 12 }}>{p.source || '—'} <Text type="secondary">→</Text> {p.target || '—'}</span>
+                  ) },
+                  { title: '调度', dataIndex: 'schedule', width: 120 },
+                  { title: '状态', dataIndex: 'status', width: 84,
+                    render: (v: string) => <Tag color={v === '运行中' ? 'green' : v === '失败' ? 'red' : 'default'}>{v}</Tag> },
+                  { title: '最近运行', dataIndex: 'lastRun', width: 140 },
+                  { title: '操作', key: 'op', width: 230, render: (_, t) => (
+                    <Space size={0}>
+                      {t.status !== '已停用' && (
+                        <Button size="small" type="link" icon={<CaretRightOutlined />} onClick={() => run(t)}>运行</Button>
+                      )}
+                      <Button size="small" type="link" icon={<HistoryOutlined />} onClick={() => openRuns(t)}>记录</Button>
+                      <Popconfirm title={t.status === '已停用' ? `启用「${t.name}」？` : `停用「${t.name}」？`}
+                        onConfirm={async () => {
+                          try {
+                            await api.setPipelineTaskStatus(t.id, t.status === '已停用' ? '运行中' : '已停用');
+                            message.success('已更新'); reload();
+                          } catch (e) { message.error(String((e as Error).message)); }
+                        }}>
+                        <Button size="small" type="link" danger={t.status !== '已停用'}>
+                          {t.status === '已停用' ? '启用' : '停用'}
+                        </Button>
+                      </Popconfirm>
+                    </Space>
+                  ) },
+                ]} />
+            </Card>
+          ) },
+          { key: 'parse', label: `解析策略（${profiles.length}）`, children: (
+            <Card size="small" extra={
+              <Button type="primary" icon={<PlusOutlined />} onClick={() => {
+                setPpEditing(null); ppForm.resetFields(); setPpOpen(true);
+              }}>新增策略</Button>}>
+              <Table<ParseProfile> size="small" rowKey="id" pagination={false} dataSource={profiles}
+                columns={[
+                  { title: '策略', dataIndex: 'name', render: (v: string) => <b>{v}</b> },
+                  { title: '适用类型', dataIndex: 'docType', width: 130 },
+                  { title: '分块', dataIndex: 'chunk', width: 210 },
+                  { title: '抽取目标', dataIndex: 'extract' },
+                  { title: '状态', dataIndex: 'status', width: 76, render: (v: string) => (
+                    <Tag color={v === '启用' ? 'green' : 'default'}>{v}</Tag>) },
+                  { title: '负责人', dataIndex: 'owner', width: 80 },
+                  { title: '操作', key: 'op', width: 130, render: (_, p) => (
+                    <Space size={0}>
+                      <Button size="small" type="link" onClick={() => {
+                        setPpEditing(p);
+                        ppForm.setFieldsValue({ name: p.name, docType: p.docType, chunk: p.chunk, extract: p.extract, status: p.status });
+                        setPpOpen(true);
+                      }}>编辑</Button>
+                      <Popconfirm title={`删除「${p.name}」？`} onConfirm={async () => {
+                        try { await api.deleteParseProfile(p.id); message.success('已删除'); reload(); }
+                        catch (e) { message.error(String((e as Error).message)); }
+                      }}>
+                        <Button size="small" type="link" danger>删除</Button>
+                      </Popconfirm>
+                    </Space>
+                  ) },
+                ]} />
+            </Card>
+          ) },
+        ]} />
+      </div>
 
       <Drawer title={detailTask ? `${detailTask.name} · 执行记录` : ''} width={560}
         open={!!detailTask} onClose={() => setDetailTask(null)}>
@@ -116,6 +174,17 @@ export default function Pipelines() {
             <Form.Item name="target" label="目标" style={{ width: 200 }}><Input placeholder="数据资产画像" /></Form.Item>
           </Space>
           <Form.Item name="schedule" label="调度"><Input placeholder="CRON 0 5 * * * / EVENT" /></Form.Item>
+        </Form>
+      </Modal>
+
+      <Modal title={ppEditing ? `编辑策略：${ppEditing.name}` : '新增解析策略'} open={ppOpen}
+        onOk={savePP} onCancel={() => setPpOpen(false)} okText="保存" cancelText="取消">
+        <Form form={ppForm} layout="vertical">
+          <Form.Item name="name" label="策略名" rules={[{ required: true }]}><Input placeholder="如 附件解析器" /></Form.Item>
+          <Form.Item name="docType" label="适用类型"><Input placeholder="pdf / docx / drawio / xlsx" /></Form.Item>
+          <Form.Item name="chunk" label="分块策略"><Input placeholder="按段落 512 token · 重叠 64" /></Form.Item>
+          <Form.Item name="extract" label="抽取目标"><Input placeholder="实体候选 · 关系候选" /></Form.Item>
+          <Form.Item name="status" label="状态" initialValue="启用"><Select options={['启用', '停用'].map(v => ({ value: v }))} /></Form.Item>
         </Form>
       </Modal>
     </div>

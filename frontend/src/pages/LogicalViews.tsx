@@ -1,7 +1,9 @@
 import { useCallback, useEffect, useState } from 'react';
-import { App, Button, Card, Form, Input, Modal, Popconfirm, Select, Space, Table, Tag, Typography } from 'antd';
+import {
+  Descriptions,
+  Drawer, App, Button, Card, Form, Input, Modal, Popconfirm, Select, Space, Table, Tag, Typography } from 'antd';
 import { EditOutlined, PlusOutlined } from '@ant-design/icons';
-import { api, type LogicalView } from '../api';
+import { api, type LogicalView, type SensRow } from '../api';
 
 const { Title, Text } = Typography;
 
@@ -15,6 +17,11 @@ export default function LogicalViews() {
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<LogicalView | null>(null);
   const [form] = Form.useForm();
+
+  const [detail, setDetail] = useState<LogicalView | null>(null);
+  const [sens, setSens] = useState<SensRow[]>([]);
+
+  useEffect(() => { api.sensitivity().then(setSens).catch(() => {}); }, []);
 
   const reload = useCallback(() => {
     api.viewsList().then(setViews).catch(e => message.error(String((e as Error).message)));
@@ -58,6 +65,7 @@ export default function LogicalViews() {
         }}>新建视图</Button>
       }>
         <Table<LogicalView> size="small" rowKey="id" pagination={false} dataSource={views}
+          onRow={v => ({ onClick: () => setDetail(v), style: { cursor: 'pointer' } })}
           columns={[
             { title: '视图', dataIndex: 'name', render: (v: string) => <Text code>{v}</Text> },
             { title: '类型', dataIndex: 'kind', width: 120,
@@ -116,6 +124,28 @@ export default function LogicalViews() {
           <Form.Item name="refresh" label="刷新策略（物化视图，如 CRON 0 3 * * *）"><Input /></Form.Item>
         </Form>
       </Modal>
+      <Drawer title={detail ? `视图 · ${detail.name}` : ''} width={440} open={!!detail}
+        onClose={() => setDetail(null)}>
+        {detail && <>
+          <Space size={6} wrap style={{ marginBottom: 12 }}>
+            <Tag>{detail.kind}</Tag><Tag>{detail.version}</Tag><Tag color={detail.status === 'PUBLISHED' ? 'green' : 'default'}>{detail.status}</Tag>
+            <Tag color={detail.sensitive === 'L3' ? 'orange' : 'default'}>敏感级 {detail.sensitive}</Tag>
+          </Space>
+          <Descriptions column={1} size="small" bordered>
+            <Descriptions.Item label="业务域">{detail.domain}</Descriptions.Item>
+            <Descriptions.Item label="上游依赖">{detail.upstream.join(' · ') || '—'}</Descriptions.Item>
+            <Descriptions.Item label="绑定方">{detail.boundBy.join(' · ') || '—'}</Descriptions.Item>
+            <Descriptions.Item label="负责人">{detail.owner}</Descriptions.Item>
+            <Descriptions.Item label="刷新">{detail.refresh || '按需'}</Descriptions.Item>
+            <Descriptions.Item label="敏感级继承">{
+              (sens.find(x => x.asset === detail.name)?.note) ?? '—'
+            }</Descriptions.Item>
+            <Descriptions.Item label="定义 SQL">
+              <Text type="secondary" style={{ fontSize: 12 }}>联邦层生成（StarRocks），逻辑定义由上游映射推导，无本地 SQL 副本。</Text>
+            </Descriptions.Item>
+          </Descriptions>
+        </>}
+      </Drawer>
     </div>
   );
 }
