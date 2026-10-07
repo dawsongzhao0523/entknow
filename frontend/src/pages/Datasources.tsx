@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import {
+  Alert,
   App, Button, Card, Descriptions, Form, Input, Modal, Popconfirm, Select,
   Space, Table, Tabs, Tag, Typography,
 } from 'antd';
@@ -67,12 +68,14 @@ export default function Datasources() {
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<Datasource | null>(null);
   const [testing, setTesting] = useState(false);
+  const [scheduler, setScheduler] = useState<{running: boolean; cronIntervalMin: number} | null>(null);
   const [users, setUsers] = useState<User[]>([]);
   const [form] = Form.useForm();
 
   const reload = useCallback(() => {
     api.datasources().then(setDss).catch(e => message.error(String((e as Error).message)));
     api.users().then(setUsers).catch(() => {});
+    api.schedulerStatus().then(setScheduler).catch(() => setScheduler(null));
   }, [message]);
 
   useEffect(() => { reload(); }, [reload]);
@@ -160,6 +163,14 @@ export default function Datasources() {
         { key: 'profile', label: '元数据探查', children: <ProfilePanel /> },
         { key: 'policy', label: '更新策略', children: (
           <Card size="small">
+            {scheduler?.running && (
+              <Alert type="success" showIcon style={{ marginBottom: 12 }}
+                message={'后台调度器运行中：每 30 秒检查一次，CRON 源每 ' + (scheduler?.cronIntervalMin ?? 5) + ' 分钟自动同步（更新 last_sync 并记录运行日志）'} />
+            )}
+            {!scheduler && (
+              <Alert type="warning" showIcon style={{ marginBottom: 12 }}
+                message="后台调度器未运行或不可达——同步策略仅为标记，不会自动执行" />
+            )}
             <Table<Datasource> size="small" rowKey="id" pagination={false} dataSource={dss}
               columns={[
                 { title: '数据源', dataIndex: 'name', render: (v: string) => <b>{v}</b> },

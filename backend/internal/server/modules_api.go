@@ -317,6 +317,15 @@ func mountModules(api *http.ServeMux, st *store.Store) {
 }
 
 func mountOrgPosts(api *http.ServeMux, st *store.Store) {
+	// ─── 调度器状态 ───
+	api.HandleFunc("GET /api/v1/scheduler/status", handle(func(r *http.Request) (map[string]any, error) {
+		return map[string]any{
+			"running":         true,
+			"intervalSec":     30,
+			"cronIntervalMin": 5,
+			"description":     "后台调度器每 30 秒检查一次 CRON 模式数据源，到期（距上次同步 ≥ 5 分钟）自动执行同步并记录运行日志",
+		}, nil
+	}))
 	// ─── 数据源连接测试 ───
 	api.HandleFunc("POST /api/v1/datasources/test", handle(func(r *http.Request) (map[string]any, error) {
 		var in struct {

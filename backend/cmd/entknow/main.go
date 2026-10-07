@@ -46,6 +46,11 @@ func main() {
 	mux := server.New()
 	server.MountAPI(mux, st)
 
+	// 启动后台定时调度器（CRON 模式数据源定期同步）
+	scheduler := store.NewScheduler(st)
+	scheduler.Start()
+	defer scheduler.Stop()
+
 	log.Printf("entknow backend listening on %s", *addr)
 	log.Fatal(http.ListenAndServe(*addr, mux))
 }

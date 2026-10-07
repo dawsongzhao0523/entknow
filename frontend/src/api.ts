@@ -284,6 +284,7 @@ export const api = {
   datasources: () => get<Datasource[]>('/api/v1/datasources'),
   createDatasource: (d: Datasource) => send<Datasource>('/api/v1/datasources', 'POST', d),
   updateDatasource: (id: string, d: Datasource) => send<Datasource>(`/api/v1/datasources/${id}`, 'PUT', d),
+  schedulerStatus: () => get<{ running: boolean; intervalSec: number; cronIntervalMin: number; description: string }>('/api/v1/scheduler/status'),
   testDatasource: (host: string, type: string) =>
     send<{ ok: boolean; tables: number; latency: string }>('/api/v1/datasources/test', 'POST', { host, type }),
   viewsList: () => get<LogicalView[]>('/api/v1/views'),
