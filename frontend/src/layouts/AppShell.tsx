@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { App, Avatar, Badge, Button, Layout, Menu, Popover, Select, Space, Tag } from 'antd';
+import { App, Avatar, Badge, Button, Drawer, Layout, Menu, Select, Space, Tabs, Tag } from 'antd';
 import {
   HomeOutlined, DatabaseOutlined, BookOutlined, DeploymentUnitOutlined, ApiOutlined,
   BulbOutlined, ExperimentOutlined, RocketOutlined, SafetyCertificateOutlined, SettingOutlined,
@@ -58,6 +58,7 @@ export default function AppShell() {
   const openKey = selected.includes('/') ? selected.split('/')[0] : '';
   const { user, setUser, users, onto, chooseOnto, permVersion } = useSession();
   const [notifs, setNotifs] = useState<Notification[]>([]);
+  const [bellOpen, setBellOpen] = useState(false);
 
   const [menus, setMenus] = useState<MenuNode[] | null>(null);
   const [ontos, setOntos] = useState<Ontology[]>([]);
@@ -137,46 +138,9 @@ export default function AppShell() {
           <Tag color="orange">环境: LIVE</Tag>
           <div style={{ flex: 1 }} />
           {err && <Tag color="red">API 异常: {err}</Tag>}
-          <Popover trigger="click" placement="bottomRight" onOpenChange={open => {
-            if (open) api.notifications(user).then(setNotifs).catch(() => {});
-          }} content={
-            <div style={{ width: 340 }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
-                <b>消息通知</b>
-                <Button size="small" type="link" onClick={async () => {
-                  try {
-                    const res = await api.markAllNotificationsRead(user);
-                    message.success(`已读 ${res.marked} 条`);
-                    setNotifs(await api.notifications(user));
-                  } catch (e) { message.error(String((e as Error).message)); }
-                }}>全部已读</Button>
-              </div>
-              {(notifs.length === 0) && <span style={{ color: '#6b7688', fontSize: 12 }}>暂无通知</span>}
-              {notifs.slice(0, 8).map(n => (
-                <div key={n.id} style={{
-                  display: 'flex', gap: 8, padding: '8px 0', borderBottom: '1px dashed #f1f3f5',
-                  opacity: n.unread ? 1 : 0.55, cursor: n.to ? 'pointer' : 'default',
-                }} onClick={async () => {
-                  if (!n.to) return;
-                  if (n.unread) {
-                    await api.markNotificationRead(n.id, user).catch(() => {});
-                    api.notifications(user).then(setNotifs).catch(() => {});
-                  }
-                  nav(n.to);
-                }}>
-                  <Badge status={n.cat === '待办处理' ? 'error' : n.cat === '治理任务' ? 'warning' : 'processing'} />
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontSize: 13, fontWeight: n.unread ? 600 : 400 }}>{n.title}</div>
-                    <div style={{ fontSize: 12, color: '#6b7688' }}>{n.cat} · {n.time}{n.toUser && n.toUser === user ? ' · 定向' : ''}</div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          }>
-            <Badge count={notifs.filter(n => n.unread).length} size="small" offset={[-2, 2]}>
-              <Button type="text" icon={<BellOutlined style={{ color: '#5a5a72', fontSize: 16 }} />} />
-            </Badge>
-          </Popover>
+          <Badge count={notifs.filter(n => n.unread).length} size="small" offset={[-4, 4]}>
+            <Button type="text" icon={<BellOutlined style={{ fontSize: 17, color: '#5a5a72' }} />} onClick={() => setBellOpen(true)} />
+          </Badge>
           <Space size={8} style={{ marginRight: 12 }}>
             <Avatar size={28} style={{ background: '#059669' }}>{curUser?.name?.[0] ?? '张'}</Avatar>
             <Select
@@ -189,6 +153,55 @@ export default function AppShell() {
           <Outlet />
         </Content>
       </Layout>
+
+        <Drawer
+          title="消息通知" width={420} open={bellOpen} onClose={() => setBellOpen(false)}
+          extra={<Button size="small" type="link" onClick={async () => {
+            try {
+              const res = await api.markAllNotificationsRead(user);
+              message.success(`已读 ${res.marked} 条`);
+              setNotifs(await api.notifications(user));
+            } catch (e) { message.error(String((e as Error).message)); }
+          }}>全部已读</Button>}
+        >
+          <Tabs
+            size="small"
+            items={['全部', '待办处理', '治理任务', '协同分享'].map(cat => ({
+              key: cat,
+              label: cat === '全部' ? `全部 (${notifs.length})` : `${cat} (${notifs.filter(n => n.cat === cat).length})`,
+              children: (
+                <div>
+                  {notifs.filter(n => cat === '全部' || n.cat === cat).map(n => (
+                    <div key={n.id}
+                      onClick={async () => {
+                        if (n.unread) {
+                          await api.markNotificationRead(n.id, user).catch(() => {});
+                          api.notifications(user).then(setNotifs).catch(() => {});
+                        }
+                        setBellOpen(false);
+                        if (n.to) nav(n.to);
+                      }}
+                      style={{ display: 'flex', gap: 10, padding: '12px 4px', borderBottom: '1px solid #f1f3f5', cursor: 'pointer', opacity: n.unread ? 1 : 0.55 }}>
+                      <Badge dot={n.unread} offset={[-2, 6]}>
+                        <Avatar size={30} style={{ background: ({ 待办处理: '#059669', 治理任务: '#c9861a', 协同分享: '#2d8a4e' } as Record<string, string>)[n.cat] ?? '#64748b', fontSize: 12 }}>
+                          {n.cat.slice(0, 2)}
+                        </Avatar>
+                      </Badge>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontSize: 13, fontWeight: n.unread ? 600 : 400 }}>{n.title}</div>
+                        <Space size={6} style={{ marginTop: 4 }}>
+                          <Tag style={{ margin: 0, fontSize: 11 }}>{n.cat}</Tag>
+                          <span style={{ fontSize: 12, color: '#6b7688' }}>{n.time}</span>
+                          {n.toUser && n.toUser === user && <Tag style={{ margin: 0, fontSize: 11 }} color="blue">定向</Tag>}
+                        </Space>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ),
+            }))}
+          />
+        </Drawer>
     </Layout>
   );
 }

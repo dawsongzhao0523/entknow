@@ -12,14 +12,18 @@ const { Title, Text } = Typography;
 const statusColor: Record<string, string> =
   { PUBLISHED: 'green', DRAFT: 'default', IN_REVIEW: 'orange', 评审中: 'orange', 待评审: 'blue', 已通过: 'green' };
 
+function greeting() {
+  const h = new Date().getHours();
+  if (h < 6) return '夜深了';
+  if (h < 12) return '早上好';
+  if (h < 14) return '中午好';
+  if (h < 18) return '下午好';
+  return '晚上好';
+}
+
 type ViewKey = 'architect' | 'reviewer' | 'operator';
 const VIEW_LABEL: Record<ViewKey, string> = {
   architect: '架构治理视角', reviewer: '评审知识视角', operator: '运营风险视角',
-};
-const VIEW_DESC: Record<ViewKey, string> = {
-  architect: '本体全生命周期 · 评审与一致性',
-  reviewer: '待裁决评审 · 知识治理 · 语义查询',
-  operator: '订单交付风险 · 规则触发 · 数据运营',
 };
 
 /** 按当前用户角色推导首页视角：本体管理员→架构治理；评审员→评审知识；其余→运营风险 */
@@ -31,7 +35,7 @@ function viewOf(roles: string[]): ViewKey {
 
 export default function Home() {
   const nav = useNavigate();
-  const { user, prefs, prefsLoaded } = useSession();
+  const { user, prefs, prefsLoaded, onto } = useSession();
   const [users, setUsers] = useState<User[]>([]);
   const [ontos, setOntos] = useState<Ontology[]>([]);
   const [reviews, setReviews] = useState<Review[]>([]);
@@ -98,13 +102,13 @@ export default function Home() {
 
   return (
     <div>
-      <div style={{ background: 'linear-gradient(90deg,#ecfdf5,#f8fbfa)', borderRadius: 10, padding: '20px 24px', marginBottom: 16 }}>
+      <div style={{ background: 'linear-gradient(90deg,#ecfdf5,#f8fbfa)', borderRadius: 10, padding: '24px 28px', marginBottom: 16 }}>
         <Title level={3} style={{ margin: 0 }}>
-          {curUser?.name ?? user} 的工作台
+          {greeting()}，{curUser?.name ?? user}
           <Tag color="green" style={{ marginInlineStart: 12 }}>{VIEW_LABEL[view]}</Tag>
         </Title>
-        <div style={{ color: '#6b7688', marginTop: 6, fontSize: 13 }}>
-          {VIEW_DESC[view]} · 角色：{(curUser?.roles ?? []).join(' / ') || '—'} · 数据来自真实后端（PostgreSQL）
+        <div style={{ color: '#6b7688', marginTop: 8, fontSize: 13 }}>
+          {curUser?.post ?? ''} · 管辖角色：{(curUser?.roles ?? []).join(' / ') || '—'} · 工作本体 {ontos.find(o => o.id === onto)?.name ?? '未选择'}（{ontos.find(o => o.id === onto)?.objects ?? 0} 对象 / {ontos.find(o => o.id === onto)?.edges ?? 0} 关系）
         </div>
       </div>
       <Row gutter={12} style={{ marginBottom: 16 }}>
