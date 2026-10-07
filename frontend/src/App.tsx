@@ -37,6 +37,7 @@ export default function App() {
     <Routes>
       <Route element={<AppShell />}>
         <Route index element={<Home />} />
+        <Route path="home" element={<Home />} />
         <Route path="assets/datasources" element={<Datasources />} />
         <Route path="assets/views" element={<LogicalViews />} />
         <Route path="assets/pipelines" element={<Pipelines />} />
