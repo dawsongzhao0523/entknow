@@ -156,9 +156,11 @@ export default function Home() {
         </Paragraph>
       </div>
       <Card styles={{ body: { paddingTop: 8 } }}>
-        <Tabs items={[
-          { key: 'ai', label: 'AI 辅助构建', children: ai },
+        <Tabs defaultActiveKey='manual' items={[
           { key: 'manual', label: '手动构建', children: manual },
+          { key: 'ai', label: 'AI 辅助构建', children: ai },
+          
+          
         ]} />
       </Card>
       <Row gutter={12} style={{ marginTop: 12 }}>
