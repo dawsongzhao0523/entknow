@@ -283,6 +283,8 @@ export const api = {
   datasources: () => get<Datasource[]>('/api/v1/datasources'),
   createDatasource: (d: Datasource) => send<Datasource>('/api/v1/datasources', 'POST', d),
   updateDatasource: (id: string, d: Datasource) => send<Datasource>(`/api/v1/datasources/${id}`, 'PUT', d),
+  testDatasource: (host: string, type: string) =>
+    send<{ ok: boolean; tables: number; latency: string }>('/api/v1/datasources/test', 'POST', { host, type }),
   viewsList: () => get<LogicalView[]>('/api/v1/views'),
   createView: (v: LogicalView) => send<LogicalView>('/api/v1/views', 'POST', v),
   updateView: (id: string, v: LogicalView) => send<LogicalView>(`/api/v1/views/${id}`, 'PUT', v),

@@ -4,8 +4,10 @@ package server
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/dawsongzhao0523/entknow/backend/internal/store"
@@ -313,6 +315,30 @@ func mountModules(api *http.ServeMux, st *store.Store) {
 }
 
 func mountOrgPosts(api *http.ServeMux, st *store.Store) {
+	// ─── 数据源连接测试 ───
+	api.HandleFunc("POST /api/v1/datasources/test", handle(func(r *http.Request) (map[string]any, error) {
+		var in struct {
+			Host string `json:"host"`
+			Type string `json:"type"`
+		}
+		if err := json.NewDecoder(r.Body).Decode(&in); err != nil || in.Host == "" {
+			return nil, fmt.Errorf("%w: host 必填", store.ErrInvalid)
+		}
+		// 校验连接串格式：协议://地址
+		if !strings.Contains(in.Host, "://") {
+			return nil, fmt.Errorf("%w: 连接串格式应为 protocol://host:port/db", store.ErrInvalid)
+		}
+		// 模拟连接延迟 + 返回表数（生产环境此处应真实拨测并查询表数量）
+		time.Sleep(300 * time.Millisecond)
+		tableCount := map[string]int{
+			"MySQL": 142, "PostgreSQL": 38, "SQLServer": 96, "Oracle": 210, "ClickHouse": 24,
+		}[in.Type]
+		if tableCount == 0 {
+			tableCount = 50
+		}
+		return map[string]any{"ok": true, "tables": tableCount, "latency": "12ms"}, nil
+	}))
+
 	// ─── 解析策略（非结构化加工） ───
 	api.HandleFunc("GET /api/v1/parse-profiles", handle(func(r *http.Request) ([]store.ParseProfile, error) {
 		return st.ListParseProfiles(r.Context())

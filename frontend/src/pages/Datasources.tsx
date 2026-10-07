@@ -4,7 +4,7 @@ import {
   Space, Table, Tabs, Tag, Typography,
 } from 'antd';
 import { EditOutlined, PlusOutlined } from '@ant-design/icons';
-import { api, type Datasource, type FieldProfile, type TableProfile } from '../api';
+import { api, type Datasource, type FieldProfile, type TableProfile, type User } from '../api';
 
 const { Title, Text } = Typography;
 
@@ -66,10 +66,13 @@ export default function Datasources() {
   const [dss, setDss] = useState<Datasource[]>([]);
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<Datasource | null>(null);
+  const [testing, setTesting] = useState(false);
+  const [users, setUsers] = useState<User[]>([]);
   const [form] = Form.useForm();
 
   const reload = useCallback(() => {
     api.datasources().then(setDss).catch(e => message.error(String((e as Error).message)));
+    api.users().then(setUsers).catch(() => {});
   }, [message]);
 
   useEffect(() => { reload(); }, [reload]);
@@ -195,7 +198,23 @@ export default function Datasources() {
               <Select options={[{ value: '结构化', label: '结构化' }, { value: '非结构化', label: '非结构化' }]} />
             </Form.Item>
           </Space>
-          <Form.Item name="host" label="连接串"><Input placeholder="mysql://192.0.2.x:3306/db（示例地址）" /></Form.Item>
+          <Form.Item label="连接串" style={{ marginBottom: 8 }}>
+            <Space.Compact style={{ display: 'flex' }}>
+              <Form.Item name="host" noStyle><Input placeholder="mysql://192.0.2.x:3306/db（示例地址）" /></Form.Item>
+              <Button loading={testing} onClick={async () => {
+                const host = form.getFieldValue('host');
+                const type = form.getFieldValue('type') || 'MySQL';
+                if (!host) { message.warning('请先填写连接串'); return; }
+                setTesting(true);
+                try {
+                  const res = await api.testDatasource(host, type);
+                  message.success(`连接成功 · ${res.tables} 张表 · 延迟 ${res.latency}`);
+                  form.setFieldsValue({ tables: res.tables });
+                } catch (e) { message.error(String((e as Error).message)); }
+                finally { setTesting(false); }
+              }}>测试连接</Button>
+            </Space.Compact>
+          </Form.Item>
           <Space style={{ display: 'flex' }} size={12}>
             <Form.Item name="mode" label="同步策略" style={{ width: 130 }}>
               <Select options={MODES.map(m => ({ value: m, label: modeText[m] }))} />
@@ -208,7 +227,10 @@ export default function Datasources() {
             </Form.Item>
           </Space>
           <Space style={{ display: 'flex' }} size={12}>
-            <Form.Item name="owner" label="负责人" style={{ width: 140 }} initialValue="张三"><Input /></Form.Item>
+            <Form.Item name="owner" label="负责人" style={{ width: 180 }}>
+              <Select showSearch optionFilterProp="label" placeholder="选择负责人"
+                options={users.map(u => ({ value: u.name, label: `${u.name} · ${u.post}` }))} />
+            </Form.Item>
             <Form.Item name="tables" label="表数" style={{ width: 120 }} initialValue={0}><Input type="number" /></Form.Item>
           </Space>
         </Form>
