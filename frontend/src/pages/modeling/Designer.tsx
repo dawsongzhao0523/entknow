@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
-  App, Button, Card, Input, Modal, Radio, Select, Space,
+  App, Button, Card, Input, Select, Space,
   Table, Tabs, Tag, Tooltip, Typography,
 } from 'antd';
 import {
@@ -14,6 +14,7 @@ import {
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import { api, type Edge, type Func, type OntoObject, type Ontology, type Prop } from '../../api';
+import ElementCreate, { type ElementType } from './ElementCreate';
 import { useSession } from '../../session';
 
 const { Title, Text } = Typography;
@@ -72,10 +73,7 @@ export default function Designer() {
   const [leftOpen, setLeftOpen] = useState(true);
   const [rightOpen, setRightOpen] = useState(true);
   const [bottomOpen, setBottomOpen] = useState(true);
-  const [addOpen, setAddOpen] = useState(false);
-  const [newName, setNewName] = useState('');
-  const [newEn, setNewEn] = useState('');
-  const [newKind, setNewKind] = useState('静态事实');
+  const [createType, setCreateType] = useState<ElementType | null>(null);
   const [chat, setChat] = useState<{ role: 'user' | 'ai'; text: string }[]>([
     { role: 'ai', text: '你好！试试「列出所有对象」「SUPPLY 的属性」「状态机」。' },
   ]);
@@ -149,19 +147,6 @@ export default function Designer() {
     } catch (e) { message.error(String((e as Error).message)); }
   };
 
-  const createObj = async () => {
-    if (!newName || !newEn) { message.warning('请填写名称和英文标识'); return; }
-    try {
-      await api.createObject({
-        id: `obj-${Date.now().toString(36)}`, name: newName, en: newEn, kind: newKind,
-        version: 'v0.1', status: 'DRAFT', owner: user, ontology: curName, refCount: 0, shared: false,
-        props: [{ name: newEn + '_id', type: 'string', comment: '画布新建' }],
-      });
-      message.success(`对象「${newName}」已创建`);
-      setAddOpen(false); setNewName(''); setNewEn('');
-      reload();
-    } catch (e) { message.error(String((e as Error).message)); }
-  };
 
   const aiReply = (q: string): string => {
     if (q.includes('对象') || q.includes('列出')) {
@@ -273,7 +258,12 @@ export default function Designer() {
         {leftOpen && (
           <div style={{ width: 250, flex: 'none', display: 'flex', flexDirection: 'column', gap: 12, minHeight: 0, overflowY: 'auto' }}>
             <Card size="small" title="对象库" extra={<Text type="secondary" style={{ fontSize: 12 }}>{canvasObjs.length} 对象</Text>}>
-              <Button type="dashed" block icon={<PlusOutlined />} style={{ marginBottom: 10 }} onClick={() => setAddOpen(true)}>添加对象</Button>
+              <Space direction="vertical" style={{ width: '100%', marginBottom: 10 }} size={6}>
+              <Button type="dashed" block icon={<PlusOutlined />} onClick={() => setCreateType('object')}>新建对象</Button>
+              <Button type="dashed" block icon={<PlusOutlined />} onClick={() => setCreateType('edge')}>新建关系</Button>
+              <Button type="dashed" block icon={<PlusOutlined />} onClick={() => setCreateType('function')}>新建函数</Button>
+              <Button type="dashed" block icon={<PlusOutlined />} onClick={() => setCreateType('rule')}>新建规则</Button>
+            </Space>
               {KINDS.map(k => {
                 const ko = canvasObjs.filter(o => o.kind === k);
                 if (ko.length === 0) return null;
@@ -355,18 +345,15 @@ export default function Designer() {
       {/* 底部属性面板 */}
       {bottomOpen && bottomPanel}
 
-      {/* 添加对象弹窗 */}
-      <Modal title="添加对象" open={addOpen} onOk={createObj} onCancel={() => setAddOpen(false)} okText="创建" cancelText="取消">
-        <Space direction="vertical" style={{ width: '100%' }} size={12}>
-          <Space>
-            <Input placeholder="中文名" value={newName} onChange={e => setNewName(e.target.value)} style={{ width: 160 }} />
-            <Input placeholder="英文标识" value={newEn} onChange={e => setNewEn(e.target.value)} style={{ width: 160 }} className="mono" />
-          </Space>
-          <Radio.Group value={newKind} onChange={e => setNewKind(e.target.value)}>
-            {KINDS.map(k => <Radio.Button key={k} value={k}>{k}</Radio.Button>)}
-          </Radio.Group>
-        </Space>
-      </Modal>
+
+      <ElementCreate
+        type={createType ?? 'object'}
+        open={!!createType}
+        onClose={() => setCreateType(null)}
+        onCreated={reload}
+        ontology={curName}
+        objects={canvasObjs.map(o => ({ id: o.id, name: o.name }))}
+      />
     </>
   );
 }

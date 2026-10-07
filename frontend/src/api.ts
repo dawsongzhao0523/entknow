@@ -274,6 +274,7 @@ export const api = {
   ontologies: (user = 'zhangsan') => get<Ontology[]>(`/api/v1/ontologies?user=${user}`),
   createOntology: (p: { id: string; name: string; scene: string; owner?: string; init?: 'blank' | 'template' | 'reverse' }) =>
     send<Ontology>('/api/v1/ontologies', 'POST', p),
+  createEdge: (e: Edge) => send<Edge>('/api/v1/edges', 'POST', e),
   objects: (scope?: 'canvas' | 'registry') =>
     get<OntoObject[]>(scope ? `/api/v1/objects?scope=${scope}` : '/api/v1/objects'),
   createObject: (o: OntoObject) => send<OntoObject>('/api/v1/objects', 'POST', o),

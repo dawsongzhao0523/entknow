@@ -10,6 +10,7 @@ import {
   type Ontology, type User, type Version,
 } from '../../api';
 import { useSession } from '../../session';
+import ElementCreate, { type ElementType } from './ElementCreate';
 
 const { Title, Text } = Typography;
 const { TextArea } = Input;
@@ -40,6 +41,7 @@ export default function OntologyDetail() {
   const [edges, setEdges] = useState<Edge[]>([]);
   const [funcs, setFuncs] = useState<Func[]>([]);
   const [addOpen, setAddOpen] = useState(false);
+  const [createType, setCreateType] = useState<ElementType | null>(null);
   const [newUser, setNewUser] = useState('');
   const [newRole, setNewRole] = useState('查看者');
   const [exportFmt, setExportFmt] = useState<'owl' | 'rdf'>('owl');
@@ -125,9 +127,12 @@ export default function OntologyDetail() {
   );
 
   const objectsSec = (
-    <Card size="small" extra={<Popconfirm title={`发布新版本？`} onConfirm={publish}>
-      <Button type="primary" icon={<CloudUploadOutlined />}>发布</Button>
-    </Popconfirm>}>
+    <Card size="small" extra={<Space>
+      <Button size="small" type="primary" onClick={() => setCreateType('object')}>新建对象</Button>
+      <Popconfirm title={`发布新版本？`} onConfirm={publish}>
+        <Button icon={<CloudUploadOutlined />}>发布</Button>
+      </Popconfirm>
+    </Space>}>
       <Table<OntoObject> size="small" rowKey="id" pagination={false} dataSource={myObjects}
         columns={[
           { title: '对象', dataIndex: 'name', render: (v: string, o) => (
@@ -143,7 +148,7 @@ export default function OntologyDetail() {
   );
 
   const edgesSec = (
-    <Card size="small">
+    <Card size="small" extra={<Button size="small" onClick={() => setCreateType('edge')}>新建关系</Button>}>
       <Table<Edge> size="small" rowKey="id" pagination={false} dataSource={myEdges}
         columns={[
           { title: '关系', dataIndex: 'name', render: (v: string) => <b>{v}</b> },
@@ -161,7 +166,7 @@ export default function OntologyDetail() {
   );
 
   const funcsSec = (
-    <Card size="small">
+    <Card size="small" extra={<Button size="small" onClick={() => setCreateType('function')}>新建函数</Button>}>
       <Table<Func> size="small" rowKey="id" pagination={false} dataSource={myFuncs}
         columns={[
           { title: '函数', dataIndex: 'name', render: (v: string) => <b>{v}</b> },
@@ -258,6 +263,15 @@ export default function OntologyDetail() {
           <Select style={{ width: 120 }} value={newRole} onChange={setNewRole} options={ROLES.map(r => ({ value: r }))} />
         </Space>
       </Modal>
+
+      <ElementCreate
+        type={createType ?? 'object'}
+        open={!!createType}
+        onClose={() => setCreateType(null)}
+        onCreated={reload}
+        ontology={ontoName}
+        objects={myObjects.map(o => ({ id: o.id, name: o.name }))}
+      />
     </div>
   );
 }

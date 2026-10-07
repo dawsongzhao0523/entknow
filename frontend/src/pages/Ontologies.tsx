@@ -72,6 +72,10 @@ export default function Ontologies() {
                 <Tag color={statusColor[o.status]}>{o.status === 'DRAFT' ? '构建中' : '生产中'}</Tag>
                 <Tag>{o.version}</Tag>
                 <Tag>我的角色: {o.myRole}</Tag>
+                <Tag color="cyan">{o.scene}</Tag>
+              </div>
+              <div style={{ marginTop: 6, fontSize: 11, color: '#6b7688' }}>
+                空间：{o.scene}{o.status === 'PUBLISHED' ? ' · 全集团可见' : ' · 空间内可见'}
               </div>
               <div style={{ marginTop: 10, fontSize: 12, color: '#6b7688' }}>
                 {o.objects} 对象 · {o.edges} 关系 · {o.members} 成员 · 所有者 {o.owner}
