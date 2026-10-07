@@ -2,6 +2,7 @@
 package server
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -11,6 +12,7 @@ import (
 	"time"
 
 	"github.com/dawsongzhao0523/entknow/backend/internal/store"
+	"github.com/jackc/pgx/v5"
 )
 
 func mountModules(api *http.ServeMux, st *store.Store) {
@@ -326,17 +328,48 @@ func mountOrgPosts(api *http.ServeMux, st *store.Store) {
 		}
 		// 校验连接串格式：协议://地址
 		if !strings.Contains(in.Host, "://") {
-			return nil, fmt.Errorf("%w: 连接串格式应为 protocol://host:port/db", store.ErrInvalid)
+			return nil, fmt.Errorf("%w: 连接串格式应为 protocol://user:pass@host:port/db", store.ErrInvalid)
 		}
-		// 模拟连接延迟 + 返回表数（生产环境此处应真实拨测并查询表数量）
-		time.Sleep(300 * time.Millisecond)
+
+		// PostgreSQL / postgres：真实拨测 + 查询表数
+		if in.Type == "PostgreSQL" || strings.HasPrefix(strings.ToLower(in.Host), "postgres") {
+			start := time.Now()
+			dsn := strings.Replace(in.Host, "postgresql://", "postgres://", 1)
+			// 容器内 localhost/外部端口不可达 → 替换为 Docker 网络名和内部端口
+			for _, rep := range [][2]string{
+				{"@localhost:25432", "@postgres:5432"},
+				{"@127.0.0.1:25432", "@postgres:5432"},
+				{"@localhost:5432", "@postgres:5432"},
+				{"@127.0.0.1:5432", "@postgres:5432"},
+			} {
+				dsn = strings.Replace(dsn, rep[0], rep[1], 1)
+			}
+			ctx, cancel := context.WithTimeout(r.Context(), 5*time.Second)
+			defer cancel()
+			conn, err := pgx.Connect(ctx, dsn)
+			if err != nil {
+				return nil, fmt.Errorf("%w: 连接失败: %v", store.ErrInvalid, err)
+			}
+			defer conn.Close(ctx)
+			var tables int
+			if err := conn.QueryRow(ctx,
+				`SELECT count(*) FROM information_schema.tables WHERE table_schema = 'public'`,
+			).Scan(&tables); err != nil {
+				return nil, fmt.Errorf("%w: 已连接但查询表数失败: %v", store.ErrInvalid, err)
+			}
+			latency := time.Since(start).Milliseconds()
+			return map[string]any{"ok": true, "tables": tables, "latency": fmt.Sprintf("%dms", latency), "real": true}, nil
+		}
+
+		// 其他类型：格式校验通过即返回模拟结果（需安装对应驱动后支持真实拨测）
+		time.Sleep(200 * time.Millisecond)
 		tableCount := map[string]int{
-			"MySQL": 142, "PostgreSQL": 38, "SQLServer": 96, "Oracle": 210, "ClickHouse": 24,
+			"MySQL": 142, "SQLServer": 96, "Oracle": 210, "ClickHouse": 24,
 		}[in.Type]
 		if tableCount == 0 {
 			tableCount = 50
 		}
-		return map[string]any{"ok": true, "tables": tableCount, "latency": "12ms"}, nil
+		return map[string]any{"ok": true, "tables": tableCount, "latency": "12ms", "real": false}, nil
 	}))
 
 	// ─── 解析策略（非结构化加工） ───
