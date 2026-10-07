@@ -39,6 +39,20 @@ type rdfRDF struct {
 	Classes       []rdfClass        `xml:"Class"`
 	ObjectProps   []rdfObjectProp   `xml:"ObjectProperty"`
 	DatatypeProps []rdfDatatypeProp `xml:"DatatypeProperty"`
+	RDFProps      []rdfGenProp      `xml:"Property"` // FOAF 风格的 rdf:Property
+}
+
+// rdfGenProp 通用属性（FOAF 等用 rdf:Property + 嵌套 rdf:type 声明类型）
+type rdfGenProp struct {
+	About  string    `xml:"about,attr"`
+	Label  string    `xml:"label"`
+	Types  []rdfType `xml:"type"`
+	Domain rdfRef    `xml:"domain"`
+	Range  rdfRef    `xml:"range"`
+}
+
+type rdfType struct {
+	Resource string `xml:"resource,attr"`
 }
 
 type rdfClass struct {
@@ -142,6 +156,45 @@ func ParseRDFXML(data []byte) (*ImportPreview, error) {
 			Name: en, Label: op.Label,
 			From: refToLocal(op.Domain.Resource), To: refToLocal(op.Range.Resource),
 		})
+	}
+
+	// 解析通用属性（FOAF 风格：rdf:Property + 嵌套 rdf:type 判别）
+	for _, rp := range doc.RDFProps {
+		en := refToLocal(rp.About)
+		if en == "" {
+			continue
+		}
+		isObjProp, isDataProp := false, false
+		for _, t := range rp.Types {
+			if strings.HasSuffix(t.Resource, "ObjectProperty") {
+				isObjProp = true
+			}
+			if strings.HasSuffix(t.Resource, "DatatypeProperty") {
+				isDataProp = true
+			}
+		}
+		if isObjProp {
+			from := refToLocal(rp.Domain.Resource)
+			to := refToLocal(rp.Range.Resource)
+			if from != "" && to != "" && to != "Thing" {
+				preview.Edges = append(preview.Edges, ImportedEdge{Name: en, Label: rp.Label, From: from, To: to})
+			}
+		} else if isDataProp {
+			domain := refToLocal(rp.Domain.Resource)
+			type_ := "string"
+			if strings.Contains(rp.Range.Resource, "integer") || strings.Contains(rp.Range.Resource, "int") {
+				type_ = "int"
+			} else if strings.Contains(rp.Range.Resource, "decimal") || strings.Contains(rp.Range.Resource, "double") {
+				type_ = "decimal"
+			} else if strings.Contains(rp.Range.Resource, "boolean") {
+				type_ = "boolean"
+			}
+			for i := range preview.Objects {
+				if preview.Objects[i].En == domain {
+					preview.Objects[i].Props = append(preview.Objects[i].Props, Prop{Name: en, Type: type_, Comment: rp.Label})
+				}
+			}
+		}
 	}
 
 	preview.Stats["objects"] = len(preview.Objects)
