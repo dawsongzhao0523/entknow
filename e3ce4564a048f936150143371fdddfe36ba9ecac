@@ -1,0 +1,31 @@
+frontend/src/pages/Datasources.tsx
+  d2feb3b21e472516 203
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.8.1",
+  "base_commit_sha": "e3ce4564a048f936150143371fdddfe36ba9ecac",
+  "prompts": {
+    "d2feb3b21e472516": {
+      "agent_id": {
+        "tool": "zcode",
+        "id": "sess_640dac34-2670-4904-ae98-aa4e9073f17c",
+        "model": "GLM-5.3"
+      },
+      "human_author": "dawsongzhao0523 <133857587+dawsongzhao0523@users.noreply.github.com>",
+      "messages": [],
+      "total_additions": 1,
+      "total_deletions": 1,
+      "accepted_lines": 6582,
+      "overriden_lines": 0,
+      "messages_url": "https://gitai.gz.cvte.cn/cas/90bb941edb91d2aaf5cd4e44ddfac2143c3fb6344b4ce1ff9ac0aca423c602fb",
+      "token_usage": {
+        "input_tokens": 390010977,
+        "output_tokens": 531039,
+        "cache_read_tokens": 383121664,
+        "cache_creation_tokens": 0,
+        "total_cost": 0.0
+      }
+    }
+  }
+}
