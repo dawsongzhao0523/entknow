@@ -49,38 +49,23 @@ type ExploreTable struct {
 
 // GetExploreTree 返回用户可见的数据源目录树（数据库+知识库+API）。
 func (s *Store) GetExploreTree(ctx context.Context) ([]ExploreSource, error) {
-	var out []ExploreSource
+	out := []ExploreSource{}
 
-	// 1) 数据库类型源 → 表列表
+	// 1) 数据库类型源 → 真实表列表（pg_tables，保证可查询）
 	dss, err := s.ListDatasources(ctx)
 	if err != nil {
 		return nil, err
 	}
-	for _, ds := range dss {
-		if ds.Kind != "结构化" {
-			continue
-		}
-		src := ExploreSource{Key: "db:" + ds.ID, Title: ds.Type + " (" + ds.Name + ")", Kind: "database"}
-		profiles, err := s.pool.Query(ctx, `SELECT name FROM table_profiles ORDER BY name`)
-		if err == nil {
-			defer profiles.Close()
-			for profiles.Next() {
+	// 只需一个源展示所有真实表（多个源会导致重复）
+	if len(dss) > 0 {
+		src := ExploreSource{Key: "db:main", Title: "PostgreSQL (entknow)", Kind: "database"}
+		rows, qerr := s.pool.Query(ctx, `SELECT tablename FROM pg_tables WHERE schemaname='public' ORDER BY tablename LIMIT 30`)
+		if qerr == nil {
+			defer rows.Close()
+			for rows.Next() {
 				var name string
-				if err := profiles.Scan(&name); err == nil {
+				if err := rows.Scan(&name); err == nil {
 					src.Children = append(src.Children, ExploreTable{Key: "tbl:" + name, Title: name, IsLeaf: true})
-				}
-			}
-		}
-		// 如果没有 table_profiles，用系统表填充
-		if len(src.Children) == 0 {
-			rows, err := s.pool.Query(ctx, `SELECT tablename FROM pg_tables WHERE schemaname='public' ORDER BY tablename LIMIT 20`)
-			if err == nil {
-				defer rows.Close()
-				for rows.Next() {
-					var name string
-					if err := rows.Scan(&name); err == nil {
-						src.Children = append(src.Children, ExploreTable{Key: "tbl:" + name, Title: name, IsLeaf: true})
-					}
 				}
 			}
 		}
