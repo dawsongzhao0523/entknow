@@ -317,6 +317,19 @@ func mountModules(api *http.ServeMux, st *store.Store) {
 }
 
 func mountOrgPosts(api *http.ServeMux, st *store.Store) {
+	// ─── 数据探索 ───
+	api.HandleFunc("GET /api/v1/explore/tree", handle(func(r *http.Request) ([]store.ExploreSource, error) {
+		return st.GetExploreTree(r.Context())
+	}))
+	api.HandleFunc("GET /api/v1/explore/table/{name}", handle(func(r *http.Request) (*store.ExploreTableData, error) {
+		return st.GetExploreTable(r.Context(), r.PathValue("name"))
+	}))
+	api.HandleFunc("GET /api/v1/explore/doc/{id}", handle(func(r *http.Request) (map[string]any, error) {
+		return st.GetExploreDoc(r.Context(), r.PathValue("id"))
+	}))
+	api.HandleFunc("GET /api/v1/explore/api/{id}", handle(func(r *http.Request) (map[string]any, error) {
+		return st.GetExploreApi(r.Context(), r.PathValue("id"))
+	}))
 	// ─── 本体文件导入（OWL/RDF 预览 + 确认） ───
 	api.HandleFunc("POST /api/v1/ontologies/{id}/import/preview", func(w http.ResponseWriter, r *http.Request) {
 		file, header, err := r.FormFile("file")

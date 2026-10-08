@@ -284,6 +284,10 @@ export const api = {
   datasources: () => get<Datasource[]>('/api/v1/datasources'),
   createDatasource: (d: Datasource) => send<Datasource>('/api/v1/datasources', 'POST', d),
   updateDatasource: (id: string, d: Datasource) => send<Datasource>(`/api/v1/datasources/${id}`, 'PUT', d),
+  exploreTree: () => get<{key: string; title: string; kind: string; children?: {key: string; title: string; isLeaf: boolean}[]}[]>('/api/v1/explore/tree'),
+  exploreTable: (name: string) => get<{name: string; rows: string; columns: {name: string; type: string; nullable: boolean; key?: string; default?: string; comment: string}[]; sample: Record<string, string>[]; fks: {column: string; refTable: string; refColumn: string}[]}>(`/api/v1/explore/table/${encodeURIComponent(name)}`),
+  exploreDoc: (id: string) => get<{id: string; title: string; content: string}>(`/api/v1/explore/doc/${encodeURIComponent(id)}`),
+  exploreApi: (id: string) => get<Record<string, unknown>>(`/api/v1/explore/api/${encodeURIComponent(id)}`),
   schedulerStatus: () => get<{ running: boolean; intervalSec: number; cronIntervalMin: number; description: string }>('/api/v1/scheduler/status'),
   testDatasource: (host: string, type: string) =>
     send<{ ok: boolean; tables: number; latency: string }>('/api/v1/datasources/test', 'POST', { host, type }),

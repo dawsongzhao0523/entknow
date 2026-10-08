@@ -15,6 +15,7 @@ import Pipelines from './pages/Pipelines';
 import Sandbox from './pages/Sandbox';
 import Placeholder from './pages/Placeholder';
 import Market from './pages/assets/Market';
+import Explorer from './pages/assets/Explorer';
 import Workbench from './pages/assets/Workbench';
 import Convergence from './pages/knowledge/Convergence';
 import OntologyDetail from './pages/modeling/OntologyDetail';
@@ -59,6 +60,7 @@ export default function App() {
         <Route path="admin/monitor" element={<Monitor />} />
         <Route path="admin/logs" element={<Logs />} />
         <Route path="admin/settings" element={<Settings />} />
+        <Route path="assets/explorer" element={<Explorer />} />
         <Route path="assets/market" element={<Market />} />
         <Route path="assets/workbench" element={<Workbench />} />
         <Route path="knowledge/convergence" element={<Convergence />} />

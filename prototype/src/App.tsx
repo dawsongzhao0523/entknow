@@ -3,6 +3,7 @@ import AppShell from './layouts/AppShell';
 import Home from './pages/Home';
 
 import SourceHub from './pages/assets/SourceHub';
+import Explorer from './pages/assets/Explorer';
 import ProcessingHub from './pages/assets/ProcessingHub';
 import Market from './pages/assets/Market';
 import Workbench from './pages/assets/Workbench';
@@ -43,6 +44,7 @@ export default function App() {
           <Route path="home" element={<Home />} />
           <Route path="overview" element={<Navigate to="/admin/overview" replace />} />
           {/* 新菜单路由 */}
+          <Route path="assets/explorer" element={<Explorer />} />
           <Route path="assets/sources" element={<SourceHub />} />
           <Route path="assets/market" element={<Market />} />
           <Route path="assets/workbench" element={<Workbench />} />

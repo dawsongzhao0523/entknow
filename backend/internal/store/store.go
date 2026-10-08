@@ -377,7 +377,7 @@ func (s *Store) ListDatasources(ctx context.Context) ([]Datasource, error) {
 	for rows.Next() {
 		var d Datasource
 		if err := rows.Scan(&d.ID, &d.Name, &d.Type, &d.Kind, &d.Host, &d.Status, &d.Mode,
-			&d.Tables, &d.Sensitive, &d.Owner, &d.LastSync, &d.SyncIntervalMin); err != nil {
+			&d.Tables, &d.Sensitive, &d.Owner, &d.LastSync, &d.SyncIntervalMin, &d.SyncConfig); err != nil {
 			return nil, err
 		}
 		out = append(out, d)

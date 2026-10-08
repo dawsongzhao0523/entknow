@@ -20,7 +20,7 @@ export interface ShellCtx { onto: string; role: OntoRole; persona: Persona }
 const NAV: { key: string; label: string; icon?: React.ReactNode; children?: [string, string][] }[] = [
   { key: 'home', label: '首页', icon: <HomeOutlined /> },
   { key: 'assets', label: '数据资产', icon: <DatabaseOutlined />, children: [
-    ['assets/sources', '数据源中心'], ['assets/market', '数据集市'], ['assets/workbench', '数据工作台'],
+    ['assets/explorer', '数据探索'], ['assets/sources', '数据源中心'], ['assets/market', '数据集市'], ['assets/workbench', '数据工作台'],
     ['assets/processing', '数据加工'], ['assets/logical-view', '逻辑视图'],
   ]},
   { key: 'knowledge', label: '知识运营', icon: <BookOutlined />, children: [

@@ -264,11 +264,12 @@ INSERT INTO table_profiles (name, comment, rows, fields, pk, fks, siblings, prof
 -- 菜单树：与生产前端真实路由一一对应；roles.perms 引用一级模块 id
 INSERT INTO menus (id, parent_id, name, route, icon, sort, visible) VALUES
 ('assets', '', '数据资产', '', 'DatabaseOutlined', 1, true),
-('assets/datasources', 'assets', '数据源中心', 'assets/datasources', '', 1, true),
-('assets/views',       'assets', '逻辑视图',   'assets/views',       '', 2, true),
-('assets/pipelines',   'assets', '数据加工',   'assets/pipelines',   '', 3, true),
-('assets/market',       'assets', '数据集市',   'assets/market',       '', 4, true),
-('assets/workbench',    'assets', '数据工作台', 'assets/workbench',    '', 5, true),
+('assets/explorer',    'assets', '数据探索',   'assets/explorer',    '', 1, true),
+('assets/datasources', 'assets', '数据源中心', 'assets/datasources', '', 2, true),
+('assets/views',       'assets', '逻辑视图',   'assets/views',       '', 3, true),
+('assets/pipelines',   'assets', '数据加工',   'assets/pipelines',   '', 4, true),
+('assets/market',       'assets', '数据集市',   'assets/market',       '', 5, true),
+('assets/workbench',    'assets', '数据工作台', 'assets/workbench',    '', 6, true),
 ('knowledge', '', '知识运营', '', 'BookOutlined', 2, true),
 ('knowledge/entries',  'knowledge', '知识库',     'knowledge/entries',  '', 1, true),
 ('knowledge/synonyms', 'knowledge', '同义词治理', 'knowledge/synonyms', '', 2, true),
