@@ -9,6 +9,7 @@ import {
   ReloadOutlined, SearchOutlined, TableOutlined,
 } from '@ant-design/icons';
 import { api } from '../../api';
+import MarkdownDoc from '../../components/MarkdownDoc';
 
 const { Title, Text } = Typography;
 
@@ -230,10 +231,9 @@ export default function Explorer() {
                   </div>
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <Title level={4}>{kbDoc.title}</Title>
-                    <pre style={{
-                      whiteSpace: 'pre-wrap', fontSize: 13.5, lineHeight: 1.8,
-                      fontFamily: 'inherit', maxWidth: 720,
-                    }}>{kbDoc.content || '（文档内容为空，请在知识库模块编辑）'}</pre>
+                    <div style={{ maxWidth: 720 }}>
+                      <MarkdownDoc markdown={kbDoc.content || '（文档内容为空，请在知识库模块编辑）'} />
+                    </div>
                   </div>
                 </div>
               )}
