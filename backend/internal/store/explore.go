@@ -58,7 +58,7 @@ func (s *Store) GetExploreTree(ctx context.Context) ([]ExploreSource, error) {
 	}
 	// 只需一个源展示所有真实表（多个源会导致重复）
 	if len(dss) > 0 {
-		src := ExploreSource{Key: "db:main", Title: "PostgreSQL (entknow)", Kind: "database"}
+		src := ExploreSource{Key: "db:main", Title: "PostgreSQL (entknow)", Kind: "database", Children: []ExploreTable{}}
 		rows, qerr := s.pool.Query(ctx, `SELECT tablename FROM pg_tables WHERE schemaname='public' ORDER BY tablename LIMIT 30`)
 		if qerr == nil {
 			defer rows.Close()
@@ -103,7 +103,7 @@ func (s *Store) GetExploreTree(ctx context.Context) ([]ExploreSource, error) {
 
 // GetExploreTable 返回表结构、样本数据和外键。
 func (s *Store) GetExploreTable(ctx context.Context, tableName string) (*ExploreTableData, error) {
-	data := &ExploreTableData{Name: tableName}
+	data := &ExploreTableData{Name: tableName, Columns: []ExploreTableColumn{}, Sample: []map[string]string{}, Fks: []ExploreFK{}}
 
 	// 列信息
 	colRows, err := s.pool.Query(ctx, `

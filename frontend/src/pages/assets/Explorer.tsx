@@ -53,7 +53,8 @@ export default function Explorer() {
     try {
       if (key.startsWith('tbl:')) {
         setViewMode('schema');
-        setTableData(await api.exploreTable(key.slice(4)));
+        const td = await api.exploreTable(key.slice(4));
+        setTableData({ ...td, columns: td.columns ?? [], sample: td.sample ?? [], fks: td.fks ?? [] });
       } else if (key.startsWith('doc:')) {
         setKbDoc(await api.exploreDoc(key.slice(4)));
       } else if (key.startsWith('ep:')) {
