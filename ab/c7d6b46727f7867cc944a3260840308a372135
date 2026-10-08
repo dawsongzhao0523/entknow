@@ -1,0 +1,31 @@
+backend/internal/store/explore.go
+  d2feb3b21e472516 52,54,59-65,67
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.8.1",
+  "base_commit_sha": "abc7d6b46727f7867cc944a3260840308a372135",
+  "prompts": {
+    "d2feb3b21e472516": {
+      "agent_id": {
+        "tool": "zcode",
+        "id": "sess_640dac34-2670-4904-ae98-aa4e9073f17c",
+        "model": "GLM-5.3"
+      },
+      "human_author": "dawsongzhao0523 <133857587+dawsongzhao0523@users.noreply.github.com>",
+      "messages": [],
+      "total_additions": 16,
+      "total_deletions": 31,
+      "accepted_lines": 6593,
+      "overriden_lines": 0,
+      "messages_url": "https://gitai.gz.cvte.cn/cas/766d90661a1cbc454f80d9cacae6e9467b21eba01fa428342872079e812e6197",
+      "token_usage": {
+        "input_tokens": 542337194,
+        "output_tokens": 608296,
+        "cache_read_tokens": 528576896,
+        "cache_creation_tokens": 0,
+        "total_cost": 0.0
+      }
+    }
+  }
+}
