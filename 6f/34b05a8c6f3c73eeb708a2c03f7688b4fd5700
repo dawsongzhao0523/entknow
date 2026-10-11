@@ -1,0 +1,44 @@
+docs/requirement/20261008基于华为本体驱动AI数据管理一书的评审与优化方案.md
+  d2feb3b21e472516 1-243
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.8.1",
+  "base_commit_sha": "6f34b05a8c6f3c73eeb708a2c03f7688b4fd5700",
+  "prompts": {
+    "8d3a272815cbf12a": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a12577-c5cf-73a1-b5a9-05ea682aa9ec",
+        "model": "unknown"
+      },
+      "human_author": "dawsongzhao0523 <133857587+dawsongzhao0523@users.noreply.github.com>",
+      "messages": [],
+      "total_additions": 0,
+      "total_deletions": 0,
+      "accepted_lines": 0,
+      "overriden_lines": 0
+    },
+    "d2feb3b21e472516": {
+      "agent_id": {
+        "tool": "zcode",
+        "id": "sess_640dac34-2670-4904-ae98-aa4e9073f17c",
+        "model": "GLM-5.3"
+      },
+      "human_author": "dawsongzhao0523 <133857587+dawsongzhao0523@users.noreply.github.com>",
+      "messages": [],
+      "total_additions": 243,
+      "total_deletions": 0,
+      "accepted_lines": 6824,
+      "overriden_lines": 0,
+      "messages_url": "https://gitai.gz.cvte.cn/cas/a6b36e6f031a046bcacee06eead7798b9ccf5357f0fe11fe777f99a39db6311a",
+      "token_usage": {
+        "input_tokens": 576913642,
+        "output_tokens": 619871,
+        "cache_read_tokens": 561323520,
+        "cache_creation_tokens": 0,
+        "total_cost": 0.0
+      }
+    }
+  }
+}
