@@ -499,3 +499,27 @@ ALTER TABLE reviews ADD COLUMN IF NOT EXISTS decided_at text NOT NULL DEFAULT ''
 ALTER TABLE reviews ADD COLUMN IF NOT EXISTS comment    text NOT NULL DEFAULT '';
 ALTER TABLE capabilities ADD COLUMN IF NOT EXISTS base_calls integer NOT NULL DEFAULT 0;
 ALTER TABLE notifications ADD COLUMN IF NOT EXISTS to_user text NOT NULL DEFAULT ''; -- 空 = 全员广播
+
+-- ─── 推理治理（reasoning-governance 增量） ───
+
+-- 事实-事理-行动贯通：规则触发后自动执行的行动函数（关联 functions.id，须为「行动」类）
+ALTER TABLE rules ADD COLUMN IF NOT EXISTS action_func text NOT NULL DEFAULT '';
+
+-- 约束强度分级（strong 强约束：安全合规，网关拦截 / weak 弱约束：提示确认 / advisory 建议级：仅记录）
+ALTER TABLE rules   ADD COLUMN IF NOT EXISTS constraint_level text NOT NULL DEFAULT 'weak';
+ALTER TABLE objects ADD COLUMN IF NOT EXISTS constraint_level text NOT NULL DEFAULT 'advisory';
+ALTER TABLE edges   ADD COLUMN IF NOT EXISTS constraint_level text NOT NULL DEFAULT 'advisory';
+
+-- 推理轨迹：完整「事实 → 事理 → 行动」链路，支撑可解释可追溯
+CREATE TABLE IF NOT EXISTS reasoning_trails (
+  id          serial PRIMARY KEY,
+  rule_id     text NOT NULL DEFAULT '',
+  instance_id text NOT NULL DEFAULT '',
+  onto        text NOT NULL DEFAULT '',
+  rules_hit   text NOT NULL DEFAULT '',    -- 命中规则集合（逗号分隔）
+  steps       jsonb NOT NULL DEFAULT '[]', -- [{step,detail}] 推理步骤
+  conclusion  text NOT NULL DEFAULT '',
+  created_at  text NOT NULL DEFAULT ''
+);
+CREATE INDEX IF NOT EXISTS idx_trails_instance ON reasoning_trails (instance_id);
+CREATE INDEX IF NOT EXISTS idx_trails_rule ON reasoning_trails (rule_id);

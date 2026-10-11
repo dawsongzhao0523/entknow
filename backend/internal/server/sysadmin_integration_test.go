@@ -28,8 +28,8 @@ func TestMenusTreeAndPerms(t *testing.T) {
 			assetsMenu = m
 		}
 	}
-	if assetsMenu == nil || len(assetsMenu["children"].([]any)) != 5 {
-		t.Fatalf("assets 子菜单数不对（应含 集市/工作台）: %v", assetsMenu)
+	if assetsMenu == nil || len(assetsMenu["children"].([]any)) != 6 {
+		t.Fatalf("assets 子菜单数不对（应含 数据探索/集市/工作台）: %v", assetsMenu)
 	}
 
 	// 按角色权限过滤：wangwu（评审员，perms=knowledge,modeling,governance）
@@ -272,7 +272,7 @@ func TestAdminStats(t *testing.T) {
 	stats := decodeMap(t, callJSON(t, h, http.MethodGet, "/api/v1/admin/stats", nil))
 
 	want := map[string]float64{
-		"users": 4, "roles": 6, "objects": 11, "dsTotal": 6, "dsNormal": 4, "dsError": 1,
+		"users": 5, "roles": 6, "objects": 11, "dsTotal": 6, "dsNormal": 4, "dsError": 1,
 	}
 	for k, v := range want {
 		if stats[k].(float64) != v {

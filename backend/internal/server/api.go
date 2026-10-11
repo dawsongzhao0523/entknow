@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/dawsongzhao0523/entknow/backend/internal/llm"
 	"github.com/dawsongzhao0523/entknow/backend/internal/store"
 )
 
@@ -65,12 +66,18 @@ func mapStoreErr(w http.ResponseWriter, err error) {
 
 // MountAPI 把 /api/v1 端点挂到 mux：全部注册进子 mux，再经审计中间件包装（写操作自动落审计）。
 // ServeMux 注册顺序与匹配无关，子 mux 的挂载可先于具体路由完成。
-func MountAPI(mux *http.ServeMux, st *store.Store) {
+// llmc 可为 nil（禁用 LLM，AI 能力回退规则引擎）；为 nil 时内部包装成禁用态客户端。
+func MountAPI(mux *http.ServeMux, st *store.Store, llmc *llm.Client) {
+	if llmc == nil {
+		llmc = &llm.Client{}
+	}
 	api := http.NewServeMux()
 	mux.Handle("/api/", withAudit(st, api))
 	mountSysAdmin(api, st)
 	mountModules(api, st)
 	mountOrgPosts(api, st)
+	mountW3C(api, st)
+	mountAI(api, st, llmc)
 	api.HandleFunc("GET /api/v1/ontologies", handle(func(r *http.Request) ([]store.Ontology, error) {
 		user := r.URL.Query().Get("user")
 		if user == "" {

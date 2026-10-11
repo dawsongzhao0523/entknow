@@ -95,16 +95,15 @@ func TestEdgeReferenceCount(t *testing.T) {
 		t.Fatalf("工厂 refCount = %v, want %v", got, plantBefore+1)
 	}
 
-	// 引用 DRAFT 对象（o4 采购订单为 DRAFT）→ 400，计数不变
+	// 引用不存在对象 → 400，计数不变（DRAFT 引用放行：AI 建模草稿对象+关系联动入库）
 	rec = callJSON(t, h, http.MethodPost, "/api/v1/edges", map[string]any{
-		"id": "e-t2", "name": "BAD_REF", "from": "供应商", "to": "采购订单"})
+		"id": "e-t2", "name": "BAD_REF", "from": "供应商", "to": "不存在的对象"})
 	if rec.Code != http.StatusBadRequest {
-		t.Fatalf("引用 DRAFT 应 400，实际 %d", rec.Code)
+		t.Fatalf("引用不存在对象应 400，实际 %d", rec.Code)
 	}
 	if got := refBefore("供应商"); got != supplierBefore+1 {
 		t.Fatalf("被拒引用后供应商 refCount 变动: %v", got)
 	}
-
 	// 幂等重放不重复计数
 	rec = callJSON(t, h, http.MethodPost, "/api/v1/edges", map[string]any{
 		"id": "e-t1", "name": "TEST_REF（测试引用）", "from": "供应商", "to": "工厂"})
@@ -113,6 +112,16 @@ func TestEdgeReferenceCount(t *testing.T) {
 	}
 	if got := refBefore("供应商"); got != supplierBefore+1 {
 		t.Fatalf("重放后供应商 refCount 变动: %v", got)
+	}
+
+	// DRAFT 对象引用（AI 建模联动语义）→ 201，refCount 同样联动
+	rec = callJSON(t, h, http.MethodPost, "/api/v1/edges", map[string]any{
+		"id": "e-t2d", "name": "DRAFT_REF", "from": "供应商", "to": "采购订单"})
+	if rec.Code != http.StatusCreated {
+		t.Fatalf("引用 DRAFT（AI 建模草稿联动）应 201，实际 %d", rec.Code)
+	}
+	if got := refBefore("供应商"); got != supplierBefore+2 {
+		t.Fatalf("DRAFT 引用后供应商 refCount 应 +2: %v", got)
 	}
 }
 

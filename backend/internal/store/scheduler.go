@@ -24,11 +24,12 @@ type SchedulerStatus struct {
 
 // Scheduler 后台调度器。
 type Scheduler struct {
-	store        *Store
-	status       atomic.Pointer[SchedulerStatus]
-	cancel       context.CancelFunc
-	syncInterval time.Duration // CRON 源的同步间隔（简化：默认 5 分钟）
-	tickInterval time.Duration // 调度器检查间隔（30 秒）
+	store           *Store
+	status          atomic.Pointer[SchedulerStatus]
+	cancel          context.CancelFunc
+	syncInterval    time.Duration             // CRON 源的同步间隔（简化：默认 5 分钟）
+	tickInterval    time.Duration             // 调度器检查间隔（30 秒）
+	lastHealthCheck atomic.Pointer[time.Time] // 上次本体一致性巡检时间（每小时一次）
 }
 
 // NewScheduler 创建并启动后台调度器。
@@ -146,5 +147,41 @@ func (s *Scheduler) tick(ctx context.Context) {
 		log.Printf("scheduler: 已同步 %s（%s）", d.name, d.id)
 	}
 
+	// 本体健康度巡检：每小时一次一致性检查，问题写 system_logs
+	s.maybeHealthCheck(ctx)
+
 	s.status.Store(&st)
+}
+
+// maybeHealthCheck 距上次巡检超过 1 小时则对全部本体执行一致性检查。
+func (s *Scheduler) maybeHealthCheck(ctx context.Context) {
+	last := s.lastHealthCheck.Load()
+	if last != nil && time.Since(*last) < time.Hour {
+		return
+	}
+	now := time.Now()
+	s.lastHealthCheck.Store(&now)
+	for _, onto := range []string{"scm", "quality", "equipment"} {
+		issues, err := s.store.Consistency(ctx, onto)
+		if err != nil {
+			log.Printf("scheduler: 一致性巡检失败（%s）: %v", onto, err)
+			continue
+		}
+		errs := 0
+		for _, is := range issues {
+			level := "WARN"
+			if is.Level == "error" {
+				level = "ERROR"
+				errs++
+			}
+			_ = s.store.EmitSystemLog(ctx, level, "本体巡检",
+				fmt.Sprintf("「%s」%s", ontologyName(onto), is.Detail))
+		}
+		if len(issues) == 0 {
+			_ = s.store.EmitSystemLog(ctx, "INFO", "本体巡检",
+				fmt.Sprintf("「%s」一致性检查通过（0 问题）", ontologyName(onto)))
+		} else {
+			log.Printf("scheduler: 巡检 %s 发现 %d 个问题（error=%d）", onto, len(issues), errs)
+		}
+	}
 }

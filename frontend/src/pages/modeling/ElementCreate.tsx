@@ -49,6 +49,7 @@ export default function ElementCreate({
             return { name: name || line.trim(), type: 'string', comment: comment ?? '' };
           }) : [{ name: v.en + '_id', type: 'string', comment: '新建，待补全' }],
         });
+        if (v.constraintLevel) await api.setConstraintLevel('object', id, v.constraintLevel).catch(() => {});
       } else if (type === 'edge') {
         const edgeProps = v.edgeProps ? v.edgeProps.split('\n').filter(Boolean).map((line: string) => {
           const [name, type, comment] = line.split(/[：:]/).map(s2 => s2.trim());
@@ -58,6 +59,7 @@ export default function ElementCreate({
           id, name: v.name, from: v.from, to: v.to, version: 'v0.1', status: 'DRAFT',
           refCount: 0, props: edgeProps, perm: '',
         });
+        if (v.constraintLevel) await api.setConstraintLevel('edge', id, v.constraintLevel).catch(() => {});
       } else if (type === 'function') {
         await api.createFunction({
           id, name: v.name, cat: v.cat, version: 'v0.1', status: 'DRAFT',
@@ -65,6 +67,7 @@ export default function ElementCreate({
         });
       } else if (type === 'rule') {
         await api.createRule({ id, def: v.def, kind: v.kind, status: '草稿', fired: 0 });
+        if (v.constraintLevel) await api.setConstraintLevel('rule', id, v.constraintLevel).catch(() => {});
       }
       message.success(`${title.replace('新建', '')}「${v.name || v.def?.slice(0, 20)}」已创建（DRAFT）`);
       form.resetFields();
@@ -101,6 +104,12 @@ export default function ElementCreate({
             </Space>
             <Form.Item name="props" label="属性清单（每行一个：名称：说明）">
               <TextArea rows={3} placeholder={'检验单号：唯一标识\n供应商：关联供应商对象'} />
+            </Form.Item>
+            <Form.Item name="constraintLevel" label="约束强度（行动网关按此分级把关）" initialValue="advisory"
+              tooltip="强约束：安全合规，高风险行动直接拦截；弱约束：提示后需二次确认；建议级：仅记录不拦截">
+              <Radio.Group options={[
+                { value: 'strong', label: '强约束' }, { value: 'weak', label: '弱约束' }, { value: 'advisory', label: '建议级' },
+              ]} optionType="button" />
             </Form.Item>
           </>
         )}
@@ -172,6 +181,11 @@ export default function ElementCreate({
             </Form.Item>
             <Form.Item name="kind" label="类型" initialValue="V→V">
               <Radio.Group options={RULE_KINDS.map(k => ({ value: k, label: k }))} optionType="button" />
+            </Form.Item>
+            <Form.Item name="constraintLevel" label="约束强度" initialValue="weak">
+              <Radio.Group options={[
+                { value: 'strong', label: '强约束' }, { value: 'weak', label: '弱约束' }, { value: 'advisory', label: '建议级' },
+              ]} optionType="button" />
             </Form.Item>
           </>
         )}

@@ -7,14 +7,15 @@ TRUNCATE users, ontologies, memberships, objects, edges, functions, views,
          capability_calls, query_history, pipeline_tasks, pipeline_runs, sandbox_branches,
          menus, data_rules, dep_services, dep_checks, audit_logs, user_settings,
          market_items, market_requests, bindings, binding_runs, onto_candidates, entity_alignments,
-         org_units, posts, system_logs, notification_reads, parse_profiles
+         org_units, posts, system_logs, notification_reads, parse_profiles, reasoning_trails
          RESTART IDENTITY;
 
 INSERT INTO users (id, account, name, dept, post, roles, status, last_login) VALUES
 ('u1', 'zhangsan', '张三', '平台部 / 数据AI部', '数据架构师', ARRAY['本体管理员','数据开发'], '正常', '2026-10-03 09:12'),
 ('u2', 'wangwu',   '王五', '供应链 / 采购部',   '业务专家',     ARRAY['评审员'],              '正常', '2026-10-03 08:47'),
 ('u3', 'sunqi',    '孙七', '平台部 / 数据AI部', '数据开发工程师', ARRAY['数据开发'],           '正常', '2026-10-02 19:31'),
-('u4', 'zhaoliu',  '赵六', '信息技术中心',     '系统集成工程师', ARRAY['系统集成'],           '正常', '2026-10-02 17:05');
+('u4', 'zhaoliu',  '赵六', '信息技术中心',     '系统集成工程师', ARRAY['系统集成'],           '正常', '2026-10-02 17:05'),
+('u5', 'agent',    '推理引擎', '系统',          'AI 推理引擎',    ARRAY['智能体开发'],          '正常', '-');
 
 INSERT INTO roles (id, name, descr, perms, built_in) VALUES
 ('admin',     '本体管理员', '本体全生命周期管理与发布', ARRAY['assets','knowledge','modeling','runtime','reasoning','sandbox','apps','governance','admin'], true),
@@ -89,11 +90,11 @@ INSERT INTO datasources (id, name, type, kind, host, status, mode, tables, sensi
 ('ds-005', 'erp_oracle',       'Oracle',       '结构化',   'oracle://192.0.2.2:1521/ERP',    '正常', 'CRON', 210, 'L3', '赵六', '2026-10-02 23:00'),
 ('ds-006', 'wms_clickhouse',   'ClickHouse',   '结构化',   'ck://192.0.2.6:9000/wms',        '停用', 'NONE',  24, 'L1', '张三', '2026-09-20 02:00');
 
-INSERT INTO rules (id, def, kind, status, fired) VALUES
-('R1', 'SUPPLY.delay 月均值变化>20% → 采购订单.交付风险分 重算', 'V→E', '运行中', 412),
-('R2', '采购订单.状态→已收货 → 供应商.准时率 更新',             'V→V', '运行中', 986),
-('R3', '设备.故障状态=是 → 关联工单.优先级 +1',                 'E→V', '运行中', 21),
-('R4', '齐套率<80% → SUPPLY 边标记「风险」',                    'E→E', '运行中', 423);
+INSERT INTO rules (id, def, kind, status, fired, action_func, constraint_level) VALUES
+('R1', 'SUPPLY.delay 月均值变化>20% → 采购订单.交付风险分 重算', 'V→E', '运行中', 412, 'f3', 'strong'),
+('R2', '采购订单.状态→已收货 → 供应商.准时率 更新',             'V→V', '运行中', 986, '',    'weak'),
+('R3', '设备.故障状态=是 → 关联工单.优先级 +1',                 'E→V', '运行中', 21,  '',    'weak'),
+('R4', '齐套率<80% → SUPPLY 边标记「风险」',                    'E→E', '运行中', 423, '',    'advisory');
 
 INSERT INTO reviews (id, title, type, from_user, status, sla, decided_by, decided_at, comment) VALUES
 ('RV-2026-1002-003', '供应链本体 v0.4：+交付风险分函数',            '本体发布',   '张三', '评审中', '剩 1 天', '', '', ''),
@@ -216,7 +217,7 @@ INSERT INTO synonyms (id, terms, standard, status, by, at) VALUES
 
 INSERT INTO instances (id, object_id, status, props, risk_score, order_dt, promise_dt) VALUES
 ('PO20260930001', 'o4', '已发货',
- '{"type":"采购订单","supplier":"S-0012 华兴电子","plant":"RCBJ-YK","material":"M-100233 电容 0402","amount":"58,200.00 CNY"}',
+ '{"type":"采购订单","supplier":"S-0012 华兴电子","plant":"RCBJ-YK","material":"M-100233 电容 0402","amount":"58,200.00 CNY","齐套率":"72"}',
  76, '2026-09-30 10:21', '2026-10-05 00:00'),
 ('PO20261002091', 'o4', '已下达',
  '{"type":"采购订单","supplier":"S-0031 翔宇科技","plant":"RCBJ-BSE","material":"M-100870 MCU","amount":"128,400.00 CNY"}',
@@ -224,6 +225,9 @@ INSERT INTO instances (id, object_id, status, props, risk_score, order_dt, promi
 ('QA-118', 'o7', '已通过',
  '{"type":"准入评估","supplier":"S-0031 翔宇科技","score":"86","conclusion":"准入"}',
  0, '2026-09-12 09:30', '');
+
+-- 约束强度分级示例：采购订单为弱约束（风险>80 行动需二次确认）；其余默认建议级
+UPDATE objects SET constraint_level = 'weak' WHERE id = 'o4';
 
 INSERT INTO instance_events (instance_id, t, e) VALUES
 ('PO20260930001', '2026-09-30 10:21', '订单创建（草稿）'),

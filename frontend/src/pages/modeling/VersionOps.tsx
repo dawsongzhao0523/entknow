@@ -4,26 +4,32 @@ import {
 } from 'antd';
 
 const { TextArea: InputTextArea } = Input;
-import { FileTextOutlined } from '@ant-design/icons';
+import { DownloadOutlined, FileTextOutlined } from '@ant-design/icons';
 import { api, type Ontology, type Version } from '../../api';
 import { useSession } from '../../session';
 
 const { Title, Text } = Typography;
 
-/** 版本与导出：版本历史（真实 versions）+ OWL/RDF 文本导出（确定性生成） */
+type Fmt = 'owl' | 'rdf' | 'skos';
+const FMT_FILE: Record<Fmt, { ext: string; mime: string }> = {
+  owl: { ext: 'ttl', mime: 'text/turtle' },
+  rdf: { ext: 'nt', mime: 'text/plain' },
+  skos: { ext: 'rdf', mime: 'application/rdf+xml' },
+};
+
+/** 版本与导出：版本历史（真实 versions）+ OWL/RDF/SKOS 标准导出（实时生成） */
 export default function VersionOps() {
   const { message } = App.useApp();
   const { user } = useSession();
   const [ontos, setOntos] = useState<Ontology[]>([]);
   const [onto, setOnto] = useState('scm');
   const [versions, setVersions] = useState<Version[]>([]);
-  const [format, setFormat] = useState<'owl' | 'rdf'>('owl');
+  const [format, setFormat] = useState<Fmt>('owl');
   const [text, setText] = useState('');
 
   const reloadVersions = useCallback((id: string) => {
     api.versions(id).then(setVersions).catch(() => {});
   }, []);
-
 
   useEffect(() => {
     api.ontologies(user).then(setOntos).catch(() => {});
@@ -33,9 +39,16 @@ export default function VersionOps() {
 
   const doExport = async () => {
     try {
-      const out = await api.exportOntology(onto, format);
+      const out = format === 'owl'
+        ? await api.ontologyOWL(onto)
+        : format === 'skos'
+          ? await api.skosExport()
+          : await api.exportOntology(onto, 'rdf');
       setText(out);
-      message.success(`已导出 ${onto} 的 ${format === 'owl' ? 'OWL（Turtle）' : 'RDF（NTriples）'} 文本`);
+      const label = format === 'owl' ? 'OWL Turtle（含 rdfs:domain/range，可导入 Protégé）'
+        : format === 'skos' ? 'SKOS RDF/XML（prefLabel/altLabel 术语表）'
+        : 'RDF NTriples';
+      message.success(`已生成 ${onto} 的 ${label}`);
     } catch (e) {
       message.error(String((e as Error).message));
     }
@@ -46,10 +59,21 @@ export default function VersionOps() {
     message.success('已复制到剪贴板');
   };
 
+  const download = () => {
+    const meta = FMT_FILE[format];
+    const blob = new Blob([text], { type: meta.mime });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${onto}-ontology.${meta.ext}`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div>
       <Title level={4}>版本与导出</Title>
-      <Text type="secondary">本体版本历史（真实 versions）· OWL / RDF 确定性导出（由对象/关系/属性实时生成）</Text>
+      <Text type="secondary">本体版本历史（真实 versions）· OWL / RDF / SKOS W3C 标准导出（由对象/关系/属性实时生成）</Text>
       <div style={{ margin: '12px 0' }}>
         <Select value={onto} onChange={setOnto} style={{ width: 240 }} variant="filled"
           options={ontos.map(o => ({ value: o.id, label: `${o.name}（${o.version}）` }))} />
@@ -65,18 +89,25 @@ export default function VersionOps() {
                 <Tag color={v.includes('PUBLISHED') ? 'green' : v === 'RETRACTED' ? 'red' : 'blue'}>{v}</Tag>) },
             ]} />
         </Card>
-        <Card size="small" title="导出" style={{ flex: 1 }}
+        <Card size="small" title="W3C 标准导出" style={{ flex: 1 }}
           extra={
             <Space>
-              <Select size="small" style={{ width: 110 }} value={format} onChange={setFormat}
-                options={[{ value: 'owl' as const, label: 'OWL Turtle' }, { value: 'rdf' as const, label: 'RDF NTriples' }]} />
-              <Button size="small" type="primary" icon={<FileTextOutlined />} onClick={doExport}>导出</Button>
+              <Select size="small" style={{ width: 130 }} value={format} onChange={setFormat}
+                options={[
+                  { value: 'owl' as const, label: 'OWL Turtle' },
+                  { value: 'rdf' as const, label: 'RDF NTriples' },
+                  { value: 'skos' as const, label: 'SKOS 术语' },
+                ]} />
+              <Button size="small" type="primary" icon={<FileTextOutlined />} onClick={doExport}>生成</Button>
             </Space>
           }>
           <InputTextArea value={text} readOnly rows={14} className="mono" style={{ fontSize: 12 }}
-            placeholder={'点击「导出」生成本体 OWL/RDF 文本…\n\n示例（OWL Turtle）：\n@prefix entknow: <http://entknow.example/ontology/> .\nentknow:PO a owl:Class ; rdfs:label "采购订单"@zh .'} />
+            placeholder={'点击「生成」输出本体 W3C 标准文本…\n\n示例（OWL Turtle）：\n@prefix : <http://entknow.example/ontology/scm/> .\n:Supplier a owl:Class ; rdfs:label "供应商"@zh .\n:supplies a owl:ObjectProperty ; rdfs:domain :Supplier ; rdfs:range :Material .'} />
           {text && (
-            <Button size="small" style={{ marginTop: 8 }} onClick={copy}>复制全文</Button>
+            <Space style={{ marginTop: 8 }}>
+              <Button size="small" onClick={copy}>复制全文</Button>
+              <Button size="small" icon={<DownloadOutlined />} onClick={download}>下载文件</Button>
+            </Space>
           )}
         </Card>
       </div>

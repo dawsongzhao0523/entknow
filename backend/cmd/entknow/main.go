@@ -9,6 +9,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/dawsongzhao0523/entknow/backend/internal/llm"
 	"github.com/dawsongzhao0523/entknow/backend/internal/server"
 	"github.com/dawsongzhao0523/entknow/backend/internal/store"
 )
@@ -44,7 +45,16 @@ func main() {
 	}
 
 	mux := server.New()
-	server.MountAPI(mux, st)
+	var llmc *llm.Client
+	if cfg := llm.FromEnv(); cfg != nil {
+		llmc = llm.New(*cfg)
+		d := llmc.Describe()
+		log.Printf("LLM 已接入: provider=%s model=%s", d["provider"], d["model"])
+	} else {
+		llmc = &llm.Client{} // 禁用态：AI 能力回退确定性规则引擎
+		log.Print("LLM 未配置（ENTKNOW_LLM_PROVIDER 为空）：AI 建模走确定性规则引擎")
+	}
+	server.MountAPI(mux, st, llmc)
 
 	// 启动后台定时调度器（CRON 模式数据源定期同步）
 	scheduler := store.NewScheduler(st)

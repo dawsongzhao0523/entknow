@@ -84,7 +84,7 @@ export interface Instance {
 
 export interface RuleFiring { id: string; ruleId: string; instanceId?: string; detail: string; firedAt?: string }
 
-export interface Rule { id: string; def: string; kind: string; status: string; fired: number }
+export interface Rule { id: string; def: string; kind: string; status: string; fired: number; actionFunc?: string; constraintLevel?: string }
 
 export interface Action {
   id: string; funcId: string; instanceId: string; user: string; trigger: string;
@@ -237,7 +237,30 @@ export interface GateCheck { key: string; name: string; passed: boolean; reason:
 
 export interface ConsistencyIssue { level: string; key: string; detail: string }
 
-export interface RunResult { ruleId: string; fired: number; instances: number; detail: string }
+export interface RunResult { ruleId: string; fired: number; instances: number; actions?: number; trails?: number; detail: string }
+
+/** 推理轨迹（事实→事理→行动链路） */
+export interface TrailStep { step: string; detail: string }
+export interface ReasoningTrail {
+  id: number; ruleId: string; instanceId: string; onto?: string;
+  rulesHit: string; steps: TrailStep[]; conclusion: string; createdAt: string;
+}
+
+/** 29 句话模板（7+1 语义规范） */
+export interface Template29 {
+  id: string; category: string; standard: string;
+  name: string; pattern: string; example: string;
+}
+
+/** AI 本体草稿 */
+export interface AIDraftObject { name: string; en: string; kind: string; props: Prop[] }
+export interface AIDraftEdge { name: string; from: string; to: string }
+export interface AIDraft {
+  source: 'llm' | 'rules'; objects: AIDraftObject[]; edges: AIDraftEdge[]; reply?: string;
+}
+
+/** SPARQL 查询结果 */
+export interface SPARQLResult { vars: string[]; rows: Record<string, string>[] }
 
 export interface RetractReport {
   versionId: number; ontoId: string; version: string;
@@ -431,6 +454,24 @@ export const api = {
     send<RetractReport>(`/api/v1/versions/${id}/retract`, 'POST', { by }),
   consistency: (onto = 'scm') => get<ConsistencyIssue[]>(`/api/v1/reasoning/consistency?onto=${onto}`),
   runRule: (ruleId: string) => send<RunResult>('/api/v1/reasoning/run', 'POST', { ruleId }),
+  // ─── 推理治理 ───
+  reasoningTrails: (instance = '', rule = '', limit = 50) =>
+    get<ReasoningTrail[]>(`/api/v1/reasoning/trails?instance=${instance}&rule=${rule}&limit=${limit}`),
+  setConstraintLevel: (elemType: 'object' | 'edge' | 'rule', id: string, level: string) =>
+    send<null>(`/api/v1/constraint?elemType=${elemType}&id=${id}`, 'PUT', { level }),
+  // ─── W3C 语义标准 ───
+  ontologyOWL: (onto: string) => fetch(`/api/v1/ontologies/${onto}/owl`).then(r => r.text()),
+  skosExport: () => fetch('/api/v1/skos').then(r => r.text()),
+  ruleSWRL: (id: string) => fetch(`/api/v1/rules/${id}/swrl`).then(r => r.text()),
+  sparql: (query: string) => send<SPARQLResult>('/api/v1/sparql', 'POST', { query }),
+  // ─── AI 精准建模 ───
+  llmStatus: () => get<{ enabled: boolean; provider?: string; model?: string; baseURL?: string; apiKey?: string }>('/api/v1/llm/status'),
+  aiGenerate: (input: string, apply = false, ontology?: string, by?: string) =>
+    send<AIDraft | { createdObjects: unknown[]; createdEdges: unknown[]; skippedObjects: number; skippedEdges: number }>(
+      '/api/v1/modeling/ai-generate', 'POST', { input, apply, ontology, by }),
+  templates: () => get<Template29[]>('/api/v1/templates'),
+  templateCategories: () => get<{ category: string; standard: string; count: number }[]>('/api/v1/templates/categories'),
+  extractKb: (id: string) => send<unknown[]>(`/api/v1/kb/entries/${id}/extract`, 'POST'),
   tableProfile: (name: string) => get<TableProfile>(`/api/v1/table-profiles/${encodeURIComponent(name)}`),
   orgUnits: () => get<OrgUnit[]>('/api/v1/org-units'),
   createOrgUnit: (u: OrgUnit) => send<OrgUnit>('/api/v1/org-units', 'POST', u),

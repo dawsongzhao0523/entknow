@@ -165,11 +165,13 @@ type Datasource struct {
 }
 
 type Rule struct {
-	ID     string `json:"id"`
-	Def    string `json:"def"`
-	Kind   string `json:"kind"`
-	Status string `json:"status"`
-	Fired  int    `json:"fired"`
+	ID              string `json:"id"`
+	Def             string `json:"def"`
+	Kind            string `json:"kind"`
+	Status          string `json:"status"`
+	Fired           int    `json:"fired"`
+	ActionFunc      string `json:"actionFunc"`      // 触发后自动执行的行动函数（functions.id）
+	ConstraintLevel string `json:"constraintLevel"` // strong | weak | advisory
 }
 
 type Review struct {
@@ -386,15 +388,16 @@ func (s *Store) ListDatasources(ctx context.Context) ([]Datasource, error) {
 }
 
 func (s *Store) ListRules(ctx context.Context) ([]Rule, error) {
-	rows, err := s.pool.Query(ctx, `SELECT id, def, kind, status, fired FROM rules ORDER BY id`)
+	rows, err := s.pool.Query(ctx,
+		`SELECT id, def, kind, status, fired, action_func, constraint_level FROM rules ORDER BY id`)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var out []Rule
+	out := []Rule{}
 	for rows.Next() {
 		var r Rule
-		if err := rows.Scan(&r.ID, &r.Def, &r.Kind, &r.Status, &r.Fired); err != nil {
+		if err := rows.Scan(&r.ID, &r.Def, &r.Kind, &r.Status, &r.Fired, &r.ActionFunc, &r.ConstraintLevel); err != nil {
 			return nil, err
 		}
 		out = append(out, r)

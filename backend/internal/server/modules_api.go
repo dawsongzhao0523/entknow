@@ -314,6 +314,29 @@ func mountModules(api *http.ServeMux, st *store.Store) {
 		out, err := st.RunRule(r.Context(), in.RuleID)
 		writeStoreResult(w, out, err)
 	})
+
+	// 推理轨迹：完整「事实 → 事理 → 行动」链路查询
+	api.HandleFunc("GET /api/v1/reasoning/trails", handle(func(r *http.Request) ([]store.ReasoningTrail, error) {
+		limit, _ := strconv.Atoi(r.URL.Query().Get("limit"))
+		return st.ListTrails(r.Context(), r.URL.Query().Get("instance"), r.URL.Query().Get("rule"), limit)
+	}))
+
+	// 约束强度分级：设置对象/关系/规则的约束等级（strong/weak/advisory）
+	api.HandleFunc("PUT /api/v1/constraint", func(w http.ResponseWriter, r *http.Request) {
+		var in struct {
+			Level string `json:"level"`
+		}
+		if err := json.NewDecoder(r.Body).Decode(&in); err != nil || in.Level == "" {
+			writeErr(w, http.StatusBadRequest, "level 必填（strong/weak/advisory）")
+			return
+		}
+		if err := st.SetConstraintLevel(r.Context(), r.URL.Query().Get("elemType"),
+			r.URL.Query().Get("id"), in.Level); err != nil {
+			mapStoreErr(w, err)
+			return
+		}
+		w.WriteHeader(http.StatusNoContent)
+	})
 }
 
 func mountOrgPosts(api *http.ServeMux, st *store.Store) {

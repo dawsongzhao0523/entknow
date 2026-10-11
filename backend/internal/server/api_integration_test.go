@@ -36,8 +36,23 @@ func demoServer(t *testing.T) http.Handler {
 		t.Fatalf("demo 装载失败: %v", err)
 	}
 	mux := New()
-	MountAPI(mux, st)
+	MountAPI(mux, st, nil) // 集成测试默认禁用 LLM（走确定性规则引擎）
 	return mux
+}
+
+// demoStore 返回直连 store（测试内直接改库用）。
+func demoStore(t *testing.T) *store.Store {
+	t.Helper()
+	dsn := os.Getenv("ENTKNOW_PG_DSN")
+	if dsn == "" {
+		dsn = defaultDSN
+	}
+	st, err := store.Connect(context.Background(), dsn)
+	if err != nil {
+		t.Skipf("数据库不可达，跳过集成测试: %v", err)
+	}
+	t.Cleanup(st.Close)
+	return st
 }
 
 // getArray 断言端点返回 200 且为长度 want 的 JSON 数组。
@@ -71,7 +86,7 @@ func TestAPIListCounts(t *testing.T) {
 	// 通知按人投递：张三见定向+广播（4），王五见个人定向（2）
 	getArray(t, h, "/api/v1/notifications?user=zhangsan", 4)
 	getArray(t, h, "/api/v1/notifications?user=wangwu", 2)
-	getArray(t, h, "/api/v1/users", 4)
+	getArray(t, h, "/api/v1/users", 5)  // 4 业务账号 + 推理引擎系统账号
 	getArray(t, h, "/api/v1/capabilities", 4)
 	getArray(t, h, "/api/v1/versions?onto=scm", 4)
 	getArray(t, h, "/api/v1/role-matrix", 7)

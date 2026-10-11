@@ -230,10 +230,10 @@ func (s *Store) ExecuteAction(ctx context.Context, r ActionRequest) (Action, boo
 		return Action{}, false, fmt.Errorf("%w: 用户「%s」不是系统账号，无行动执行权限", ErrForbidden, r.User)
 	}
 
-	// 业务前置：风险分 > 80 必须二次确认
-	if inst.RiskScore > 80 && !r.Confirm {
-		return Action{}, false, fmt.Errorf("%w: 实例 %s 风险分 %d > 80，行动「%s」需要二次确认（confirm=true）",
-			ErrInvalid, inst.ID, inst.RiskScore, funcName)
+	// 业务前置：按实例所属对象的约束分级把关（strong 拦截 / weak 确认 / advisory 放行）
+	level := s.objectConstraintLevel(ctx, inst.ObjectID)
+	if err := constraintGate(level, inst.RiskScore, r.Confirm); err != nil {
+		return Action{}, false, err
 	}
 
 	now := time.Now().Format("2006-01-02 15:04")

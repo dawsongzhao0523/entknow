@@ -52,10 +52,14 @@ func (s *Store) CreateDatasource(ctx context.Context, d Datasource) (Datasource,
 	if err != nil && !errors.Is(err, pgx.ErrNoRows) {
 		return d, false, err
 	}
+	syncCfg := string(d.SyncConfig)
+	if syncCfg == "" {
+		syncCfg = "{}"
+	}
 	tag, err := s.pool.Exec(ctx, `
 		INSERT INTO datasources (id, name, type, kind, host, status, mode, tables, sensitive, owner, last_sync, sync_interval_min, sync_config)
-		VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,'', \$12::jsonb) ON CONFLICT (id) DO NOTHING`,
-		d.ID, d.Name, d.Type, d.Kind, d.Host, d.Status, d.Mode, d.Tables, d.Sensitive, d.Owner, d.SyncIntervalMin, string(d.SyncConfig))
+		VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,'', $11, $12::jsonb) ON CONFLICT (id) DO NOTHING`,
+		d.ID, d.Name, d.Type, d.Kind, d.Host, d.Status, d.Mode, d.Tables, d.Sensitive, d.Owner, d.SyncIntervalMin, syncCfg)
 	if err != nil {
 		return d, false, err
 	}
@@ -85,10 +89,14 @@ func (s *Store) UpdateDatasource(ctx context.Context, d Datasource) (Datasource,
 	if !validSets["dsMode"][d.Mode] || !validSets["dsStatus"][d.Status] {
 		return d, fmt.Errorf("%w: mode/status 取值非法", ErrInvalid)
 	}
+	syncCfg := string(d.SyncConfig)
+	if syncCfg == "" {
+		syncCfg = "{}"
+	}
 	tag, err := s.pool.Exec(ctx, `
 		UPDATE datasources SET name=$2, type=$3, kind=$4, host=$5, status=$6, mode=$7, sync_interval_min=$11, sync_config=$12::jsonb,
 			tables=$8, sensitive=$9, owner=$10 WHERE id=$1`,
-		d.ID, d.Name, d.Type, d.Kind, d.Host, d.Status, d.Mode, d.Tables, d.Sensitive, d.Owner, d.SyncIntervalMin, string(d.SyncConfig))
+		d.ID, d.Name, d.Type, d.Kind, d.Host, d.Status, d.Mode, d.Tables, d.Sensitive, d.Owner, d.SyncIntervalMin, syncCfg)
 	if err != nil {
 		return d, err
 	}
