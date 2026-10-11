@@ -1,0 +1,101 @@
+openspec/changes/w3c-semantic-alignment/tasks.md
+  d2feb3b21e472516 1-27
+openspec/changes/reasoning-governance/proposal.md
+  d2feb3b21e472516 1-13
+backend/internal/server/sysadmin_integration_test.go
+  d2feb3b21e472516 31-32,275
+frontend/src/api.ts
+  d2feb3b21e472516 87,240-263,457-474
+backend/internal/server/designer_integration_test.go
+  d2feb3b21e472516 98,100,102,116-124
+frontend/src/pages/reasoning/Engine.tsx
+  d2feb3b21e472516 3,5-10,12,14-21,23-41,67-74,84-166,168-237,241-299
+backend/internal/store/scheduler.go
+  d2feb3b21e472516 27-32,150-152,155-186
+backend/internal/store/aigenerate.go
+  d2feb3b21e472516 1-244
+backend/internal/store/runtime.go
+  d2feb3b21e472516 233-236
+frontend/src/pages/modeling/AiModeling.tsx
+  d2feb3b21e472516 3,5-6,9,13-15,17-175,256,289-291
+backend/internal/server/api_integration_test.go
+  d2feb3b21e472516 39,43-57,89
+backend/internal/store/w3c_test.go
+  d2feb3b21e472516 1-111
+backend/internal/llm/llm.go
+  d2feb3b21e472516 1-221
+backend/internal/store/schema.sql
+  d2feb3b21e472516 502-525
+openspec/changes/reasoning-governance/tasks.md
+  d2feb3b21e472516 1-30
+backend/internal/server/api.go
+  d2feb3b21e472516 10,69-73,79-80
+backend/internal/store/w3c.go
+  d2feb3b21e472516 1-383
+backend/cmd/entknow/main.go
+  d2feb3b21e472516 12,48-57
+backend/internal/store/extract.go
+  d2feb3b21e472516 1-85
+frontend/src/pages/modeling/ElementCreate.tsx
+  d2feb3b21e472516 52,62,70,108-113,185-189
+openspec/changes/ai-driven-modeling/proposal.md
+  d2feb3b21e472516 1-14
+backend/internal/server/w3c_api.go
+  d2feb3b21e472516 1-61
+backend/internal/server/ai_integration_test.go
+  d2feb3b21e472516 1-133
+openspec/changes/ai-driven-modeling/tasks.md
+  d2feb3b21e472516 1-26
+backend/internal/store/seed.sql
+  d2feb3b21e472516 10,17-18,93-97,220,229-231
+backend/internal/server/ai_api.go
+  d2feb3b21e472516 1-82
+backend/internal/server/governance_integration_test.go
+  d2feb3b21e472516 1-104
+backend/internal/store/reasoning.go
+  d2feb3b21e472516 24-25,92,143,148-190,197-209
+backend/internal/store/store.go
+  d2feb3b21e472516 168-174,391-392,397,400
+backend/internal/store/templates.go
+  d2feb3b21e472516 1-76
+backend/internal/store/trails.go
+  d2feb3b21e472516 1-151
+frontend/src/pages/modeling/VersionOps.tsx
+  d2feb3b21e472516 7,13-20,27,42-46,48-51,62-72,76,92,95-101,105,107-110
+backend/internal/store/dsops.go
+  d2feb3b21e472516 55-58,61-62,92-95,99
+openspec/changes/w3c-semantic-alignment/proposal.md
+  d2feb3b21e472516 1-13
+backend/internal/server/w3c_integration_test.go
+  d2feb3b21e472516 1-113
+backend/internal/server/modules_api.go
+  d2feb3b21e472516 317-339
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.8.1",
+  "base_commit_sha": "f9f5a78b54cc2831a0f19a2e909a61350c0636b0",
+  "prompts": {
+    "d2feb3b21e472516": {
+      "agent_id": {
+        "tool": "zcode",
+        "id": "sess_640dac34-2670-4904-ae98-aa4e9073f17c",
+        "model": "GLM-5.3"
+      },
+      "human_author": "dawsongzhao0523 <133857587+dawsongzhao0523@users.noreply.github.com>",
+      "messages": [],
+      "total_additions": 2954,
+      "total_deletions": 416,
+      "accepted_lines": 9239,
+      "overriden_lines": 0,
+      "messages_url": "https://gitai.gz.cvte.cn/cas/c363e110b56b7ffbc3a0649c3c791de9ffccbc5b30ef919ea82a215277b65e4e",
+      "token_usage": {
+        "input_tokens": 619626680,
+        "output_tokens": 708635,
+        "cache_read_tokens": 603655232,
+        "cache_creation_tokens": 0,
+        "total_cost": 0.0
+      }
+    }
+  }
+}
